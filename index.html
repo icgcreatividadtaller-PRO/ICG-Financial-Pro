@@ -512,6 +512,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 @media print{.app-header,.nav-bar,.add-form,.filter-bar,.form-actions,.del-btn,.init-bar,.cc-config{display:none!important;}}
 </style>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -1667,15 +1670,8 @@ function defaultState() {
   };
 }
 
+// S starts with local cache (instant load), then Firebase overrides
 let S = JSON.parse(localStorage.getItem(STORE_KEY)||'null') || defaultState();
-// Migrate old localStorage keys
-if (!localStorage.getItem(STORE_KEY)) {
-  const old = JSON.parse(localStorage.getItem('banca_accounts_v3')||localStorage.getItem('banca_accounts')||'null');
-  if (old) {
-    if (Array.isArray(old)) S.accounts = old;
-    else { S.accounts = old.accounts||S.accounts; S.creditCard = old.creditCard||S.creditCard; S.cuentasCobrar = old.cuentasCobrar||S.cuentasCobrar; }
-  }
-}
 S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
 // Ensure "Caja General" exists as the first account
 if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
@@ -1691,7 +1687,18 @@ if(!S.ingresos)   S.ingresos=[];
 if(!S.egresos)    S.egresos=[];
 
 let renameTarget=-1;
-function save(){localStorage.setItem(STORE_KEY,JSON.stringify(S));}
+function save(){
+  // Instant local backup
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){}
+  // Debounced Firestore save (300ms) to avoid too many writes
+  clearTimeout(window._fbSaveTimer);
+  window._fbSaveTimer = setTimeout(()=>{
+    if(!window.ICG_DOC){console.warn("Firebase no disponible");return;}
+    window.ICG_DOC.set(JSON.parse(JSON.stringify(S)))
+      .then(()=>{ showSyncIndicator('saved'); })
+      .catch(err=>{ console.error('Firebase save error:', err); showSyncIndicator('error'); });
+  }, 300);
+}
 
 // ══════════════════ HELPERS ══════════════════
 function fmt(n){return new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP',minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);}
@@ -3721,7 +3728,10 @@ function printReport(){
   const cfg=REP_CONFIGS[_repSection];
   const w=window.open('','_blank');
   const sum=document.getElementById('rep-summary').innerHTML;
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte ${cfg.label}</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#111;padding:32px;font-size:13px;}h1{font-size:20px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;}p{font-size:11px;color:#666;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}.cards{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}.card{border:1px solid #ddd;border-radius:4px;padding:12px 16px;flex:1;min-width:120px;}.cl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}.cv{font-size:17px;font-weight:600;}table{width:100%;border-collapse:collapse;}th{background:#111;color:#fff;padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;}td{padding:9px 12px;border-bottom:1px solid #eee;font-size:12px;}tfoot td{font-weight:700;background:#f5f5f5;border-top:2px solid #333;}.ft{margin-top:22px;font-size:10px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:12px;}</style></head><body><h1>${cfg.label}</h1><p>ICG Financial PRO &nbsp;·&nbsp; ICG Creatividad &nbsp;·&nbsp; ${new Date().toLocaleString('es-DO')}</p><div class="cards">${sum.replace(/<div class="bcard"[^>]*>/g,'<div class="card">').replace(/<div class="bcard-label">/g,'<div class="cl">').replace(/<div class="bcard-value"[^>]*>/g,'<div class="cv">').replace(/<style>[^<]*<\/style>/g,'')}</div>${area.outerHTML}<div class="ft">ICG Financial PRO · Sistema Financiero Integral</div></body></html>`);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Reporte ${cfg.label}</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#111;padding:32px;font-size:13px;}h1{font-size:20px;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;}p{font-size:11px;color:#666;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}.cards{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}.card{border:1px solid #ddd;border-radius:4px;padding:12px 16px;flex:1;min-width:120px;}.cl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}.cv{font-size:17px;font-weight:600;}table{width:100%;border-collapse:collapse;}th{background:#111;color:#fff;padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;}td{padding:9px 12px;border-bottom:1px solid #eee;font-size:12px;}tfoot td{font-weight:700;background:#f5f5f5;border-top:2px solid #333;}.ft{margin-top:22px;font-size:10px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:12px;}</style>  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head><body><h1>${cfg.label}</h1><p>ICG Financial PRO &nbsp;·&nbsp; ICG Creatividad &nbsp;·&nbsp; ${new Date().toLocaleString('es-DO')}</p><div class="cards">${sum.replace(/<div class="bcard"[^>]*>/g,'<div class="card">').replace(/<div class="bcard-label">/g,'<div class="cl">').replace(/<div class="bcard-value"[^>]*>/g,'<div class="cv">').replace(/<style>[^<]*<\/style>/g,'')}</div>${area.outerHTML}<div class="ft">ICG Financial PRO · Sistema Financiero Integral</div></body></html>`);
   w.document.close();
   setTimeout(()=>{w.print();},600);
 }
@@ -3787,6 +3797,28 @@ document.getElementById('splash').addEventListener('click', function(){
   this.style.animationDelay='0s';
   setTimeout(()=>this.style.display='none', 400);
 });
+
+
+// ══════════════════ FIREBASE ══════════════════
+window._fbSaveTimer = null;
+window.ICG_DOC = null;
+window.db = null;
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9EGPx0bdtoskiBoDpQt2qsWkYbVsVs5Y",
+    authDomain: "icg-financial-pro.firebaseapp.com",
+    projectId: "icg-financial-pro",
+    storageBucket: "icg-financial-pro.firebasestorage.app",
+    messagingSenderId: "189137593496",
+    appId: "1:189137593496:web:784817a09e7d9bec91dced"
+  };
+  if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  window.db = firebase.firestore();
+  window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
+  console.log('✅ Firebase inicializado correctamente');
+} catch(e) {
+  console.error('❌ Firebase init error:', e);
+}
 
 // ══════════════════ CUSTOM CONFIRM ══════════════════
 function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true){
@@ -3924,7 +3956,82 @@ document.addEventListener('click',function(e){
 },true);
 
 // ══════════════════ BOOT ══════════════════
-init();
+async function loadFromFirebase(){
+  showLoadingOverlay(true);
+  try {
+    if(!window.ICG_DOC) throw new Error("Firebase no inicializado");
+    const doc = await window.ICG_DOC.get();
+    if(doc.exists){
+      const data = doc.data();
+      S = data;
+      // Ensure all required fields exist
+      if(!S.accounts||!S.accounts.length) S.accounts = defaultState().accounts;
+      if(!S.creditCard) S.creditCard = defaultState().creditCard;
+      if(!S.cuentasCobrar) S.cuentasCobrar = [];
+      if(!S.cuentasPagar) S.cuentasPagar = {proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
+      ['proveedores','serviciosFijos','prestamos','otros'].forEach(k=>{if(!S.cuentasPagar[k])S.cuentasPagar[k]=[];});
+      if(!S.clientes)   S.clientes   = [];
+      if(!S.suplidores) S.suplidores = [];
+      if(!S.ingresos)   S.ingresos   = [];
+      if(!S.egresos)    S.egresos    = [];
+      S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
+      if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
+        S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
+      }
+      // Sync local backup
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){}
+      notify('success','Datos Cargados','Sincronizado con la nube ☁');
+    } else {
+      // First time: if local data exists, push it to Firebase
+      const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+      if(local){ S = local; await window.ICG_DOC.set(JSON.parse(JSON.stringify(S))); notify('success','Datos Migrados','Tus datos locales fueron subidos a la nube ☁'); }
+      else { notify('info','Nuevo Sistema','Bienvenido a ICG Financial PRO'); }
+    }
+  } catch(err){
+    console.error('Firebase load error:', err);
+    notify('error','Sin conexión','Usando datos locales. Los cambios se sincronizarán cuando haya conexión.');
+  }
+  showLoadingOverlay(false);
+  init();
+}
+
+function showLoadingOverlay(show){
+  let el = document.getElementById('fb-loading');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'fb-loading';
+    el.style.cssText = 'position:fixed;inset:0;z-index:999998;background:#020510;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
+    el.innerHTML = '<div style="width:48px;height:48px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite;"></div><div style="font-family:Space Grotesk,sans-serif;font-size:14px;color:#818cf8;letter-spacing:.15em;text-transform:uppercase;">Sincronizando con la nube...</div>';
+    document.body.appendChild(el);
+    if(!document.getElementById('spin-style')){
+      const st=document.createElement('style');st.id='spin-style';
+      st.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(st);
+    }
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+function showSyncIndicator(state){
+  let el = document.getElementById('sync-indicator');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'sync-indicator';
+    el.style.cssText = 'position:fixed;bottom:18px;right:18px;z-index:9999;font-family:Space Grotesk,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:20px;transition:opacity .4s;pointer-events:none;';
+    document.body.appendChild(el);
+  }
+  if(state==='saved'){
+    el.style.background='rgba(34,197,94,.15)';el.style.color='#22c55e';el.style.border='1px solid rgba(34,197,94,.3)';
+    el.textContent='☁ Guardado';
+  } else {
+    el.style.background='rgba(239,68,68,.15)';el.style.color='#ef4444';el.style.border='1px solid rgba(239,68,68,.3)';
+    el.textContent='⚠ Error al guardar';
+  }
+  el.style.opacity='1';
+  setTimeout(()=>{ el.style.opacity='0'; }, 2500);
+}
+
+loadFromFirebase();
 </script>
 </body>
 </html>
