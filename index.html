@@ -3127,8 +3127,25 @@ function handleImportFile(event){
     catch{ notify('error','Error de Importación','El archivo no es válido.'); return; }
     icgConfirm(`¿Importar "${file.name}"? Esto reemplazará todos los datos actuales.`,'Importar Datos','Importar',false).then(ok=>{
       if(!ok)return;
-      if(Array.isArray(data)){S.accounts=data;}
-      else{S.accounts=data.accounts||S.accounts;S.creditCard=data.creditCard||S.creditCard;S.cuentasCobrar=data.cuentasCobrar||S.cuentasCobrar;}
+      if(Array.isArray(data)){
+        S.accounts=data;
+      } else {
+        if(data.accounts)      S.accounts      = data.accounts;
+        if(data.creditCard)    S.creditCard    = data.creditCard;
+        if(data.cuentasCobrar) S.cuentasCobrar = data.cuentasCobrar;
+        if(data.cuentasPagar)  S.cuentasPagar  = data.cuentasPagar;
+        if(data.clientes)      S.clientes      = data.clientes;
+        if(data.suplidores)    S.suplidores    = data.suplidores;
+        if(data.ingresos)      S.ingresos      = data.ingresos;
+        if(data.egresos)       S.egresos       = data.egresos;
+      }
+      S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
+      if(!S.cuentasPagar) S.cuentasPagar={proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
+      ['proveedores','serviciosFijos','prestamos','otros'].forEach(k=>{if(!S.cuentasPagar[k])S.cuentasPagar[k]=[];});
+      if(!S.clientes)   S.clientes=[];
+      if(!S.suplidores) S.suplidores=[];
+      if(!S.ingresos)   S.ingresos=[];
+      if(!S.egresos)    S.egresos=[];
       S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
 // Ensure "Caja General" exists as the first account
 if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
