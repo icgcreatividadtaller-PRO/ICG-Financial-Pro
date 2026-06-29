@@ -12,7 +12,7 @@
   
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 :root{
   --bg:#020510; --s1:#05091a; --s2:#080e22; --s3:#0c1330;
   --border:#14213d; --border2:#1e2f52;
@@ -20,7 +20,7 @@
   --indigo:#4f46e5; --indigo2:#818cf8; --indigo-dim:rgba(79,70,229,.1);
   --red:#ef4444; --red-dim:rgba(239,68,68,.1);
   --text:#e8eeff; --text2:#b0bbcf; --text3:#6b7a99;
-  --font:'Space Grotesk',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --font:'Space Grotesk',sans-serif; --mono:Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{22px;}
@@ -800,31 +800,32 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
     </div>
-    <!-- Row 2: Fecha · Días · Vencimiento · Total (prominent) -->
-    <div style="display:grid;grid-template-columns:160px 140px 180px 1fr;gap:12px;align-items:end;">
-      <div class="form-group">
+    <!-- Row 2: Fecha · Condiciones · Vencimiento · Total -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:4px;">
+      <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Fecha de Creación</label>
-        <input type="date" id="cxc-issued" onclick="cdpOpen(this,event)">
+        <input type="date" id="cxc-issued" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group">
-        <label>Días de Crédito</label>
-        <select id="cxc-days" onchange="calcDue()">
-          <option value="0">0 días (mismo día)</option>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Condiciones de Pago</label>
+        <select id="cxc-days" onchange="calcDue()" style="height:44px;box-sizing:border-box;">
+          <option value="0">Contado (mismo día)</option>
           <option value="7">7 días</option>
           <option value="15">15 días</option>
           <option value="30">30 días</option>
         </select>
       </div>
-      <div class="form-group">
+      <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Vencimiento</label>
-        <div style="background:rgba(129,140,248,.07);border:1px solid rgba(129,140,248,.3);border-radius:5px;padding:10px 13px;font-family:var(--mono);font-size:14px;color:#818cf8;cursor:default;min-height:44px;display:flex;align-items:center;">
+        <div style="background:rgba(129,140,248,.07);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:0 13px;font-family:var(--mono);font-size:14px;color:#818cf8;cursor:default;height:44px;box-sizing:border-box;display:flex;align-items:center;">
           <strong id="cxc-due-display" data-raw="">—</strong>
         </div>
       </div>
-      <div class="form-group">
-        <label style="color:#818cf8;font-weight:600;font-size:11px;letter-spacing:.14em;">Total RD$ *</label>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
         <input type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01"
-          style="font-family:var(--mono);font-size:22px;font-weight:600;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);text-align:right;padding:10px 16px;letter-spacing:-.5px;">
+          oninput="this.style.color=this.value?'#818cf8':'#4a5578'"
+          style="font-family:var(--mono);font-size:20px;font-weight:700;color:#4a5578;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;">
       </div>
     </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
@@ -1653,6 +1654,29 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 <!-- ══ NOTIFICATION CONTAINER ══ -->
 <div id="notif-container"></div>
+
+<!-- ══ EXIT MODAL ══ -->
+<div class="modal-overlay" id="exitModal" style="z-index:99997;">
+  <div class="modal" style="max-width:420px;border:2px solid rgba(129,140,248,.4);text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">👋</div>
+    <h2 style="color:#e8eeff;font-size:20px;letter-spacing:.05em;margin-bottom:10px;">¿Cerrar el sistema?</h2>
+    <p style="font-size:14px;color:#8899bb;line-height:1.7;margin-bottom:24px;">
+      Tus datos están guardados automáticamente en la nube ☁<br>
+      Puedes cerrar la pestaña en cualquier momento sin perder nada.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn" style="background:#4f46e5;color:#fff;border-color:#6366f1;font-size:13px;width:100%;height:48px;" onclick="doExportAndExit()">
+        📥 Exportar respaldo JSON y cerrar
+      </button>
+      <button class="btn btn-ghost" style="font-size:13px;width:100%;height:48px;border-color:rgba(129,140,248,.3);" onclick="doJustExit()">
+        ☁ Mis datos están en la nube — solo cerrar
+      </button>
+      <button class="btn btn-ghost" style="font-size:12px;color:#4a5578;border-color:rgba(255,255,255,.1);height:40px;" onclick="document.getElementById('exitModal').classList.remove('open')">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ CUSTOM CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="confirmModal" style="z-index:99998;">
@@ -3157,16 +3181,19 @@ document.getElementById('renameInput').addEventListener('keydown',e=>{if(e.key==
 
 // ══════════════════ EXPORT / IMPORT ══════════════════
 function cerrarSistema(){
-  icgConfirm(
-    'Se exportarán tus datos. Luego cierra la pestaña manualmente con Ctrl+W o la X del navegador.',
-    'Cerrar Sistema','Exportar Datos', false
-  ).then(ok=>{
-    if(!ok) return;
-    exportAndClose();
-    setTimeout(()=>{
-      notify('success','Datos Exportados','Archivo descargado. Puedes cerrar esta pestaña ahora (Ctrl+W).');
-    }, 800);
-  });
+  // Show custom exit modal - never use native browser dialogs
+  document.getElementById('exitModal').classList.add('open');
+}
+function doExportAndExit(){
+  exportAndClose();
+  document.getElementById('exitModal').classList.remove('open');
+  setTimeout(()=>{
+    notify('success','Datos Exportados','☁ Tus datos ya están en la nube. Puedes cerrar la pestaña con Ctrl+W.');
+  }, 600);
+}
+function doJustExit(){
+  document.getElementById('exitModal').classList.remove('open');
+  notify('info','Hasta pronto','☁ Tus datos están guardados en la nube. Cierra la pestaña cuando quieras.');
 }
 
 function togglePayRetenciones(){
@@ -3917,16 +3944,7 @@ function showCloseWarning(){
 
 function exportDataAndMark(){ exportData(); markSaved(); }
 
-// Al intentar cerrar: diálogo nativo del navegador pausa el cierre.
-// Si el usuario hace clic en "Cancelar / Quedarse", mostramos nuestro overlay.
-window.addEventListener('beforeunload', function(e){
-  if(_bye) return;
-  e.preventDefault();
-  e.returnValue='Recuerda exportar tus datos antes de salir.';
-  setTimeout(()=>{
-    if(document.visibilityState !== 'hidden') showCloseWarning();
-  }, 150);
-});
+// Beforeunload removed — data is safely stored in Firebase cloud
 
 function exportAndClose(){
   exportData(); markSaved(); _bye=true;
@@ -3955,21 +3973,38 @@ document.getElementById('splash').addEventListener('click', function(){
 window._fbSaveTimer = null;
 window.ICG_DOC = null;
 window.db = null;
-try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9EGPx0bdtoskiBoDpQt2qsWkYbVsVs5Y",
-    authDomain: "icg-financial-pro.firebaseapp.com",
-    projectId: "icg-financial-pro",
-    storageBucket: "icg-financial-pro.firebasestorage.app",
-    messagingSenderId: "189137593496",
-    appId: "1:189137593496:web:784817a09e7d9bec91dced"
-  };
-  if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  window.db = firebase.firestore();
-  window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
-  console.log('✅ Firebase inicializado correctamente');
-} catch(e) {
-  console.error('❌ Firebase init error:', e);
+
+function initFirebase(attempt){
+  attempt = attempt || 0;
+  if(typeof firebase === 'undefined'){
+    if(attempt < 20){
+      setTimeout(()=>initFirebase(attempt+1), 200);
+    } else {
+      console.error('Firebase SDK no disponible — datos en modo local');
+      showLoadingOverlay(false);
+      if(!_appInitialized){ _appInitialized=true; init(); }
+    }
+    return;
+  }
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9EGPx0bdtoskiBoDpQt2qsWkYbVsVs5Y",
+      authDomain: "icg-financial-pro.firebaseapp.com",
+      projectId: "icg-financial-pro",
+      storageBucket: "icg-financial-pro.firebasestorage.app",
+      messagingSenderId: "189137593496",
+      appId: "1:189137593496:web:784817a09e7d9bec91dced"
+    };
+    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+    window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
+    console.log('✅ Firebase inicializado correctamente');
+    loadFromFirebase();
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    showLoadingOverlay(false);
+    if(!_appInitialized){ _appInitialized=true; init(); }
+  }
 }
 
 // ══════════════════ CUSTOM CONFIRM ══════════════════
