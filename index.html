@@ -766,33 +766,37 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="add-form">
     <h3>Nueva Factura</h3>
-    <!-- Row 1: Factura · Cliente · Descripción · Categoría -->
-    <div style="display:grid;grid-template-columns:150px 1fr 1fr 180px;gap:12px;margin-bottom:12px;align-items:start;">
-      <div class="form-group">
-        <label>N° de Factura / NCF</label>
+    <!-- Row 1: NCF · Cliente · Descripción · Categoría -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;">
+      <!-- NCF -->
+      <div class="form-group" style="width:130px;flex-shrink:0;">
+        <label>NCF</label>
         <input type="text" id="cxc-invoice" placeholder="NCF"
           oninput="checkDupInvoice(this)"
-          style="text-transform:uppercase;">
+          style="text-transform:uppercase;height:44px;box-sizing:border-box;">
         <div id="cxc-invoice-warn" style="display:none;margin-top:5px;font-size:12px;color:#ef4444;font-weight:600;letter-spacing:.04em;">
-          ⚠ Este número ya existe — verifícalo antes de continuar.
+          ⚠ Este número ya existe
         </div>
       </div>
-      <div class="form-group">
+      <!-- Cliente + Nuevo -->
+      <div class="form-group" style="width:260px;flex-shrink:0;">
         <label>Cliente</label>
-        <div style="display:flex;gap:6px;align-items:stretch;">
-          <select id="cxc-client" style="flex:1;min-width:0;font-size:14px;"></select>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickClienteCxC()" style="white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;padding:0 12px;height:44px;flex-shrink:0;">+ Nuevo</button>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="cxc-client" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickClienteCxC()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group">
+      <!-- Descripción -->
+      <div class="form-group" style="flex:1;">
         <label>Descripción</label>
-        <input type="text" id="cxc-desc" placeholder="Detalle del servicio o producto...">
+        <input type="text" id="cxc-desc" placeholder="Detalle del servicio o producto..." style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group">
+      <!-- Categoría + -->
+      <div class="form-group" style="width:190px;flex-shrink:0;">
         <label>Categoría</label>
-        <div style="display:flex;gap:6px;align-items:stretch;">
-          <select id="cxc-categoria" style="flex:1;font-size:14px;height:44px;"></select>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="padding:0 10px;height:44px;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);" title="Añadir categoría">+</button>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="cxc-categoria" style="flex:1;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
     </div>
@@ -1012,44 +1016,65 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="add-form">
     <h3>Registrar Ingreso</h3>
-    <div style="display:grid;grid-template-columns:160px 260px 200px 150px;gap:12px;margin-bottom:12px;">
-      <div class="form-group"><label>Fecha</label><input type="date" id="ing-fecha" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Cliente</label>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <select id="ing-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:15px;"></select>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;padding:9px 12px;flex-shrink:0;font-size:12px;">+ Nuevo</button>
+    <!-- Row 1: Fecha · Cliente · Categoría · Monto -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input type="date" id="ing-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:240px;flex-shrink:0;">
+        <label>Cliente</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="ing-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group"><label>Categoría</label>
-        <div style="display:flex;gap:6px;"><select id="ing-categoria" style="font-size:14px;flex:1;">
-          <option value="offset">Impresión Offset</option>
-          <option value="rot_vehicular">Rotulación Vehicular</option>
-          <option value="senaletica">Señalética</option>
-          <option value="rotulos_gen">Rótulos Genéricos</option>
-          <option value="diseño">Diseño & Branding</option>
-          <option value="exterior">Publicidad Exterior</option>
-          <option value="rotulos3d">Rótulos 3D PVC</option>
-          <option value="cristales">Rotulación Cristales y Murales</option>
-          <option value="acrilicas">Placas Acrílicas</option>
-          <option value="otros">Otros</option>
-        </select><button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('ing')" style="padding:0 12px;height:44px;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);" title="Añadir categoría">+</button></div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Categoría</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="ing-categoria" style="font-size:14px;flex:1;height:44px;box-sizing:border-box;">
+            <option value="offset">Impresión Offset</option>
+            <option value="rot_vehicular">Rotulación Vehicular</option>
+            <option value="senaletica">Señalética</option>
+            <option value="rotulos_gen">Rótulos Genéricos</option>
+            <option value="diseño">Diseño & Branding</option>
+            <option value="exterior">Publicidad Exterior</option>
+            <option value="rotulos3d">Rótulos 3D PVC</option>
+            <option value="cristales">Rotulación Cristales y Murales</option>
+            <option value="acrilicas">Placas Acrílicas</option>
+            <option value="otros">Otros</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('ing')" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
+        </div>
       </div>
-      <div class="form-group"><label>Monto (RD$)</label><input type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);"></div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 170px 170px;gap:12px;">
-      <div class="form-group"><label>Descripción</label><input type="text" id="ing-desc" placeholder="Descripción del servicio o venta..."></div>
-      <div class="form-group"><label>Forma de Cobro</label>
-        <select id="ing-metodo" onchange="onIngMetodoChange(this)">
+    <!-- Row 2: Descripción · Método · Cuenta -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+      <div class="form-group" style="flex:1;">
+        <label>Descripción</label>
+        <input type="text" id="ing-desc" placeholder="Descripción del servicio o venta..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Forma de Cobro</label>
+        <select id="ing-metodo" onchange="onIngMetodoChange(this)" style="height:44px;box-sizing:border-box;">
           <option value="transferencia">Transferencia</option>
           <option value="efectivo">Efectivo</option>
           <option value="cheque">Cheque</option>
           <option value="debito">Tarjeta de Débito</option>
         </select>
       </div>
-      <div class="form-group" id="ing-cuenta-wrap"><label>Cuenta Bancaria</label><select id="ing-cuenta"></select></div>
-      <div class="form-group" id="ing-efectivo-note" style="display:none;"><label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;">
-          Cobro en efectivo — sin acreditar cuenta
+      <div class="form-group" style="width:180px;flex-shrink:0;" id="ing-cuenta-wrap">
+        <label>Cuenta Bancaria</label>
+        <select id="ing-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" id="ing-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
+        <label>&nbsp;</label>
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+          Efectivo — sin acreditar
         </div>
       </div>
     </div>
@@ -1096,43 +1121,60 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="add-form">
     <h3>Registrar Egreso</h3>
-    <div style="display:grid;grid-template-columns:160px 1fr 180px 140px;gap:12px;margin-bottom:12px;">
-      <div class="form-group"><label>Fecha</label><input type="date" id="egr-fecha" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Beneficiario</label>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <select id="egr-suplidor" style="flex:1;min-width:0;"><option value="">— Seleccionar —</option></select>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickBeneficiario()" style="white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 12px;flex-shrink:0;">+ Nuevo</button>
+    <!-- Row 1: Fecha · Beneficiario · Categoría · Monto -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input type="date" id="egr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Beneficiario</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="egr-suplidor" style="flex:1;min-width:0;height:44px;box-sizing:border-box;"><option value="">— Seleccionar suplidor —</option></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickBeneficiario()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group"><label>Categoría</label>
-        <div style="display:flex;gap:6px;"><select id="egr-categoria" style="flex:1;">
-          <option value="materiales">Materiales & Suministros</option>
-          <option value="nomina">Nómina & Salarios</option>
-          <option value="alquiler">Alquiler & Local</option>
-          <option value="luz">Luz / Electricidad</option>
-          <option value="internet">Internet</option>
-          <option value="telefono">Teléfono</option>
-          <option value="combustible">Combustible</option>
-          <option value="equipos">Equipos & Mantenimiento</option>
-          <option value="subcontratacion">Subcontratación</option>
-          <option value="publicidad">Publicidad & Marketing</option>
-          <option value="impuestos">Impuestos</option>
-          <option value="contabilidad">Contabilidad</option>
-          <option value="transporte">Transportación</option>
-          <option value="impresion_offset">Impresión Offset</option>
-          <option value="impresion_gran_formato">Impresión Gran Formato</option>
-          <option value="impresion_digital">Impresión Digital</option>
-          <option value="rotulacion_egr">Rotulación</option>
-          <option value="instalacion">Instalación</option>
-          <option value="otros">Otros</option>
-        </select><button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('egr')" style="padding:0 12px;height:44px;flex-shrink:0;color:#ef4444;border-color:rgba(239,68,68,.3);" title="Añadir categoría">+</button></div>
+      <div class="form-group" style="width:200px;flex-shrink:0;">
+        <label>Categoría</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="egr-categoria" style="flex:1;height:44px;box-sizing:border-box;">
+            <option value="materiales">Materiales & Suministros</option>
+            <option value="nomina">Nómina & Salarios</option>
+            <option value="alquiler">Alquiler & Local</option>
+            <option value="luz">Luz / Electricidad</option>
+            <option value="internet">Internet</option>
+            <option value="telefono">Teléfono</option>
+            <option value="combustible">Combustible</option>
+            <option value="equipos">Equipos & Mantenimiento</option>
+            <option value="subcontratacion">Subcontratación</option>
+            <option value="publicidad">Publicidad & Marketing</option>
+            <option value="impuestos">Impuestos</option>
+            <option value="contabilidad">Contabilidad</option>
+            <option value="transporte">Transportación</option>
+            <option value="impresion_offset">Impresión Offset</option>
+            <option value="impresion_gran_formato">Gran Formato</option>
+            <option value="impresion_digital">Impresión Digital</option>
+            <option value="rotulacion_egr">Rotulación</option>
+            <option value="instalacion">Instalación</option>
+            <option value="otros">Otros</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('egr')" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#ef4444;border-color:rgba(239,68,68,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
+        </div>
       </div>
-      <div class="form-group"><label>Monto (RD$)</label><input type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 160px 160px;gap:12px;" id="egr-row2">
-      <div class="form-group"><label>Descripción</label><input type="text" id="egr-desc" placeholder="Descripción del gasto..."></div>
-      <div class="form-group"><label>Forma de Pago</label>
-        <select id="egr-metodo" onchange="onEgrMetodoChange(this)">
+    <!-- Row 2: Descripción · Método · Cuenta/Nota -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;" id="egr-row2">
+      <div class="form-group" style="flex:1;">
+        <label>Descripción</label>
+        <input type="text" id="egr-desc" placeholder="Descripción del gasto..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Forma de Pago</label>
+        <select id="egr-metodo" onchange="onEgrMetodoChange(this)" style="height:44px;box-sizing:border-box;">
           <option value="transferencia">Transferencia</option>
           <option value="efectivo">Efectivo</option>
           <option value="cheque">Cheque</option>
@@ -1140,10 +1182,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="debito">Tarjeta de Débito</option>
         </select>
       </div>
-      <div class="form-group" id="egr-cuenta-wrap"><label>Cuenta Bancaria</label><select id="egr-cuenta"></select></div>
-      <div class="form-group" id="egr-tarjeta-note" style="display:none;"><label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;letter-spacing:.04em;">
-          Se cargará a la tarjeta de crédito
+      <div class="form-group" id="egr-cuenta-wrap" style="width:180px;flex-shrink:0;">
+        <label>Cuenta Bancaria</label>
+        <select id="egr-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" id="egr-tarjeta-note" style="display:none;width:180px;flex-shrink:0;">
+        <label>&nbsp;</label>
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:0 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+          Cargo a tarjeta de crédito
         </div>
       </div>
     </div>
