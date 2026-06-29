@@ -788,6 +788,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Descripción</label>
         <input type="text" id="cxc-desc" placeholder="Detalle del servicio o producto...">
       </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <div style="display:flex;gap:6px;">
+          <select id="cxc-categoria" style="flex:1;font-size:14px;">
+            <option value="">Sin categoría</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="padding:10px 10px;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);" title="Añadir categoría">+</button>
+        </div>
+      </div>
     </div>
     <!-- Row 2: Fecha · Días · Vencimiento · Total (prominent) -->
     <div style="display:grid;grid-template-columns:160px 140px 180px 1fr;gap:12px;align-items:end;">
@@ -1014,7 +1023,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
       <div class="form-group"><label>Categoría</label>
-        <select id="ing-categoria" style="font-size:14px;">
+        <div style="display:flex;gap:6px;"><select id="ing-categoria" style="font-size:14px;flex:1;">
           <option value="offset">Impresión Offset</option>
           <option value="rot_vehicular">Rotulación Vehicular</option>
           <option value="senaletica">Señalética</option>
@@ -1025,7 +1034,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="cristales">Rotulación Cristales y Murales</option>
           <option value="acrilicas">Placas Acrílicas</option>
           <option value="otros">Otros</option>
-        </select>
+        </select><button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('ing')" style="padding:10px 10px;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);" title="Añadir categoría">+</button></div>
       </div>
       <div class="form-group"><label>Monto (RD$)</label><input type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);"></div>
     </div>
@@ -1098,7 +1107,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
       <div class="form-group"><label>Categoría</label>
-        <select id="egr-categoria">
+        <div style="display:flex;gap:6px;"><select id="egr-categoria" style="flex:1;">
           <option value="materiales">Materiales & Suministros</option>
           <option value="nomina">Nómina & Salarios</option>
           <option value="alquiler">Alquiler & Local</option>
@@ -1118,7 +1127,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="rotulacion_egr">Rotulación</option>
           <option value="instalacion">Instalación</option>
           <option value="otros">Otros</option>
-        </select>
+        </select><button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('egr')" style="padding:10px 10px;flex-shrink:0;color:#ef4444;border-color:rgba(239,68,68,.3);" title="Añadir categoría">+</button></div>
       </div>
       <div class="form-group"><label>Monto (RD$)</label><input type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01"></div>
     </div>
@@ -1666,7 +1675,9 @@ function defaultState() {
     clientes:   [],
     suplidores: [],
     ingresos:   [],
-    egresos:    []
+    egresos:    [],
+    categoriasIngresos: [],
+    categoriasEgresos:  []
   };
 }
 
@@ -2184,6 +2195,25 @@ function checkDupInvoice(input){
   }
 }
 
+
+// ── CxC custom categories ──
+function refreshCxCCatSelect(val){
+  const sel=document.getElementById('cxc-categoria');if(!sel)return;
+  const cats=getAllIngCats(); // reuse ing cats for CxC
+  sel.innerHTML='<option value="">Sin categoría</option>'+cats.map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+  if(val && sel.querySelector(`option[value="${val}"]`)) sel.value=val;
+}
+function addCustomCxCCat(){
+  const name=prompt('Nueva categoría:');
+  if(!name||!name.trim())return;
+  const label=name.trim();
+  const key='custom_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_');
+  if(!S.categoriasIngresos) S.categoriasIngresos=[];
+  if(S.categoriasIngresos.some(c=>c.key===key))return notify('info','Ya existe','Esa categoría ya está.');
+  S.categoriasIngresos.push({key,label});
+  save(); refreshCxCCatSelect(key); refreshIngresoSelects();
+}
+
 function refreshCXCBankSelect(){
   // no longer needed in form - only in pay modal
 }
@@ -2234,6 +2264,7 @@ function editCXC(id){
   document.querySelector('#panel-cxc .add-form')?.scrollIntoView({behavior:'smooth', block:'start'});
   // Fill form
   document.getElementById('cxc-invoice').value = x.invoice||'';
+  refreshCxCCatSelect(x.categoria||'');
   document.getElementById('cxc-desc').value    = x.desc||'';
   document.getElementById('cxc-issued').value  = x.issued||'';
   document.getElementById('cxc-amount').value  = x.amount||'';
@@ -2282,6 +2313,7 @@ function addCXC(){
   const cliente   = S.clientes.find(x=>x.id===clientId);
   const client    = cliente?.nombre||(clientVal.startsWith('txt:')?clientVal.slice(4):(clientSel?.options[clientSel.selectedIndex]?.text||''));
   const desc      = document.getElementById('cxc-desc').value.trim();
+  const categoria = document.getElementById('cxc-categoria')?.value||'';
   const issued    = document.getElementById('cxc-issued').value;
   const days      = parseInt(document.getElementById('cxc-days').value||'30');
   const amount    = parseFloat(document.getElementById('cxc-amount').value);
@@ -2300,7 +2332,7 @@ function addCXC(){
         return;
       }
       const existing = S.cuentasCobrar[idx];
-      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, issued, due, creditDays:days, amount};
+      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount};
     }
     save(); renderCXC(); cancelEditCXC();
     notify('success','Factura Actualizada',`La factura ${invoice} ha sido actualizada correctamente.`);
@@ -2313,7 +2345,7 @@ function addCXC(){
     document.getElementById('cxc-invoice').focus();
     return;
   }
-  S.cuentasCobrar.push({id:Date.now(),invoice,client,clientId,desc,issued,due,creditDays:days,amount,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null});
+  S.cuentasCobrar.push({id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null});
   save(); renderCXC();
   document.getElementById('cxc-invoice').value='';
   const invEl=document.getElementById('cxc-invoice');
@@ -2324,6 +2356,7 @@ function addCXC(){
   document.getElementById('cxc-desc').value='';
   document.getElementById('cxc-amount').value='';
   const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
+  refreshCxCCatSelect('');
 }
 
 function cxcSt(x){
@@ -3283,13 +3316,56 @@ function renderSuplidores(){
 }
 
 // ══════════════════ INGRESOS ══════════════════
-const ING_CAT_LABELS={offset:'Impresión Offset',rot_vehicular:'Rotulación Vehicular',senaletica:'Señalética',rotulos_gen:'Rótulos Genéricos',diseño:'Diseño & Branding',exterior:'Publicidad Exterior',rotulos3d:'Rótulos 3D PVC',cristales:'Rotulación Cristales y Murales',acrilicas:'Placas Acrílicas',otros:'Otros',cxc:'CxC Auto'};
-const EGR_CAT_LABELS={materiales:'Materiales',nomina:'Nómina',alquiler:'Alquiler',luz:'Luz / Electricidad',internet:'Internet',telefono:'Teléfono',combustible:'Combustible',equipos:'Equipos',subcontratacion:'Subcontratación',publicidad:'Publicidad',impuestos:'Impuestos',contabilidad:'Contabilidad',transporte:'Transportación',impresion_offset:'Impresión Offset',impresion_gran_formato:'Gran Formato',impresion_digital:'Impresión Digital',rotulacion_egr:'Rotulación',instalacion:'Instalación',otros:'Otros',cxp:'CxP Auto'};
+const ING_CAT_LABELS={offset:'Impresión Offset',rot_vehicular:'Rotulación Vehicular',senaletica:'Señalética',rotulos_gen:'Rótulos Genéricos',diseño:'Diseño & Branding',exterior:'Publicidad Exterior',rotulos3d:'Rótulos 3D PVC',cristales:'Rotulación Cristales y Murales',acrilicas:'Placas Acrílicas',otros:'Otros'};
+const EGR_CAT_LABELS={materiales:'Materiales',nomina:'Nómina',alquiler:'Alquiler',luz:'Luz / Electricidad',internet:'Internet',telefono:'Teléfono',combustible:'Combustible',equipos:'Equipos',subcontratacion:'Subcontratación',publicidad:'Publicidad',impuestos:'Impuestos',contabilidad:'Contabilidad',transporte:'Transportación',impresion_offset:'Impresión Offset',impresion_gran_formato:'Gran Formato',impresion_digital:'Impresión Digital',rotulacion_egr:'Rotulación',instalacion:'Instalación',otros:'Otros'};
+
+
+// ── Dynamic category helpers ──
+function getAllIngCats(){
+  const custom=(S.categoriasIngresos||[]).map(c=>({key:c.key,label:c.label}));
+  const builtin=Object.entries(ING_CAT_LABELS).map(([k,v])=>({key:k,label:v}));
+  return [...builtin,...custom];
+}
+function getAllEgrCats(){
+  const custom=(S.categoriasEgresos||[]).map(c=>({key:c.key,label:c.label}));
+  const builtin=Object.entries(EGR_CAT_LABELS).map(([k,v])=>({key:k,label:v}));
+  return [...builtin,...custom];
+}
+function getCatLabel(key,list){
+  const found=list.find(c=>c.key===key);
+  return found?found.label:key||'—';
+}
+function addCustomCategory(type){
+  const name=prompt(type==='ing'?'Nueva categoría de Ingreso:':'Nueva categoría de Egreso:');
+  if(!name||!name.trim())return;
+  const label=name.trim();
+  const key='custom_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_');
+  if(type==='ing'){
+    if((S.categoriasIngresos||[]).some(c=>c.key===key))return notify('info','Ya existe','Esa categoría ya está en la lista.');
+    if(!S.categoriasIngresos) S.categoriasIngresos=[];
+    S.categoriasIngresos.push({key,label});
+    save(); refreshIngresoSelects();
+    document.getElementById('ing-categoria').value=key;
+  } else {
+    if((S.categoriasEgresos||[]).some(c=>c.key===key))return notify('info','Ya existe','Esa categoría ya está en la lista.');
+    if(!S.categoriasEgresos) S.categoriasEgresos=[];
+    S.categoriasEgresos.push({key,label});
+    save(); refreshEgresoSelects();
+    document.getElementById('egr-categoria').value=key;
+  }
+}
 
 function refreshIngresoSelects(){
   const sel=document.getElementById('ing-cliente');if(!sel)return;
   sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+S.clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
   const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+  // Rebuild ingreso category dropdown with custom categories
+  const ingCatSel=document.getElementById('ing-categoria');
+  if(ingCatSel){
+    const curVal=ingCatSel.value;
+    ingCatSel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    if(curVal && ingCatSel.querySelector(`option[value="${curVal}"]`)) ingCatSel.value=curVal;
+  }
 }
 function addIngreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('ing-fecha').value;
@@ -3330,7 +3406,11 @@ function renderIngresos(){
   items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('ing-tbody').innerHTML=items.length?items.map(x=>{
     const acct=S.accounts[x.cuentaIdx]?.name||'—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.clienteNombre||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${ING_CAT_LABELS[x.categoria]||x.categoria}</span></td><td style="max-width:180px;">${x.desc||'—'}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    const ingCatLabel = ING_CAT_LABELS[x.categoria]||(S.categoriasIngresos||[]).find(c=>c.key===x.categoria)?.label||x.categoria||'—';
+    const ingDesc = x.fuente==='cxc' 
+      ? x.desc||'—'
+      : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.clienteNombre||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${ingCatLabel}</span></td><td style="max-width:180px;">${ingDesc}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -3361,6 +3441,13 @@ function refreshEgresoSelects(){
   const sel=document.getElementById('egr-suplidor');if(!sel)return;
   sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+S.suplidores.map(s=>`<option value="${s.id}">${s.nombre}</option>`).join('');
   const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+  // Rebuild egreso category dropdown with custom categories
+  const egrCatSel=document.getElementById('egr-categoria');
+  if(egrCatSel){
+    const curVal=egrCatSel.value;
+    egrCatSel.innerHTML=getAllEgrCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    if(curVal && egrCatSel.querySelector(`option[value="${curVal}"]`)) egrCatSel.value=curVal;
+  }
 }
 function addEgreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('egr-fecha').value;
@@ -3414,7 +3501,9 @@ function renderEgresos(){
   items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('egr-tbody').innerHTML=items.length?items.map(x=>{
     const acct=S.accounts[x.cuentaIdx]?.name||'—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.suplidorNombre||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${EGR_CAT_LABELS[x.categoria]||x.categoria}</span></td><td style="max-width:180px;">${x.desc||'—'}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    const egrCatLabel = EGR_CAT_LABELS[x.categoria]||(S.categoriasEgresos||[]).find(c=>c.key===x.categoria)?.label||x.categoria||'—';
+    const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.suplidorNombre||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${egrCatLabel}</span></td><td style="max-width:180px;">${egrDesc}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -3581,7 +3670,7 @@ function applyCorte(){
 // ══ AUTO-INTEGRATION CxC/CxP → Ingresos/Egresos ══
 function autoIngresoFromCxC(x,netAmount,date,method,bankIdx){
   if(S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc'))return;
-  addIngreso(true,{fecha:date,clienteId:null,clienteNombre:x.client,categoria:'cxc',monto:netAmount,desc:`Fact. ${x.invoice} – ${x.client}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
 }
 function autoEgresoFromCxP(item,amount,date,method,accountIdx){
   if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
@@ -3648,7 +3737,7 @@ const REP_CONFIGS={
   },
   ingresos:{
     label:'Ingresos',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="cxc">CxC Auto</option><option value="otros">Otros</option></select></div>`,
+    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div>`,
     headers:['Fecha','Cliente','Categoría','Descripción','Método','Monto RD$'],
     generate(d,h,f1,f2){
       let items=[...S.ingresos];
@@ -3663,7 +3752,7 @@ const REP_CONFIGS={
   },
   egresos:{
     label:'Egresos',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="materiales">Materiales</option><option value="nomina">Nómina</option><option value="alquiler">Alquiler</option><option value="servicios">Servicios Básicos</option><option value="equipos">Equipos</option><option value="subcontratacion">Subcontratación</option><option value="publicidad">Publicidad</option><option value="impuestos">Impuestos</option><option value="transporte">Transportación</option><option value="cxp">CxP Auto</option><option value="otros">Otros</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Suplidor</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div>`,
+    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="materiales">Materiales</option><option value="nomina">Nómina</option><option value="alquiler">Alquiler</option><option value="servicios">Servicios Básicos</option><option value="equipos">Equipos</option><option value="subcontratacion">Subcontratación</option><option value="publicidad">Publicidad</option><option value="impuestos">Impuestos</option><option value="transporte">Transportación</option><option value="otros">Otros</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Suplidor</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div>`,
     headers:['Fecha','Suplidor','Categoría','Descripción','Método','Monto RD$'],
     generate(d,h,f1,f2){
       let items=[...S.egresos];
@@ -3987,6 +4076,8 @@ function applyFirebaseData(data){
   if(!S.suplidores) S.suplidores = [];
   if(!S.ingresos)   S.ingresos   = [];
   if(!S.egresos)    S.egresos    = [];
+  if(!S.categoriasIngresos) S.categoriasIngresos = [];
+  if(!S.categoriasEgresos)  S.categoriasEgresos  = [];
   S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
   if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
     S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
