@@ -4189,10 +4189,10 @@ function loadFromFirebase(){
   }
   showLoadingOverlay(true);
 
-  // Safety timeout: if Firebase doesn't respond in 8s, warn loudly and fall back
+  // Safety timeout: if Firebase doesn't respond in 10s, warn loudly and fall back
   const timeoutGuard = setTimeout(()=>{
     if(!_appInitialized){
-      console.error('Firebase timeout — no respondió en 8 segundos');
+      console.error('Firebase timeout — no respondió en 10 segundos');
       showLoadingOverlay(false);
       _appInitialized = true;
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
@@ -4200,52 +4200,67 @@ function loadFromFirebase(){
       init();
       showConnectionError();
     }
-  }, 8000);
+  }, 10000);
 
-  // ── Real-time listener (onSnapshot) ──
-  window.ICG_DOC.onSnapshot(doc => {
+  // ── STEP 1: Force a SERVER read first (never trust empty local cache) ──
+  window.ICG_DOC.get({source:'server'}).then(doc => {
     clearTimeout(timeoutGuard);
-    const remoteTs = doc.exists ? (doc.data()._ts || 0) : 0;
-    const isOwnSave = (Date.now() - _lastLocalSaveTs) < 2000;
-
-    if(!_appInitialized){
-      // First load
+    if(doc.exists){
+      applyFirebaseData(doc.data());
+      notify('success','Datos Cargados','Sincronizado con la nube ☁');
+    } else {
+      const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+      if(local){
+        S = local;
+        window.ICG_DOC.set(JSON.parse(JSON.stringify({...S, _ts: Date.now()})))
+          .then(()=>notify('success','Datos Migrados','Tus datos locales fueron subidos a la nube ☁'));
+      } else {
+        notify('info','Nuevo Sistema','Bienvenido a ICG Financial PRO');
+      }
+    }
+    showLoadingOverlay(false);
+    _appInitialized = true;
+    init();
+    attachRealtimeListener();
+  }).catch(err => {
+    clearTimeout(timeoutGuard);
+    console.error('Firebase server read error:', err);
+    // Fallback: try cache/local before giving up
+    window.ICG_DOC.get().then(doc=>{
       if(doc.exists){
         applyFirebaseData(doc.data());
-        notify('success','Datos Cargados','Sincronizado con la nube ☁');
+        notify('info','Datos en Caché','Conexión limitada — usando última versión sincronizada.');
       } else {
-        // No Firebase data yet — try local
         const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-        if(local){
-          S = local;
-          window.ICG_DOC.set(JSON.parse(JSON.stringify({...S, _ts: Date.now()})))
-            .then(()=>notify('success','Datos Migrados','Tus datos locales fueron subidos a la nube ☁'));
-        } else {
-          notify('info','Nuevo Sistema','Bienvenido a ICG Financial PRO');
-        }
+        if(local) S = local;
       }
       showLoadingOverlay(false);
       _appInitialized = true;
       init();
-    } else {
-      // Subsequent updates — only apply if from another device
-      if(doc.exists && !isOwnSave){
-        applyFirebaseData(doc.data());
-        reRenderAll();
-        showSyncIndicator('sync');
-      }
-    }
-  }, err => {
-    clearTimeout(timeoutGuard);
-    console.error('Firebase listener error:', err);
-    showLoadingOverlay(false);
-    if(!_appInitialized){
-      _appInitialized = true;
+      attachRealtimeListener();
+      showConnectionError();
+    }).catch(()=>{
+      showLoadingOverlay(false);
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
+      _appInitialized = true;
       init();
+      showConnectionError();
+    });
+  });
+}
+
+// ── STEP 2: After initial load, attach live listener for cross-device sync ──
+function attachRealtimeListener(){
+  window.ICG_DOC.onSnapshot(doc => {
+    const isOwnSave = (Date.now() - _lastLocalSaveTs) < 2000;
+    if(doc.exists && !isOwnSave){
+      applyFirebaseData(doc.data());
+      reRenderAll();
+      showSyncIndicator('sync');
     }
-    showConnectionError();
+  }, err => {
+    console.error('Firebase realtime listener error:', err);
   });
 }
 
