@@ -4189,8 +4189,22 @@ function loadFromFirebase(){
   }
   showLoadingOverlay(true);
 
+  // Safety timeout: if Firebase doesn't respond in 8s, warn loudly and fall back
+  const timeoutGuard = setTimeout(()=>{
+    if(!_appInitialized){
+      console.error('Firebase timeout — no respondió en 8 segundos');
+      showLoadingOverlay(false);
+      _appInitialized = true;
+      const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+      if(local) S = local;
+      init();
+      showConnectionError();
+    }
+  }, 8000);
+
   // ── Real-time listener (onSnapshot) ──
   window.ICG_DOC.onSnapshot(doc => {
+    clearTimeout(timeoutGuard);
     const remoteTs = doc.exists ? (doc.data()._ts || 0) : 0;
     const isOwnSave = (Date.now() - _lastLocalSaveTs) < 2000;
 
@@ -4222,10 +4236,27 @@ function loadFromFirebase(){
       }
     }
   }, err => {
+    clearTimeout(timeoutGuard);
     console.error('Firebase listener error:', err);
     showLoadingOverlay(false);
-    if(!_appInitialized){ _appInitialized = true; init(); }
+    if(!_appInitialized){
+      _appInitialized = true;
+      const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+      if(local) S = local;
+      init();
+    }
+    showConnectionError();
   });
+}
+
+function showConnectionError(){
+  let el = document.getElementById('fb-conn-error');
+  if(el) return; // already shown
+  el = document.createElement('div');
+  el.id = 'fb-conn-error';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999996;background:#7f1d1d;color:#fff;padding:12px 20px;font-family:Space Grotesk,sans-serif;font-size:13px;text-align:center;letter-spacing:.02em;box-shadow:0 4px 20px rgba(0,0,0,.4);';
+  el.innerHTML = '⚠ No se pudo conectar con la nube. Mostrando datos locales (pueden no estar actualizados). <button onclick="location.reload()" style="margin-left:12px;background:#fff;color:#7f1d1d;border:none;padding:6px 14px;border-radius:4px;font-weight:600;cursor:pointer;">Reintentar</button> <button onclick="this.parentElement.remove()" style="margin-left:6px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:4px;cursor:pointer;">Cerrar</button>';
+  document.body.insertBefore(el, document.body.firstChild);
 }
 
 function showLoadingOverlay(show){
