@@ -730,29 +730,33 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
       <div class="form-group"><label>Categoría</label>
-        <select id="cc-cat">
-          <option value="">Sin categoría</option>
-          <option value="materiales">Materiales</option>
-          <option value="nomina">Nómina & Salarios</option>
-          <option value="alquiler">Alquiler</option>
-          <option value="luz">Luz / Electricidad</option>
-          <option value="internet">Internet</option>
-          <option value="telefono">Teléfono</option>
-          <option value="combustible">Combustible</option>
-          <option value="equipos">Equipos</option>
-          <option value="subcontratacion">Subcontratación</option>
-          <option value="publicidad">Publicidad</option>
-          <option value="impuestos">Impuestos</option>
-          <option value="contabilidad">Contabilidad</option>
-          <option value="transporte">Transportación</option>
-          <option value="impresion_offset">Impresión Offset</option>
-          <option value="impresion_gran_formato">Gran Formato</option>
-          <option value="impresion_digital">Impresión Digital</option>
-          <option value="rotulacion_egr">Rotulación</option>
-          <option value="instalacion">Instalación</option>
-          <option value="personal">Gasto Personal</option>
-          <option value="otros">Otros</option>
-        </select>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="cc-cat" style="flex:1;height:44px;box-sizing:border-box;">
+            <option value="">Sin categoría</option>
+            <option value="materiales">Materiales</option>
+            <option value="nomina">Nómina & Salarios</option>
+            <option value="alquiler">Alquiler</option>
+            <option value="luz">Luz / Electricidad</option>
+            <option value="internet">Internet</option>
+            <option value="telefono">Teléfono</option>
+            <option value="combustible">Combustible</option>
+            <option value="equipos">Equipos</option>
+            <option value="subcontratacion">Subcontratación</option>
+            <option value="publicidad">Publicidad</option>
+            <option value="impuestos">Impuestos</option>
+            <option value="contabilidad">Contabilidad</option>
+            <option value="transporte">Transportación</option>
+            <option value="impresion_offset">Impresión Offset</option>
+            <option value="impresion_gran_formato">Gran Formato</option>
+            <option value="impresion_digital">Impresión Digital</option>
+            <option value="rotulacion_egr">Rotulación</option>
+            <option value="instalacion">Instalación</option>
+            <option value="personal">Gasto Personal</option>
+            <option value="suscripcion">Suscripción</option>
+            <option value="otros">Otros</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
+        </div>
       </div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input type="text" id="cc-desc" placeholder="Descripción del cargo..."></div>
     </div>
@@ -2226,6 +2230,7 @@ function renderCCTx(){
 
 // updateCCCards also reflects effective balance on the cards
 function updateCCCards(){
+  refreshCCCatSelect();
   const cc=S.creditCard;
   const limitRD=cc.creditLimit||0;
   const limitUSD=cc.creditLimitUSD||0;
@@ -2289,6 +2294,36 @@ function refreshCxCCatSelect(val){
   sel.innerHTML='<option value="">Sin categoría</option>'+cats.map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
   if(val && sel.querySelector(`option[value="${val}"]`)) sel.value=val;
 }
+function addCustomCCCat(){
+  const name = prompt('Nueva categoría para la tarjeta:');
+  if(!name||!name.trim()) return;
+  const label = name.trim();
+  const key = 'cc_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_');
+  if(!S.categoriasTarjeta) S.categoriasTarjeta = [];
+  if(S.categoriasTarjeta.some(c=>c.key===key)){
+    notify('info','Ya existe','Esa categoría ya está en la lista.');return;
+  }
+  S.categoriasTarjeta.push({key, label});
+  save();
+  // Rebuild cc-cat select preserving current value
+  refreshCCCatSelect(key);
+  notify('success','Categoría Añadida',label);
+}
+
+function refreshCCCatSelect(selectVal){
+  const sel = document.getElementById('cc-cat');
+  if(!sel) return;
+  const custom = (S.categoriasTarjeta||[]);
+  // Remove old custom options and re-add
+  [...sel.options].filter(o=>o.dataset.custom).forEach(o=>o.remove());
+  custom.forEach(c=>{
+    const o = document.createElement('option');
+    o.value = c.key; o.textContent = c.label; o.dataset.custom = '1';
+    sel.appendChild(o);
+  });
+  if(selectVal) sel.value = selectVal;
+}
+
 function addCustomCxCCat(){
   const name=prompt('Nueva categoría:');
   if(!name||!name.trim())return;
@@ -4177,6 +4212,7 @@ function applyFirebaseData(data){
   if(!S.egresos)    S.egresos    = [];
   if(!S.categoriasIngresos) S.categoriasIngresos = [];
   if(!S.categoriasEgresos)  S.categoriasEgresos  = [];
+  if(!S.categoriasTarjeta)  S.categoriasTarjeta  = [];
   S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
   if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
     S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
