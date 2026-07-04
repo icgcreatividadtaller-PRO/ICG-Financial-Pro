@@ -720,7 +720,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group"><label>Tipo</label>
         <select id="cc-type"><option value="cargo">Cargo / Compra</option><option value="pago">Pago a tarjeta</option></select>
       </div>
-      <div class="form-group"><label>Monto (RD$)</label><input type="number" id="cc-amount" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group"><label>Monto</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="cc-currency" style="width:80px;flex-shrink:0;height:44px;box-sizing:border-box;font-weight:600;color:#818cf8;">
+            <option value="RD$">RD$</option>
+            <option value="USD">US$</option>
+          </select>
+          <input type="number" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;">
+        </div>
+      </div>
       <div class="form-group"><label>Categoría</label>
         <select id="cc-cat">
           <option value="">Sin categoría</option>
@@ -2131,35 +2139,35 @@ function addCCTx(){
   const date=document.getElementById('cc-date').value;
   const type=document.getElementById('cc-type').value;
   const amount=parseFloat(document.getElementById('cc-amount').value);
+  const currency=document.getElementById('cc-currency')?.value||'RD$';
   const desc=document.getElementById('cc-desc').value.trim()||'(sin descripción)';
   const cat=document.getElementById('cc-cat')?.value||'';
   if(!date||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa la Fecha y el Monto.');return;}
-
-  if(cc.initAvailRD === undefined || cc.initAvailRD === null){
-    cc.initAvailRD = cc.availableRD || 0;
-  }
-
-  cc.transactions.push({id:Date.now(),date,type,amount,desc,cat});
+  if(cc.initAvailRD===undefined||cc.initAvailRD===null) cc.initAvailRD=cc.availableRD||0;
+  cc.transactions.push({id:Date.now(),date,type,amount,currency,desc,cat});
   cc.transactions.sort((a,b)=>a.date.localeCompare(b.date));
-
-  if(type==='pago'){
+  // USD balance update
+  if(currency==='USD'){
+    if(cc.availableUSD==null) cc.availableUSD=cc.creditLimitUSD||0;
+    if(type==='cargo') cc.availableUSD=Math.max(0,(cc.availableUSD||0)-amount);
+    else               cc.availableUSD=Math.min(cc.creditLimitUSD||0,(cc.availableUSD||0)+amount);
+  }
+  // Pago: debit linked bank account
+  if(type==='pago'&&currency==='RD$'){
     const li=Math.max(0,parseInt(cc.linkedAccountIdx)||0);
     if(li<S.accounts.length){
       S.accounts[li].transactions.push({id:Date.now()+1,date,type:'egreso',method:'transferencia',amount,
-        desc:`Pago tarjeta: ${cc.name} – ${desc}`});
+        desc:`Pago tarjeta: ${cc.name||'Tarjeta'} – ${desc}`});
       renderTx(li);
     }
   }
-
   save(); updateCCCards(); renderCCTx();
   document.getElementById('cc-amount').value='';
   document.getElementById('cc-desc').value='';
   const ccCatEl=document.getElementById('cc-cat');if(ccCatEl)ccCatEl.value='';
-
-  // Show current effective balance after transaction
-  const effAvail = ccEffectiveAvail();
-  notify('success', type==='cargo'?'Cargo Registrado':'Pago Registrado',
-    `${fmt(amount)} · Disponible actual: ${fmt(effAvail)}`);
+  const ccCurEl=document.getElementById('cc-currency');if(ccCurEl)ccCurEl.value='RD$';
+  notify('success',type==='cargo'?'Cargo Registrado':'Pago Registrado',
+    `${currency==='USD'?'US$':'RD$'}${amount.toFixed(2)} — ${desc}`);
 }
 
 // Calculate effective available = initial - cargos + pagos
@@ -2208,8 +2216,8 @@ function renderCCTx(){
       <td>${t.desc}</td>
       <td>${catBadge}</td>
       <td><span class="badge ${t.type==='cargo'?'badge-overdue':'badge-paid'}">${t.type==='cargo'?'Cargo':'Pago'}</span></td>
-      <td class="td-withdrawal">${t.type==='cargo'?fmt(t.amount):'—'}</td>
-      <td class="td-deposit">${t.type==='pago'?fmt(t.amount):'—'}</td>
+      <td class="td-withdrawal">${t.type==='cargo'?(t.currency==='USD'?'$':'RD$')+t.amount.toLocaleString('en-US',{minimumFractionDigits:2}):'—'}</td>
+      <td class="td-deposit">${t.type==='pago'?(t.currency==='USD'?'$':'RD$')+t.amount.toLocaleString('en-US',{minimumFractionDigits:2}):'—'}</td>
       <td class="td-mono" style="color:${lowBalance?'#ef4444':'#818cf8'};">${fmt(runRD)}</td>
       <td><button class="del-btn" onclick="delCCTx(${t.id})">×</button></td>
     </tr>`;
@@ -4323,7 +4331,12 @@ function showSyncIndicator(state){
   setTimeout(()=>{ el.style.opacity='0'; }, 2500);
 }
 
-loadFromFirebase();
+// ══ BOOT: init Firebase first, then load data ══
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', ()=>initFirebase());
+} else {
+  initFirebase();
+}
 </script>
 </body>
 </html>
