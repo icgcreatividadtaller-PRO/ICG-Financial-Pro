@@ -1949,6 +1949,12 @@ function save(){
 
 // ══════════════════ HELPERS ══════════════════
 function fmt(n){return new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP',minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);}
+// Escapa HTML en texto libre (nombres, descripciones, referencias) antes de insertarlo
+// en pantalla, para que nunca se interprete como código — solo se muestra como texto.
+function esc(v){
+  if(v===null||v===undefined) return '';
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 function fmtNum(n){return new Intl.NumberFormat('es-DO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);}
 function today(){
   const d=new Date();
@@ -2017,7 +2023,7 @@ function renderTabs(){
 
 function renderAccountSubNav(){
   const nav=document.getElementById('acct-subnav'); if(!nav)return;
-  nav.innerHTML=S.accounts.map((acc,i)=>`<button class="acct-tab ${i===_activeAccount?'active':''}" onclick="switchAccount(${i})">${acc.name}<button class="acct-rename" onclick="event.stopPropagation();openRename(${i})">✎</button></button>`).join('');
+  nav.innerHTML=S.accounts.map((acc,i)=>`<button class="acct-tab ${i===_activeAccount?'active':''}" onclick="switchAccount(${i})">${esc(acc.name)}<button class="acct-rename" onclick="event.stopPropagation();openRename(${i})">✎</button></button>`).join('');
 }
 
 function switchAccount(i){
@@ -2235,7 +2241,7 @@ function renderTx(i){
   tbody.innerHTML=txs.length?txs.map(t=>{
     run+=t.type==='ingreso'?t.amount:-t.amount;
     return `<tr>
-      <td class="td-mono">${fmtDate(t.date)}</td><td>${t.desc}</td>
+      <td class="td-mono">${fmtDate(t.date)}</td><td>${esc(t.desc)}</td>
       <td><span class="badge badge-dep">${t.type==='ingreso'?'↑ Ingreso':'↓ Egreso'}</span></td>
       <td>${methodBadge(t.method)}</td>
       <td class="td-deposit">${t.type==='ingreso'?fmt(t.amount):'—'}</td>
@@ -2384,7 +2390,7 @@ function renderCCTx(){
       : '<span style="color:#4a5578;font-size:12px;">—</span>';
     return `<tr>
       <td class="td-mono">${fmtDate(t.date)}</td>
-      <td>${t.desc}</td>
+      <td>${esc(t.desc)}</td>
       <td>${catBadge}</td>
       <td><span class="badge ${t.type==='cargo'?'badge-overdue':'badge-paid'}">${t.type==='cargo'?'Cargo':'Pago'}</span></td>
       <td class="td-withdrawal">${t.type==='cargo'?(t.currency==='USD'?'$':'RD$')+t.amount.toLocaleString('en-US',{minimumFractionDigits:2}):'—'}</td>
@@ -2518,7 +2524,7 @@ function refreshCxCClientSelect(){
     .map(n=>({val:'txt:'+n, label:n}));
   const all=[...dirClients,...extraNames].sort((a,b)=>a.label.localeCompare(b.label));
   sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+
-    all.map(c=>`<option value="${c.val}">${c.label}</option>`).join('');
+    all.map(c=>`<option value="${c.val}">${esc(c.label)}</option>`).join('');
   if(cur) sel.value=cur;
 }
 
@@ -2659,7 +2665,7 @@ function openPayModal(id){
   const x=S.cuentasCobrar.find(i=>i.id===id); if(!x)return;
   _payId=id;
   document.getElementById('payModalSubtitle').innerHTML=
-    `<strong style="color:#e8eeff;font-size:15px;">${x.client}</strong> &nbsp;·&nbsp; Fact. <strong style="color:#818cf8;font-size:15px;">${x.invoice}</strong>`;
+    `<strong style="color:#e8eeff;font-size:15px;">${esc(x.client)}</strong> &nbsp;·&nbsp; Fact. <strong style="color:#818cf8;font-size:15px;">${esc(x.invoice)}</strong>`;
   document.getElementById('paymentModal').dataset.invoiceAmount=x.amount;
   document.getElementById('pay-invoice-amount').textContent=fmt(x.amount);
   // Reset retentions
@@ -2740,7 +2746,7 @@ function confirmPayment(){
   autoIngresoFromCxC(x, netAmount, date, method, isEfectivo ? null : bankIdx);
   let detail=`Factura: ${fmt(x.amount)}`;
   if(retType!=='ninguna') detail+=`<br>Retención (${retType.toUpperCase()}): -${fmt(retAmount)}`;
-  detail+=`<br>Cobrado: ${fmt(netAmount)} ${isEfectivo?'· <b>Efectivo</b>':'→ '+S.accounts[bankIdx]?.name}`;
+  detail+=`<br>Cobrado: ${fmt(netAmount)} ${isEfectivo?'· <b>Efectivo</b>':'→ '+esc(S.accounts[bankIdx]?.name)}`;
   notify('success','Cobro Registrado',detail);
 }
 
@@ -2818,9 +2824,9 @@ function renderCXC(){
       </button>`;
     }
     return `<tr>
-      <td class="td-mono" style="font-weight:600;color:#818cf8;">${x.invoice}</td>
-      <td><strong>${x.client}</strong></td>
-      <td style="color:#9ca3af;16px;max-width:180px;">${x.desc||'—'}</td>
+      <td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.invoice)}</td>
+      <td><strong>${esc(x.client)}</strong></td>
+      <td style="color:#9ca3af;16px;max-width:180px;">${esc(x.desc)||'—'}</td>
       <td class="td-mono">${fmtDate(x.issued)}<br><span style="18px;color:#9ca3af;">${x.creditDays||30} días</span></td>
       <td class="td-mono" style="color:${isOverdue?'#ef4444':isPaid?'#818cf8':'#818cf8'}">${fmtDate(x.due)}</td>
       <td class="td-mono" style="color:#818cf8;font-weight:700;19px;">${fmt(x.amount)}</td>
@@ -2929,7 +2935,7 @@ function buildCXPForm(section){
     const spanStyle = f.span===2 ? 'grid-column:span 2;' : '';
     let input = '';
     if(f.type==='suplidor-select'){
-      const opts=S.suplidores.map(s=>`<option value="${s.nombre}">${s.nombre}</option>`).join('');
+      const opts=S.suplidores.map(s=>`<option value="${esc(s.nombre)}">${esc(s.nombre)}</option>`).join('');
       input=`<div style="display:flex;gap:6px;"><select id="cxp-f-${f.id}" style="flex:1;min-width:0;"><option value="">— Seleccionar —</option>${opts}</select><button type="button" class="btn btn-ghost btn-sm" onclick="openSuplidorModal()" style="border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 12px;flex-shrink:0;white-space:nowrap;">+ Nuevo</button></div>`;
     } else if(f.type==='select'){
       input = `<select id="cxp-f-${f.id}">${f.options.map(o=>`<option value="${o.toLowerCase().replace(/ /g,'_')}">${o}</option>`).join('')}</select>`;
@@ -3008,8 +3014,8 @@ function renderCXP(){
       ? saldadas.map(x=>{
           const acct=S.accounts[x.payAccountIdx]?.name||'—';
           return `<tr>
-            <td style="font-weight:500;">${x.nombre}</td>
-            <td>${x.concepto||'—'}</td>
+            <td style="font-weight:500;">${esc(x.nombre)}</td>
+            <td>${esc(x.concepto)||'—'}</td>
             <td class="td-mono" style="color:#818cf8;">${fmt(x.monto)}</td>
             <td class="td-mono">${fmtDate(x.paidDate)}</td>
             <td>${methodBadge(x.payMethod)}</td>
@@ -3061,10 +3067,10 @@ function renderCXP(){
   const acctName = x => `<span style="color:#8899bb;font-size:12px;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
 
   const rowMap = {
-    proveedores:    x=>[x.nombre, x.concepto||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
-    serviciosFijos: x=>[x.nombre, x.concepto||'—', fmt(x.monto), fmtDate(x.fecha), fmtDate(x.vence), x.frecuencia||'Mensual', methodBadge(x.metodo), acctName(x), stBtn(x)],
-    prestamos:      x=>[x.nombre, x.concepto||'—', fmt(x.monto), fmt(x.saldo||0), fmtDate(x.vence), x.tasa?(x.tasa+'%'):'—', acctName(x), stBtn(x)],
-    otros:          x=>[x.nombre, x.concepto||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
+    proveedores:    x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
+    serviciosFijos: x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), fmtDate(x.vence), esc(x.frecuencia)||'Mensual', methodBadge(x.metodo), acctName(x), stBtn(x)],
+    prestamos:      x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmt(x.saldo||0), fmtDate(x.vence), x.tasa?(x.tasa+'%'):'—', acctName(x), stBtn(x)],
+    otros:          x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
   };
   const hMap = {
     proveedores:    ['Proveedor','Concepto','Monto','Fecha','Método','Cuenta','Estado',''],
@@ -3141,7 +3147,7 @@ function openCXPPayModal(section, id){
   const pending   = cxpPending(item);
 
   document.getElementById('cxpPayInfo').innerHTML =
-    `<strong style="color:#e8eaf0">${item.nombre}</strong>${item.concepto?' · '+item.concepto:''}`;
+    `<strong style="color:#e8eaf0">${esc(item.nombre)}</strong>${item.concepto?' · '+esc(item.concepto):''}`;
   document.getElementById('cxp-pay-total').textContent   = fmt(item.monto);
   document.getElementById('cxp-pay-paid').textContent    = fmt(paidSoFar);
   document.getElementById('cxp-pay-pending').textContent = fmt(pending);
@@ -3236,7 +3242,7 @@ function confirmCXPPayment(){
   autoEgresoFromCxP(item, amount, date, method, accountIdx);
 
   const isPartial = newPending > 0.009;
-  const pdetail=`Monto: ${fmt(amount)} → ${S.accounts[accountIdx]?.name||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
+  const pdetail=`Monto: ${fmt(amount)} → ${esc(S.accounts[accountIdx]?.name)||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
   notify(isPartial?'info':'success', isPartial?'Abono Registrado':'Pago Completo', pdetail);
 }
 
@@ -3304,7 +3310,7 @@ function renderConsolidated(){
     const trE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
     const cE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='efectivo').reduce((s,t)=>s+t.amount,0);
     return `<div class="consolidated-card" onclick="activateTab(${i})">
-      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;"></span>${acc.name}<span style="margin-left:auto;18px;color:#9ca3af;">${acc.transactions.length} movs.</span></h3>
+      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;"></span>${esc(acc.name)}<span style="margin-left:auto;18px;color:#9ca3af;">${acc.transactions.length} movs.</span></h3>
       <div class="cc-row-c"><span style="color:#818cf8;">Balance Inicial</span><span style="color:#818cf8;font-family:var(--font-mono)">${fmt(init)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Transf.</span><span style="color:#818cf8">${fmt(trI)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Efectivo</span><span style="color:#818cf8">${fmt(cI)}</span></div>
@@ -3572,14 +3578,14 @@ function renderClientes(){
   const ingTotal=id=>S.ingresos.filter(x=>x.clienteId===id).reduce((s,x)=>s+x.monto,0);
   const cxcTotal=n=>S.cuentasCobrar.filter(x=>(x.client||x.clienteNombre||'').toLowerCase()===n.toLowerCase()).reduce((s,x)=>s+x.amount,0);
   tbody.innerHTML=all.length?all.map(c=>`<tr>
-    <td><strong>${c.nombre}</strong>${c._cxcOnly?'<span style="font-size:10px;color:#6b7a99;margin-left:8px;letter-spacing:.08em;text-transform:uppercase;">De CxC</span>':''}</td>
-    <td class="td-mono">${c.rnc||'—'}</td>
-    <td>${c.email||'—'}</td>
-    <td>${c.tel||'—'}</td>
+    <td><strong>${esc(c.nombre)}</strong>${c._cxcOnly?'<span style="font-size:10px;color:#6b7a99;margin-left:8px;letter-spacing:.08em;text-transform:uppercase;">De CxC</span>':''}</td>
+    <td class="td-mono">${esc(c.rnc)||'—'}</td>
+    <td>${esc(c.email)||'—'}</td>
+    <td>${esc(c.tel)||'—'}</td>
     <td class="td-mono" style="color:#818cf8;">${c._cxcOnly?fmt(cxcTotal(c.nombre)):fmt(ingTotal(c.id))}</td>
     <td style="display:flex;gap:4px;">
       ${c._cxcOnly
-        ?`<button class="btn btn-ghost btn-sm" onclick="importCxCClient('${c.nombre.replace(/'/g,"\\'")}')" style="font-size:10px;padding:5px 10px;border-color:rgba(129,140,248,.3);color:#818cf8;">Importar al directorio</button>`
+        ?`<button class="btn btn-ghost btn-sm" onclick="importCxCClient('${c.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="font-size:10px;padding:5px 10px;border-color:rgba(129,140,248,.3);color:#818cf8;">Importar al directorio</button>`
         :`<button class="del-btn" onclick="openClienteModal(${c.id})">✎</button><button class="del-btn" onclick="deleteCliente(${c.id})">×</button>`}
     </td>
   </tr>`).join(''):`<tr><td colspan="6"><div class="empty-state">Sin clientes registrados.</div></td></tr>`;
@@ -3615,7 +3621,7 @@ function renderSuplidores(){
   const tbody=document.getElementById('sup-tbody');if(!tbody)return;
   const egrTotal=id=>S.egresos.filter(x=>x.suplidorId===id).reduce((s,x)=>s+x.monto,0);
   const catL={materiales:'Materiales',servicios:'Servicios',equipos:'Equipos',freelancer:'Freelancer',otros:'Otros'};
-  tbody.innerHTML=list.length?list.map(s=>`<tr><td><strong>${s.nombre}</strong></td><td class="td-mono">${s.rnc||'—'}</td><td><span class="badge" style="background:rgba(79,70,229,.12);color:#4f46e5;">${catL[s.categoria]||s.categoria}</span></td><td>${s.email||'—'}</td><td>${s.tel||'—'}</td><td class="td-mono negative">${fmt(egrTotal(s.id))}</td><td style="display:flex;gap:4px;"><button class="del-btn" onclick="openSuplidorModal(${s.id})">✎</button><button class="del-btn" onclick="deleteSuplidor(${s.id})">×</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty-state">Sin suplidores registrados.</div></td></tr>`;
+  tbody.innerHTML=list.length?list.map(s=>`<tr><td><strong>${esc(s.nombre)}</strong></td><td class="td-mono">${esc(s.rnc)||'—'}</td><td><span class="badge" style="background:rgba(79,70,229,.12);color:#4f46e5;">${catL[s.categoria]||esc(s.categoria)}</span></td><td>${esc(s.email)||'—'}</td><td>${esc(s.tel)||'—'}</td><td class="td-mono negative">${fmt(egrTotal(s.id))}</td><td style="display:flex;gap:4px;"><button class="del-btn" onclick="openSuplidorModal(${s.id})">✎</button><button class="del-btn" onclick="deleteSuplidor(${s.id})">×</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty-state">Sin suplidores registrados.</div></td></tr>`;
 }
 
 // ══════════════════ INGRESOS ══════════════════
@@ -3720,7 +3726,7 @@ function addCustomCategory(type){
 
 function refreshIngresoSelects(){
   const sel=document.getElementById('ing-cliente');if(!sel)return;
-  sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+S.clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
+  sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+S.clientes.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
   const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
   // Rebuild ingreso category dropdown with custom categories
   const ingCatSel=document.getElementById('ing-categoria');
@@ -3773,7 +3779,7 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.clienteNombre||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${ingCatLabel}</span></td><td style="max-width:180px;">${ingDesc}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -3802,8 +3808,8 @@ function onEgrMetodoChange(sel){
 
 function refreshEgresoSelects(){
   const sel=document.getElementById('egr-suplidor');if(!sel)return;
-  sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+S.suplidores.map(s=>`<option value="${s.id}">${s.nombre}</option>`).join('');
-  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+  sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+S.suplidores.map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
   // Rebuild egreso category dropdown with custom categories
   const egrCatSel=document.getElementById('egr-categoria');
   if(egrCatSel){
@@ -3866,7 +3872,7 @@ function renderEgresos(){
     const acct=S.accounts[x.cuentaIdx]?.name||'—';
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${x.suplidorNombre||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${egrCatLabel}</span></td><td style="max-width:180px;">${egrDesc}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -4093,7 +4099,7 @@ const REP_CONFIGS={
       return items.map(x=>{
         const st=cxcSt(x),stC=st==='pagada'?'#818cf8':st==='vencida'?'#ef4444':'#b0bbcf';
         const paid=x.amountPaid||x.amount,pend=st==='pagada'?0:x.amount;
-        return{cells:[x.invoice||'—',x.client||x.clienteNombre||'—',fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,st==='pagada'?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:st==='pagada'?paid:0,pendiente:pend}};
+        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,st==='pagada'?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:st==='pagada'?paid:0,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),cob=rows.reduce((s,r)=>s+r.totals.cobrado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Facturado',val:fmt(tot),color:'#818cf8'},{label:'Total Cobrado',val:fmt(cob),color:'#818cf8'},{label:'Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Documentos',val:rows.length,color:'#b0bbcf'}];}
@@ -4117,7 +4123,7 @@ const REP_CONFIGS={
       return items.map(x=>{
         const ab=cxpPaidSoFar(x),pend=cxpPending(x);
         const stC=x._st==='pagada'?'#818cf8':x._st==='vencida'?'#ef4444':'#b0bbcf';
-        return{cells:[x.nombre,x._catL,x.concepto||'—',fmtDate(x.fecha),fmt(x.monto),ab>0?fmt(ab):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—',`<span style="color:${stC};">${x._st}</span>`],totals:{total:x.monto,abonado:ab,pendiente:pend}};
+        return{cells:[esc(x.nombre),x._catL,esc(x.concepto)||'—',fmtDate(x.fecha),fmt(x.monto),ab>0?fmt(ab):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—',`<span style="color:${stC};">${x._st}</span>`],totals:{total:x.monto,abonado:ab,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),ab=rows.reduce((s,r)=>s+r.totals.abonado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Obligaciones',val:fmt(tot),color:'#818cf8'},{label:'Total Pagado',val:fmt(ab),color:'#818cf8'},{label:'Saldo Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Registros',val:rows.length,color:'#b0bbcf'}];}
@@ -4133,7 +4139,7 @@ const REP_CONFIGS={
       if(f1) items=items.filter(x=>(x.clienteNombre||'')===(f1));
       if(f2) items=items.filter(x=>x.categoria===f2);
       items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-      return items.map(x=>({cells:[fmtDate(x.fecha),x.clienteNombre||'—',({...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,x.desc||'—',x.metodo||'—',`<span style="color:#818cf8;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
+      return items.map(x=>({cells:[fmtDate(x.fecha),esc(x.clienteNombre)||'—',({...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,esc(x.desc)||'—',x.metodo||'—',`<span style="color:#818cf8;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0);return[{label:'Total Ingresos',val:fmt(tot),color:'#818cf8'},{label:'Registros',val:rows.length,color:'#b0bbcf'},{label:'Promedio',val:fmt(rows.length?tot/rows.length:0),color:'#818cf8'}];}
   },
@@ -4148,7 +4154,7 @@ const REP_CONFIGS={
       if(f1) items=items.filter(x=>(x.suplidorNombre||'')===(f1));
       if(f2) items=items.filter(x=>x.categoria===f2);
       items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-      return items.map(x=>({cells:[fmtDate(x.fecha),x.suplidorNombre||'—',({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,x.desc||'—',x.metodo||'—',`<span style="color:#ef4444;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
+      return items.map(x=>({cells:[fmtDate(x.fecha),esc(x.suplidorNombre)||'—',({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,esc(x.desc)||'—',x.metodo||'—',`<span style="color:#ef4444;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0);return[{label:'Total Egresos',val:fmt(tot),color:'#ef4444'},{label:'Registros',val:rows.length,color:'#b0bbcf'},{label:'Promedio',val:fmt(rows.length?tot/rows.length:0),color:'#818cf8'}];}
   }
@@ -4339,7 +4345,7 @@ function renderDistribuciones(){
   document.getElementById('dist-total-anio').textContent=fmt(totalDistribuido(cy+'-01-01',cy+'-12-31'));
   const items=[...S.distribuciones].sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('dist-tbody').innerHTML=items.length?items.map(x=>
-    `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${S.accounts[x.cuentaIdx]?.name||'—'}</td><td>${methodBadge(x.metodo)}</td><td>${x.ref||'—'}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delDistribucion(${x.id})">×</button></td></tr>`
+    `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(S.accounts[x.cuentaIdx]?.name)||'—'}</td><td>${methodBadge(x.metodo)}</td><td>${esc(x.ref)||'—'}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delDistribucion(${x.id})">×</button></td></tr>`
   ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin distribuciones registradas.</div></td></tr>`;
 }
 
@@ -4399,13 +4405,21 @@ function generarLibroDiario(){
     `<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Asientos (líneas)</div><div class="bcard-value" style="color:#818cf8;">${_diarioData.length}</div></div>
      <div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Total Movido</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalDebe)}</div></div>`;
   document.getElementById('diario-tbody').innerHTML=_diarioData.length?_diarioData.map(l=>
-    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${l.concepto}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:12px;">${l.ref}</td></tr>`
+    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:12px;">${esc(l.ref)}</td></tr>`
   ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin movimientos en el período seleccionado.</div></td></tr>`;
+}
+// Protección contra "inyección de fórmulas CSV": si un texto empieza con = + - @
+// Excel/Sheets puede interpretarlo como fórmula al abrir el archivo exportado.
+// Anteponer un apóstrofe fuerza a que se trate siempre como texto plano.
+function csvSafe(v){
+  v = String(v==null?'':v);
+  if(/^[=+\-@]/.test(v)) return "'"+v;
+  return v;
 }
 function exportDiarioCSV(){
   if(!_diarioData.length){notify('warning','Sin Datos','Genera el Libro Diario primero.');return;}
   const rows=[['Fecha','Cuenta Debe','Cuenta Haber','Concepto','Monto','Referencia'].join(',')];
-  _diarioData.forEach(l=>rows.push([fmtDate(l.fecha),cuentaLabel(l.debeCode),cuentaLabel(l.haberCode),(l.concepto||'').replace(/,/g,';'),l.monto.toFixed(2),(l.ref||'').replace(/,/g,';')].join(',')));
+  _diarioData.forEach(l=>rows.push([fmtDate(l.fecha),cuentaLabel(l.debeCode),cuentaLabel(l.haberCode),csvSafe((l.concepto||'').replace(/,/g,';')),l.monto.toFixed(2),csvSafe((l.ref||'').replace(/,/g,';'))].join(',')));
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.join('\n'));
   a.download=`libro_diario_${today()}.csv`;
@@ -4461,7 +4475,7 @@ function generarLibroMayor(){
       <h3>${c.label} <span style="font-size:12px;color:#8899bb;font-weight:400;">(${c.deudora?'naturaleza deudora':'naturaleza acreedora'})</span></h3>
       <div class="table-wrap"><table>
         <thead><tr><th>Fecha</th><th>Concepto</th><th>Referencia</th><th>Debe</th><th>Haber</th><th>Saldo</th></tr></thead>
-        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${f.concepto}</td><td style="color:#8899bb;font-size:12px;">${f.ref}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
+        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${esc(f.concepto)}</td><td style="color:#8899bb;font-size:12px;">${esc(f.ref)}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;background:rgba(79,70,229,.06);">Saldo Final</td><td class="td-mono" style="font-weight:700;color:#818cf8;background:rgba(79,70,229,.06);">${fmt(c.saldoFinal)}</td></tr></tfoot>
       </table></div>
     </div>`).join(''):'<div class="empty-state">Sin movimientos en el período seleccionado.</div>';
@@ -4470,7 +4484,8 @@ function generarLibroMayor(){
 function exportReportCSV(){
   if(!_repData.length){notify('warning','Sin Datos','Genera un reporte primero.');return;}
   const cfg=REP_CONFIGS[_repSection];
-  const clean=c=>c.replace(/<[^>]*>/g,'').replace(/,/g,';').trim();
+  const unesc=c=>c.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  const clean=c=>csvSafe(unesc(c.replace(/<[^>]*>/g,'')).replace(/,/g,';').trim());
   const rows=[cfg.headers.join(','),..._repData.map(r=>r.cells.map(clean).join(','))];
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.join('\n'));
