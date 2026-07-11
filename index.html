@@ -561,7 +561,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:12px;padding:12px 22px;" onclick="importData()">Importar</button>
     <button class="btn" style="background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:12px;padding:12px 22px;" onclick="cerrarSistema()" title="Exportar y cerrar">Cerrar</button>
     <button class="btn btn-indigo" style="font-size:12px;padding:12px 26px;" onclick="exportData()">Exportar</button>
-    <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
+    <input autocomplete="off" type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
   </div>
 </div>
 
@@ -649,7 +649,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
             <div class="bcard-label">Límite <span style="color:#818cf8;font-size:11px;">✎</span></div>
-            <input type="text" inputmode="decimal" id="ccLimitInput" placeholder="0.00"
+            <input autocomplete="off" type="text" inputmode="decimal" id="ccLimitInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.4);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.creditLimit||''"
               onblur="if(this.value)this.value=fmtNum(parseFloat(this.value.replace(/,/g,''))||0)"
@@ -661,7 +661,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           </div>
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
             <div class="bcard-label">Disponible Real <span style="color:#818cf8;font-size:11px;">✎</span></div>
-            <input type="text" inputmode="decimal" id="ccAvailInput" placeholder="0.00"
+            <input autocomplete="off" type="text" inputmode="decimal" id="ccAvailInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.5);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.availableRD!=null?S.creditCard.availableRD:''"
               onblur="if(this.value)this.value=fmtNum(parseFloat(this.value.replace(/,/g,''))||0)"
@@ -676,7 +676,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
             <div class="bcard-label">Límite USD <span style="color:#818cf8;font-size:11px;">✎</span></div>
-            <input type="text" inputmode="decimal" id="ccLimitUSDInput" placeholder="0.00"
+            <input autocomplete="off" type="text" inputmode="decimal" id="ccLimitUSDInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.4);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.creditLimitUSD||''"
               onblur="if(this.value)this.value=fmtNum(parseFloat(this.value.replace(/,/g,''))||0)"
@@ -688,7 +688,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           </div>
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
             <div class="bcard-label">Disponible Real USD <span style="color:#818cf8;font-size:11px;">✎</span></div>
-            <input type="text" inputmode="decimal" id="ccAvailUSDInput" placeholder="0.00"
+            <input autocomplete="off" type="text" inputmode="decimal" id="ccAvailUSDInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.5);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.availableUSD!=null?S.creditCard.availableUSD:''"
               onblur="if(this.value)this.value=fmtNum(parseFloat(this.value.replace(/,/g,''))||0)"
@@ -702,9 +702,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="cc-config">
     <h3>Configuración de Tarjeta</h3>
     <div class="form-grid">
-      <div class="form-group"><label>Nombre / Banco emisor</label><input type="text" id="cc-name" placeholder="Ej: Visa Banreservas"></div>
-      <div class="form-group"><label>Límite de Crédito (RD$)</label><input type="number" id="cc-limit" placeholder="0.00" min="0" step="0.01"></div>
-      <div class="form-group"><label>Tasa de cambio (RD$ por US$1)</label><input type="number" id="cc-rate" placeholder="Ej: 59.50" min="1" step="0.01" oninput="updateCCCards()"></div>
+      <div class="form-group"><label>Nombre / Banco emisor</label><input autocomplete="off" type="text" id="cc-name" placeholder="Ej: Visa Banreservas"></div>
+      <div class="form-group"><label>Límite de Crédito (RD$)</label><input autocomplete="off" type="number" id="cc-limit" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group"><label>Tasa de cambio (RD$ por US$1)</label><input autocomplete="off" type="number" id="cc-rate" placeholder="Ej: 59.50" min="1" step="0.01" oninput="updateCCCards()"></div>
       <div class="form-group"><label>Cuenta bancaria para pagos</label><select id="cc-linked-account"></select></div>
     </div>
     <div class="form-actions"><button class="btn" style="background:#818cf8;color:#020510;font-weight:600;" onclick="saveCCConfig()">Guardar configuración</button></div>
@@ -716,7 +716,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="add-form">
     <h3>Registrar Movimiento</h3>
     <div class="form-grid">
-      <div class="form-group"><label>Fecha</label><input type="date" id="cc-date" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="cc-date" onclick="cdpOpen(this,event)"></div>
       <div class="form-group"><label>Tipo</label>
         <select id="cc-type"><option value="cargo">Cargo / Compra</option><option value="pago">Pago a tarjeta</option></select>
       </div>
@@ -726,7 +726,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <option value="RD$">RD$</option>
             <option value="USD">US$</option>
           </select>
-          <input type="number" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;">
+          <input autocomplete="off" type="number" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;">
         </div>
       </div>
       <div class="form-group"><label>Categoría</label>
@@ -758,7 +758,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
-      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input type="text" id="cc-desc" placeholder="Descripción del cargo..."></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="cc-desc" placeholder="Descripción del cargo..."></div>
     </div>
     <div class="form-actions"><button class="btn" style="background:#818cf8;color:#020510;font-weight:600;" onclick="addCCTx()">Registrar</button></div>
     <p style="font-size:13px;color:#6b7a99;margin-top:10px;">Al registrar un <strong>Pago</strong>, se debitará automáticamente de la cuenta bancaria enlazada.</p>
@@ -793,7 +793,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <!-- NCF -->
       <div class="form-group" style="width:130px;flex-shrink:0;">
         <label>NCF</label>
-        <input type="text" id="cxc-invoice" placeholder="NCF"
+        <input autocomplete="off" type="text" id="cxc-invoice" placeholder="NCF"
           oninput="checkDupInvoice(this)"
           style="text-transform:uppercase;height:44px;box-sizing:border-box;">
         <div id="cxc-invoice-warn" style="display:none;margin-top:5px;font-size:12px;color:#ef4444;font-weight:600;letter-spacing:.04em;">
@@ -811,7 +811,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <!-- Descripción -->
       <div class="form-group" style="flex:1;">
         <label>Descripción</label>
-        <input type="text" id="cxc-desc" placeholder="Detalle del servicio o producto..." style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" id="cxc-desc" placeholder="Detalle del servicio o producto..." style="height:44px;box-sizing:border-box;">
       </div>
       <!-- Categoría + -->
       <div class="form-group" style="width:190px;flex-shrink:0;">
@@ -826,7 +826,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:4px;">
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Fecha de Creación</label>
-        <input type="date" id="cxc-issued" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="date" id="cxc-issued" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
         <label>Condiciones de Pago</label>
@@ -845,7 +845,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
         <label style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
-        <input type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01"
+        <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01"
           oninput="this.style.color=this.value?'#818cf8':'#4a5578'"
           style="font-family:var(--mono);font-size:20px;font-weight:700;color:#4a5578;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;">
       </div>
@@ -866,7 +866,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="pagada">Pagada</option>
         </select>
       </div>
-      <div class="form-group"><label>Buscar cliente</label><input type="text" id="cxc-filter-client" oninput="renderCXC()" placeholder="Buscar..." style="width:160px;"></div>
+      <div class="form-group"><label>Buscar cliente</label><input autocomplete="off" type="text" id="cxc-filter-client" oninput="renderCXC()" placeholder="Buscar..." style="width:160px;"></div>
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
@@ -935,7 +935,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group">
         <label>Buscar</label>
-        <input type="text" id="cxp-filter-search" oninput="renderCXP()" placeholder="Nombre, concepto..." style="width:200px;">
+        <input autocomplete="off" type="text" id="cxp-filter-search" oninput="renderCXP()" placeholder="Nombre, concepto..." style="width:200px;">
       </div>
       <div style="align-self:flex-end;">
         <button id="cxp-saldadas-btn" onclick="toggleCxPSaldadas()" class="btn btn-ghost" style="border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 18px;font-size:11px;letter-spacing:.1em;">
@@ -990,14 +990,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <!-- Monto -->
     <div class="form-group" style="margin-bottom:14px;">
       <label>Monto a Pagar (RD$)</label>
-      <input type="number" id="cxp-pay-amount" placeholder="0.00" min="0.01" step="0.01"
+      <input autocomplete="off" type="number" id="cxp-pay-amount" placeholder="0.00" min="0.01" step="0.01"
         style="font-family:var(--font-mono);22px;font-weight:600;border-color:rgba(79,70,229,.4);">
     </div>
 
     <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
       <div class="form-group">
         <label>Fecha de Pago</label>
-        <input type="date" id="cxp-pay-date" onclick="cdpOpen(this,event)">
+        <input autocomplete="off" type="date" id="cxp-pay-date" onclick="cdpOpen(this,event)">
       </div>
       <div class="form-group">
         <label>Forma de Pago</label>
@@ -1015,7 +1015,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="grid-column:span 2;">
         <label>Referencia / Nota</label>
-        <input type="text" id="cxp-pay-ref" placeholder="Número de transferencia, cheque, etc.">
+        <input autocomplete="off" type="text" id="cxp-pay-ref" placeholder="Número de transferencia, cheque, etc.">
       </div>
     </div>
 
@@ -1043,7 +1043,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Fecha</label>
-        <input type="date" id="ing-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="date" id="ing-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
       <div class="form-group" style="width:240px;flex-shrink:0;">
         <label>Cliente</label>
@@ -1072,14 +1072,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Monto (RD$)</label>
-        <input type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
       </div>
     </div>
     <!-- Row 2: Descripción · Método · Cuenta -->
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
       <div class="form-group" style="flex:1;">
         <label>Descripción</label>
-        <input type="text" id="ing-desc" placeholder="Descripción del servicio o venta..." style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" id="ing-desc" placeholder="Descripción del servicio o venta..." style="height:44px;box-sizing:border-box;">
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
         <label>Forma de Cobro</label>
@@ -1107,7 +1107,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="transactions-section">
     <h3>Historial de Ingresos</h3>
     <div class="filter-bar">
-      <div class="form-group"><label>Mes</label><input type="month" id="ing-filter-mes" oninput="renderIngresos()" style="width:160px;"></div>
+      <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="ing-filter-mes" oninput="renderIngresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
         <select id="ing-filter-cat" onchange="renderIngresos()" style="width:200px;">
           <option value="">Todas</option>
@@ -1148,7 +1148,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Fecha</label>
-        <input type="date" id="egr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="date" id="egr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
       <div class="form-group" style="flex:1;">
         <label>Beneficiario</label>
@@ -1186,14 +1186,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Monto (RD$)</label>
-        <input type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
       </div>
     </div>
     <!-- Row 2: Descripción · Método · Cuenta/Nota -->
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;" id="egr-row2">
       <div class="form-group" style="flex:1;">
         <label>Descripción</label>
-        <input type="text" id="egr-desc" placeholder="Descripción del gasto..." style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" id="egr-desc" placeholder="Descripción del gasto..." style="height:44px;box-sizing:border-box;">
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
         <label>Forma de Pago</label>
@@ -1222,7 +1222,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="transactions-section">
     <h3>Historial de Egresos</h3>
     <div class="filter-bar">
-      <div class="form-group"><label>Mes</label><input type="month" id="egr-filter-mes" oninput="renderEgresos()" style="width:160px;"></div>
+      <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="egr-filter-mes" oninput="renderEgresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
         <select id="egr-filter-cat" onchange="renderEgresos()" style="width:170px;">
           <option value="">Todas</option>
@@ -1256,7 +1256,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div><h2 style="font-family:var(--font-display);35px;color:#818cf8;">Clientes</h2><p style="18px;color:#9ca3af;">Directorio exclusivo de clientes · solo aparecen en Ingresos y CxC</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
       <button class="btn btn-primary" onclick="openClienteModal()">Nuevo Cliente</button>
     </div>
   </div>
@@ -1271,7 +1271,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div><h2 style="font-family:var(--font-display);35px;color:#4f46e5;">Suplidores</h2><p style="18px;color:#9ca3af;">Directorio exclusivo de suplidores · solo aparecen en Egresos y CxP</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
       <button class="btn" style="background:#4f46e5;color:#1a0800;font-weight:600;" onclick="openSuplidorModal()">Nuevo Suplidor</button>
     </div>
   </div>
@@ -1355,9 +1355,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <div>
           <div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Período</div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <input type="date" id="rep-desde" style="min-width:160px;" onclick="cdpOpen(this,event)">
+            <input autocomplete="off" type="date" id="rep-desde" style="min-width:160px;" onclick="cdpOpen(this,event)">
             <span style="color:#4a5578;font-size:13px;">—</span>
-            <input type="date" id="rep-hasta" style="min-width:160px;" onclick="cdpOpen(this,event)">
+            <input autocomplete="off" type="date" id="rep-hasta" style="min-width:160px;" onclick="cdpOpen(this,event)">
           </div>
         </div>
 
@@ -1444,8 +1444,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <!-- LIBRO DIARIO VIEW -->
   <div id="diarioView" style="display:none;">
     <div class="filter-bar">
-      <div class="form-group"><label>Desde</label><input type="date" id="diario-desde" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Hasta</label><input type="date" id="diario-hasta" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Desde</label><input autocomplete="off" type="date" id="diario-desde" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Hasta</label><input autocomplete="off" type="date" id="diario-hasta" onclick="cdpOpen(this,event)"></div>
       <div style="align-self:flex-end;display:flex;gap:8px;">
         <button class="btn btn-primary" onclick="generarLibroDiario()">Generar Libro Diario</button>
         <button class="btn btn-secondary" onclick="exportDiarioCSV()">CSV</button>
@@ -1464,8 +1464,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <!-- LIBRO MAYOR VIEW -->
   <div id="mayorView" style="display:none;">
     <div class="filter-bar">
-      <div class="form-group"><label>Desde</label><input type="date" id="mayor-desde" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Hasta</label><input type="date" id="mayor-hasta" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Desde</label><input autocomplete="off" type="date" id="mayor-desde" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Hasta</label><input autocomplete="off" type="date" id="mayor-hasta" onclick="cdpOpen(this,event)"></div>
       <div style="align-self:flex-end;">
         <button class="btn btn-primary" onclick="generarLibroMayor()">Generar Libro Mayor</button>
       </div>
@@ -1483,13 +1483,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <h3>Registrar Distribución de Utilidades</h3>
       <p style="14px;color:#9ca3af;margin-bottom:14px;">Retiro de capital ya generado — no se registra como gasto ni afecta el Estado de Resultados.</p>
       <div class="form-grid">
-        <div class="form-group"><label>Fecha</label><input type="date" id="dist-fecha" onclick="cdpOpen(this,event)"></div>
-        <div class="form-group"><label>Monto (RD$)</label><input type="number" id="dist-monto" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="dist-fecha" onclick="cdpOpen(this,event)"></div>
+        <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="dist-monto" min="0" step="0.01" placeholder="0.00"></div>
         <div class="form-group"><label>Cuenta de Origen</label><select id="dist-cuenta"></select></div>
         <div class="form-group"><label>Forma de Pago</label>
           <select id="dist-metodo"><option value="transferencia">Transferencia</option><option value="cheque">Cheque</option><option value="efectivo">Efectivo</option></select>
         </div>
-        <div class="form-group" style="grid-column:span 2;"><label>Referencia / Nota</label><input type="text" id="dist-ref" placeholder="Opcional..."></div>
+        <div class="form-group" style="grid-column:span 2;"><label>Referencia / Nota</label><input autocomplete="off" type="text" id="dist-ref" placeholder="Opcional..."></div>
       </div>
       <div class="form-actions"><button class="btn btn-primary" onclick="confirmDistribucion()">Registrar Distribución</button></div>
     </div>
@@ -1543,7 +1543,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group">
         <label>Fecha de Cobro</label>
-        <input type="date" id="pay-date" onclick="cdpOpen(this,event)">
+        <input autocomplete="off" type="date" id="pay-date" onclick="cdpOpen(this,event)">
       </div>
       <div class="form-group" style="grid-column:span 2;" id="pay-bank-wrap">
         <label>Cuenta bancaria donde se recibió</label>
@@ -1557,7 +1557,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="grid-column:span 2;">
         <label>Referencia / Nota</label>
-        <input type="text" id="pay-ref" placeholder="N° transferencia, cheque, OC del cliente...">
+        <input autocomplete="off" type="text" id="pay-ref" placeholder="N° transferencia, cheque, OC del cliente...">
       </div>
     </div>
 
@@ -1582,7 +1582,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           </div>
           <div class="form-group" style="margin:0;">
             <label>Monto Retenido</label>
-            <input type="number" id="pay-ret-amount" placeholder="0.00" min="0" step="0.01"
+            <input autocomplete="off" type="number" id="pay-ret-amount" placeholder="0.00" min="0" step="0.01"
               style="border-color:rgba(239,68,68,.4);" oninput="calcPayNet()">
           </div>
           <div>
@@ -1604,7 +1604,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="margin:0;">
         <label>Monto recibido (RD$) — editable si difiere</label>
-        <input type="number" id="pay-net-amount" placeholder="0.00" min="0" step="0.01"
+        <input autocomplete="off" type="number" id="pay-net-amount" placeholder="0.00" min="0" step="0.01"
           style="border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;"
           oninput="document.getElementById('pay-net-display').textContent=fmt(parseFloat(this.value)||0)">
       </div>
@@ -1620,7 +1620,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="rename-dialog" id="renameDialog">
   <div class="rename-box">
     <h3>Renombrar Cuenta</h3>
-    <input type="text" id="renameInput" placeholder="Nombre de la cuenta...">
+    <input autocomplete="off" type="text" id="renameInput" placeholder="Nombre de la cuenta...">
     <div class="actions">
       <button class="btn btn-primary" onclick="confirmRename()">Guardar</button>
       <button class="btn btn-secondary" onclick="closeRename()">Cancelar</button>
@@ -1634,12 +1634,12 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <button class="modal-close" onclick="closeModal('clienteModal')">×</button>
     <h2 style="color:#818cf8;26px;">Cliente</h2>
     <div class="form-grid" style="gap:14px;">
-      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input type="text" id="cli-nombre" placeholder="Nombre del cliente..."></div>
-      <div class="form-group"><label>RNC / Cédula</label><input type="text" id="cli-rnc" placeholder="000-0000000-0"></div>
-      <div class="form-group"><label>Email</label><input type="email" id="cli-email" placeholder="correo@cliente.com"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="cli-tel" placeholder="(809) 000-0000"></div>
-      <div class="form-group"><label>Contacto</label><input type="text" id="cli-contacto" placeholder="Persona de contacto"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Dirección</label><input type="text" id="cli-dir" placeholder="Dirección del cliente"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="cli-nombre" placeholder="Nombre del cliente..."></div>
+      <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="cli-rnc" placeholder="000-0000000-0"></div>
+      <div class="form-group"><label>Email</label><input autocomplete="off" type="email" id="cli-email" placeholder="correo@cliente.com"></div>
+      <div class="form-group"><label>Teléfono</label><input autocomplete="off" type="text" id="cli-tel" placeholder="(809) 000-0000"></div>
+      <div class="form-group"><label>Contacto</label><input autocomplete="off" type="text" id="cli-contacto" placeholder="Persona de contacto"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Dirección</label><input autocomplete="off" type="text" id="cli-dir" placeholder="Dirección del cliente"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn btn-primary" style="flex:1;" onclick="saveCliente()">Guardar</button>
@@ -1654,8 +1654,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <button class="modal-close" onclick="closeModal('suplidorModal')">×</button>
     <h2 style="color:#4f46e5;26px;">Suplidor</h2>
     <div class="form-grid" style="gap:14px;">
-      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input type="text" id="sup-nombre" placeholder="Nombre del suplidor..."></div>
-      <div class="form-group"><label>RNC / Cédula</label><input type="text" id="sup-rnc" placeholder="000-0000000-0"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="sup-nombre" placeholder="Nombre del suplidor..."></div>
+      <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="sup-rnc" placeholder="000-0000000-0"></div>
       <div class="form-group"><label>Categoría</label>
         <select id="sup-categoria">
           <option value="materiales">Materiales & Suministros</option>
@@ -1665,9 +1665,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="otros">Otros</option>
         </select>
       </div>
-      <div class="form-group"><label>Email</label><input type="email" id="sup-email" placeholder="correo@suplidor.com"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="sup-tel" placeholder="(809) 000-0000"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Dirección</label><input type="text" id="sup-dir" placeholder="Dirección del suplidor"></div>
+      <div class="form-group"><label>Email</label><input autocomplete="off" type="email" id="sup-email" placeholder="correo@suplidor.com"></div>
+      <div class="form-group"><label>Teléfono</label><input autocomplete="off" type="text" id="sup-tel" placeholder="(809) 000-0000"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Dirección</label><input autocomplete="off" type="text" id="sup-dir" placeholder="Dirección del suplidor"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn" style="background:#4f46e5;color:#1a0800;font-weight:600;flex:1;" onclick="saveSuplidor()">Guardar</button>
@@ -1685,21 +1685,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="form-grid" style="gap:14px;">
       <div class="form-group" style="grid-column:span 2;">
         <label>Límite de la Tarjeta (RD$)</label>
-        <input type="number" id="ccbal-limitRD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);font-size:16px;">
+        <input autocomplete="off" type="number" id="ccbal-limitRD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);font-size:16px;">
       </div>
       <div class="form-group" style="grid-column:span 2;">
         <label style="color:#818cf8;">Balance Disponible Real (RD$)</label>
-        <input type="number" id="ccbal-availRD" placeholder="0.00" min="0" step="0.01"
+        <input autocomplete="off" type="number" id="ccbal-availRD" placeholder="0.00" min="0" step="0.01"
           style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);">
         <p style="font-size:11px;color:#6b7a99;margin-top:6px;">← Este es el saldo disponible que aparece en tu estado de cuenta hoy.</p>
       </div>
       <div class="form-group">
         <label>Límite USD</label>
-        <input type="number" id="ccbal-limitUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
+        <input autocomplete="off" type="number" id="ccbal-limitUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
       </div>
       <div class="form-group">
         <label>Disponible Real USD</label>
-        <input type="number" id="ccbal-availUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
+        <input autocomplete="off" type="number" id="ccbal-availUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
       </div>
 
     </div>
@@ -1726,7 +1726,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div style="background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:14px 18px;margin-bottom:18px;">
       <label style="font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700;text-transform:uppercase;display:block;margin-bottom:10px;">Opciones</label>
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#b0bbcf;font-weight:400;">
-        <input type="checkbox" id="corte-clear" style="width:16px;height:16px;accent-color:var(--cyan);">
+        <input autocomplete="off" type="checkbox" id="corte-clear" style="width:16px;height:16px;accent-color:var(--cyan);">
         Limpiar historial de transacciones anteriores (partir desde cero)
       </label>
       <p style="font-size:11px;color:#8899bb;font-weight:400;margin-top:8px;padding-left:26px;">Si no marcas esta opción, el Balance Inicial se actualiza pero las transacciones se conservan.</p>
@@ -1751,10 +1751,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <h2 style="color:#818cf8;font-size:17px;letter-spacing:.05em;text-transform:uppercase;">Nuevo Cliente</h2>
     <p style="color:#8899bb;font-weight:400;font-size:12px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
     <div class="form-grid" style="gap:12px;">
-      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input type="text" id="qc-nombre" placeholder="Nombre del cliente..."></div>
-      <div class="form-group"><label>RNC / Cédula</label><input type="text" id="qc-rnc" placeholder="000-0000000-0"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="qc-tel" placeholder="(809) 000-0000"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Email</label><input type="email" id="qc-email" placeholder="correo@cliente.com"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="qc-nombre" placeholder="Nombre del cliente..."></div>
+      <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="qc-rnc" placeholder="000-0000000-0"></div>
+      <div class="form-group"><label>Teléfono</label><input autocomplete="off" type="text" id="qc-tel" placeholder="(809) 000-0000"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Email</label><input autocomplete="off" type="email" id="qc-email" placeholder="correo@cliente.com"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn btn-indigo" style="flex:1;" onclick="saveQuickCliente()">Guardar y Seleccionar</button>
@@ -1770,10 +1770,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <h2 style="color:#818cf8;font-size:17px;letter-spacing:.05em;text-transform:uppercase;">Nuevo Beneficiario</h2>
     <p style="color:#8899bb;font-weight:400;font-size:12px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
     <div class="form-grid" style="gap:12px;">
-      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input type="text" id="qb-nombre" placeholder="Nombre del beneficiario..."></div>
-      <div class="form-group"><label>RNC / Cédula</label><input type="text" id="qb-rnc" placeholder="000-0000000-0"></div>
-      <div class="form-group"><label>Teléfono</label><input type="text" id="qb-tel" placeholder="(809) 000-0000"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Email</label><input type="email" id="qb-email" placeholder="correo@beneficiario.com"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="qb-nombre" placeholder="Nombre del beneficiario..."></div>
+      <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="qb-rnc" placeholder="000-0000000-0"></div>
+      <div class="form-group"><label>Teléfono</label><input autocomplete="off" type="text" id="qb-tel" placeholder="(809) 000-0000"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Email</label><input autocomplete="off" type="email" id="qb-email" placeholder="correo@beneficiario.com"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn btn-indigo" style="flex:1;" onclick="saveQuickBeneficiario()">Guardar y Seleccionar</button>
@@ -2016,6 +2016,10 @@ function activateTab(idx){
              ingresos:'tab-ing',egresos:'tab-egr',clientes:'tab-cli',
              suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con',
              contabilidad:'tab-contab'};
+  // Defensa contra valores residuales (restauración del navegador u otra causa) en campos de
+  // texto libre que NUNCA deben traer contenido por defecto — deben abrir siempre vacíos.
+  const limpiarCampo=id=>{const el=document.getElementById(id);if(el)el.value='';};
+  ['cc-desc','cxc-desc','cxc-filter-client','ing-desc','egr-desc','cxp-filter-search'].forEach(limpiarCampo);
   if(typeof idx==='number'){
     _activeAccount=idx;
     document.getElementById('tab-cuentas').classList.add('active');
@@ -2061,7 +2065,7 @@ function accountHTML(i){
   <div class="init-bar">
     <span style="18px;color:#818cf8;font-weight:600;">Balance Inicial</span>
     <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:200px;">
-      <input type="number" id="initBal-${i}" value="${acc.initialBalance}" min="0" step="0.01" placeholder="0.00">
+      <input autocomplete="off" type="number" id="initBal-${i}" value="${acc.initialBalance}" min="0" step="0.01" placeholder="0.00">
       <button class="btn" style="background:#4f46e5;color:#fff;font-weight:600;padding:7px 14px;" onclick="saveIB(${i})">Guardar</button>
     </div>
     <span style="18px;color:#9ca3af;">Punto de partida para el cálculo del balance.</span>
@@ -2069,7 +2073,7 @@ function accountHTML(i){
   <div class="add-form">
     <h3>Registrar Movimiento</h3>
     <div class="form-grid">
-      <div class="form-group"><label>Fecha</label><input type="date" id="f-date-${i}" value="${today()}" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="f-date-${i}" value="${today()}" onclick="cdpOpen(this,event)"></div>
       <div class="form-group"><label>Tipo</label><select id="f-type-${i}" onchange="onFTypeChange(${i})"><option value="ingreso">Ingreso / Depósito</option><option value="egreso">Egreso / Retiro / Pago</option></select></div>
       <div class="form-group"><label>Método</label><select id="f-method-${i}" onchange="onFMethodChange(${i})">
           <option value="transferencia">Transferencia</option>
@@ -2077,8 +2081,8 @@ function accountHTML(i){
           <option value="cheque">Cheque</option>
           <option value="retiro">Retiro de Efectivo</option>
         </select></div>
-      <div class="form-group"><label>Monto (RD$)</label><input type="number" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01"></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
       <div class="form-group" id="f-related-wrap-${i}" style="grid-column:span 2;display:none;">
         <label id="f-related-label-${i}">Cuenta de Origen / Destino</label>
         <select id="f-related-${i}">
@@ -2096,8 +2100,8 @@ function accountHTML(i){
   <div class="transactions-section">
     <h3>Movimientos</h3>
     <div class="filter-bar">
-      <div class="form-group"><label>Desde</label><input type="date" id="f-from-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Hasta</label><input type="date" id="f-to-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Desde</label><input autocomplete="off" type="date" id="f-from-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Hasta</label><input autocomplete="off" type="date" id="f-to-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
       <div class="form-group"><label>Tipo</label><select id="f-ftype-${i}" onchange="renderTx(${i})"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="egreso">Egresos</option></select></div>
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="clearF(${i})">Limpiar</button>
     </div>
@@ -2909,9 +2913,9 @@ function buildCXPForm(section){
     } else if(f.type==='select'){
       input = `<select id="cxp-f-${f.id}">${f.options.map(o=>`<option value="${o.toLowerCase().replace(/ /g,'_')}">${o}</option>`).join('')}</select>`;
     } else if(f.type==='date'){
-      input = `<input type="date" id="cxp-f-${f.id}" value="${today()}" onclick="cdpOpen(this,event)">`;
+      input = `<input autocomplete="off" type="date" id="cxp-f-${f.id}" value="${today()}" onclick="cdpOpen(this,event)">`;
     } else {
-      input = `<input type="${f.type}" id="cxp-f-${f.id}" placeholder="${f.placeholder||''}" min="0" step="${f.type==='number'?'0.01':''}">`;
+      input = `<input autocomplete="off" type="${f.type}" id="cxp-f-${f.id}" placeholder="${f.placeholder||''}" min="0" step="${f.type==='number'?'0.01':''}">`;
     }
     return `<div class="form-group" style="${spanStyle}"><label>${f.label}</label>${input}</div>`;
   }).join('');
@@ -3968,7 +3972,7 @@ function openCorteModal(){
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;min-width:180px;">
         <label style="font-size:10px;color:#8899bb;font-weight:400;letter-spacing:.1em;text-transform:uppercase;">Saldo real al ${fmtDate(today())}</label>
-        <input type="number" id="corte-bal-${i}" value="${currentBal.toFixed(2)}" step="0.01"
+        <input autocomplete="off" type="number" id="corte-bal-${i}" value="${currentBal.toFixed(2)}" step="0.01"
           style="background:var(--s1);border:1px solid rgba(129,140,248,.3);border-radius:4px;color:var(--cyan);font-family:var(--mono);font-size:15px;font-weight:600;padding:8px 12px;outline:none;text-align:right;width:180px;">
       </div>
     </div>`;
