@@ -549,16 +549,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 <!-- ══ LOGIN GATE — acceso restringido con Firebase Authentication ══ -->
 <div id="loginGate" style="display:none;position:fixed;inset:0;z-index:999998;background:#020510;align-items:center;justify-content:center;">
-  <div style="width:100%;max-width:360px;padding:32px;text-align:center;">
-    <div style="margin-bottom:28px;">
+  <div style="width:100%;max-width:360px;padding:32px;">
+    <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:22px;font-weight:600;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;">ICG Financial <span style="color:#fff;">PRO</span></div>
       <div style="font-size:12px;color:#6b7a99;margin-top:8px;letter-spacing:.05em;text-transform:uppercase;">Acceso Restringido</div>
     </div>
-    <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:18px;display:none;"></div>
-    <button onclick="loginWithGoogle()" style="width:100%;height:48px;background:#fff;color:#1f1f1f;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.08-1.8 2.72v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.95 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.97H.96C.35 6.17 0 7.55 0 9s.35 2.83.96 4.03l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
-      Acceder con Google
-    </button>
+    <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Correo</label><input type="email" id="login-email" autocomplete="off" placeholder="tu@correo.com" style="width:100%;height:44px;box-sizing:border-box;"></div>
+    <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Contraseña</label><input type="password" id="login-password" autocomplete="off" placeholder="••••••••" style="width:100%;height:44px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')loginSubmit()"></div>
+    <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
+    <button class="btn btn-primary" style="width:100%;" onclick="loginSubmit()">Entrar</button>
   </div>
 </div>
 <button id="logoutBtn" onclick="logoutUser()" style="display:none;position:fixed;top:14px;right:14px;z-index:9000;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Cerrar Sesión</button>
@@ -4566,15 +4565,6 @@ function initFirebase(attempt){
     window.db = firebase.firestore();
     window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
     console.log('✅ Firebase inicializado correctamente');
-    // Captura errores del regreso de signInWithRedirect (si Google rechaza o hay un problema de configuración)
-    firebase.auth().getRedirectResult().catch(err=>{
-      console.error('Error de redirección de Google:', err);
-      const errEl=document.getElementById('login-error');
-      if(errEl){
-        errEl.textContent = 'No se pudo iniciar sesión con Google. Código: ' + (err.code||'desconocido');
-        errEl.style.display='block';
-      }
-    });
     // Acceso restringido: solo se carga la base de datos si hay una sesión válida
     // Y el correo coincide con el único autorizado (ver ALLOWED_EMAIL).
     firebase.auth().onAuthStateChanged(user=>{
@@ -4583,13 +4573,13 @@ function initFirebase(attempt){
         document.getElementById('logoutBtn').style.display='block';
         if(!_authResolved){ _authResolved=true; loadFromFirebase(); }
       } else if(user){
-        // Cuenta de Google válida pero no autorizada para este sistema — fuera.
+        // Sesión válida pero no autorizada para este sistema — fuera.
         _authResolved=false;
         firebase.auth().signOut();
         showLoadingOverlay(false);
         document.getElementById('logoutBtn').style.display='none';
         const errEl=document.getElementById('login-error');
-        errEl.textContent='Esta cuenta de Google no tiene acceso a este sistema.';
+        errEl.textContent='Esta cuenta no tiene acceso a este sistema.';
         errEl.style.display='block';
         showLoginGate();
       } else {
@@ -4606,8 +4596,7 @@ function initFirebase(attempt){
   }
 }
 // Único correo autorizado a entrar al sistema. La verdadera protección vive en la
-// regla de Firestore (request.auth.token.email == ...) — esto es una capa extra
-// de UX para no mostrar la app a una cuenta de Google equivocada.
+// regla de Firestore (request.auth.token.email == ...) — esto es una capa extra de UX.
 const ALLOWED_EMAIL = 'icgcreatividadtaller@gmail.com';
 let _authResolved = false;
 function showLoginGate(){
@@ -4615,14 +4604,19 @@ function showLoginGate(){
   document.getElementById('loginGate').style.display='flex';
 }
 function hideLoginGate(){ document.getElementById('loginGate').style.display='none'; }
-function loginWithGoogle(){
+function loginSubmit(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
   const errEl=document.getElementById('login-error');
   errEl.style.display='none';
-  const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithRedirect(provider);
+  if(!email||!pass){ errEl.textContent='Completa correo y contraseña.'; errEl.style.display='block'; return; }
+  firebase.auth().signInWithEmailAndPassword(email,pass).catch(()=>{
+    errEl.textContent='Correo o contraseña incorrectos.';
+    errEl.style.display='block';
+  });
 }
 function logoutUser(){
-  icgConfirm('¿Cerrar sesión?','Cerrar Sesión','Salir').then(ok=>{
+  icgConfirm('¿Cerrar sesión? Tendrás que volver a ingresar tu correo y contraseña.','Cerrar Sesión','Salir').then(ok=>{
     if(!ok)return;
     firebase.auth().signOut();
   });
