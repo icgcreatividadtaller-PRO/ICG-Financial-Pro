@@ -1395,6 +1395,114 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="consolidated-grid" id="consolidatedGrid"></div>
 </div>
 
+<!-- ══ CONTABILIDAD — PLAN DE CUENTAS ══ -->
+<div class="panel" id="panel-contabilidad">
+  <div class="account-top">
+    <div class="account-name-area"><h2 style="color:#818cf8;">Contabilidad</h2><p>Plan de Cuentas formal · ICG Creatividad</p></div>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;" id="contabSubTabs">
+    <button class="acct-tab active" id="contab-tab-plan"         onclick="switchContab('plan')">Plan de Cuentas</button>
+    <button class="acct-tab"        id="contab-tab-diario"       onclick="switchContab('diario')">Libro Diario</button>
+    <button class="acct-tab"        id="contab-tab-mayor"        onclick="switchContab('mayor')">Libro Mayor</button>
+    <button class="acct-tab"        id="contab-tab-distribucion" onclick="switchContab('distribucion')">Distribución de Utilidades</button>
+  </div>
+
+  <!-- PLAN DE CUENTAS VIEW -->
+  <div id="planCuentasView">
+    <div class="add-form" style="margin-bottom:20px;">
+      <h3>Estructura del Plan de Cuentas</h3>
+      <p style="14px;color:#9ca3af;margin:6px 0 0;">La cuenta 2030 (Tarjeta de Crédito por Pagar) es una extensión necesaria para poder registrar en partida doble los cargos de Tarjeta — no estaba en la lista original, se agregó para que los libros cuadren.</p>
+      <div id="planCuentasTree" style="margin-top:10px;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      <div class="transactions-section">
+        <h3>Categorías de Ingresos → Cuenta</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Categoría</th><th>Cuenta Contable</th></tr></thead>
+          <tbody id="mapIngresosBody"></tbody>
+        </table></div>
+      </div>
+      <div class="transactions-section">
+        <h3>Categorías de Egresos → Cuenta</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Categoría</th><th>Cuenta Contable</th></tr></thead>
+          <tbody id="mapEgresosBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="transactions-section" style="margin-top:18px;">
+      <h3>Categorías de Tarjeta → Cuenta</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Categoría</th><th>Cuenta Contable</th></tr></thead>
+        <tbody id="mapTarjetaBody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- LIBRO DIARIO VIEW -->
+  <div id="diarioView" style="display:none;">
+    <div class="filter-bar">
+      <div class="form-group"><label>Desde</label><input type="date" id="diario-desde" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Hasta</label><input type="date" id="diario-hasta" onclick="cdpOpen(this,event)"></div>
+      <div style="align-self:flex-end;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="generarLibroDiario()">Generar Libro Diario</button>
+        <button class="btn btn-secondary" onclick="exportDiarioCSV()">CSV</button>
+      </div>
+    </div>
+    <div class="balance-cards" id="diario-summary" style="margin:16px 0;flex-wrap:wrap;gap:14px;"></div>
+    <div class="transactions-section">
+      <h3>Libro Diario</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Cuenta Debe</th><th>Cuenta Haber</th><th>Concepto</th><th>Monto</th><th>Referencia/NCF</th></tr></thead>
+        <tbody id="diario-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- LIBRO MAYOR VIEW -->
+  <div id="mayorView" style="display:none;">
+    <div class="filter-bar">
+      <div class="form-group"><label>Desde</label><input type="date" id="mayor-desde" onclick="cdpOpen(this,event)"></div>
+      <div class="form-group"><label>Hasta</label><input type="date" id="mayor-hasta" onclick="cdpOpen(this,event)"></div>
+      <div style="align-self:flex-end;">
+        <button class="btn btn-primary" onclick="generarLibroMayor()">Generar Libro Mayor</button>
+      </div>
+    </div>
+    <div id="mayor-content" style="margin-top:16px;"></div>
+  </div>
+
+  <!-- DISTRIBUCIÓN DE UTILIDADES VIEW -->
+  <div id="distribucionView" style="display:none;">
+    <div class="balance-cards" style="margin-bottom:20px;">
+      <div class="bcard"><div class="bcard-label">Distribuido este Año</div><div class="bcard-value negative" id="dist-total-anio">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Distribuido Histórico</div><div class="bcard-value negative" id="dist-total-historico">RD$0.00</div></div>
+    </div>
+    <div class="add-form">
+      <h3>Registrar Distribución de Utilidades</h3>
+      <p style="14px;color:#9ca3af;margin-bottom:14px;">Retiro de capital ya generado — no se registra como gasto ni afecta el Estado de Resultados.</p>
+      <div class="form-grid">
+        <div class="form-group"><label>Fecha</label><input type="date" id="dist-fecha" onclick="cdpOpen(this,event)"></div>
+        <div class="form-group"><label>Monto (RD$)</label><input type="number" id="dist-monto" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Cuenta de Origen</label><select id="dist-cuenta"></select></div>
+        <div class="form-group"><label>Forma de Pago</label>
+          <select id="dist-metodo"><option value="transferencia">Transferencia</option><option value="cheque">Cheque</option><option value="efectivo">Efectivo</option></select>
+        </div>
+        <div class="form-group" style="grid-column:span 2;"><label>Referencia / Nota</label><input type="text" id="dist-ref" placeholder="Opcional..."></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="confirmDistribucion()">Registrar Distribución</button></div>
+    </div>
+    <div class="transactions-section">
+      <h3>Historial de Distribuciones</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Cuenta</th><th>Método</th><th>Referencia</th><th>Monto</th><th></th></tr></thead>
+        <tbody id="dist-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
 <!-- MODALS -->
 <div class="modal-overlay" id="reportModal">
   <div class="modal">
@@ -1767,7 +1875,9 @@ function defaultState() {
     ingresos:   [],
     egresos:    [],
     categoriasIngresos: [],
-    categoriasEgresos:  []
+    categoriasEgresos:  [],
+    catAccountMap: { ingresos:{}, egresos:{}, tarjeta:{} },
+    distribuciones: []
   };
 }
 
@@ -1786,6 +1896,19 @@ if(!S.clientes)   S.clientes=[];
 if(!S.suplidores) S.suplidores=[];
 if(!S.ingresos)   S.ingresos=[];
 if(!S.egresos)    S.egresos=[];
+if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{}};
+if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
+if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
+if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
+if(!S.distribuciones) S.distribuciones=[];
+// Reserved payroll categories for the owner — must exist so 5030/5031/5032 are always available
+if(!S.categoriasEgresos) S.categoriasEgresos=[];
+[{key:'salario_titular',label:'Salario del Titular (bruto)'},
+ {key:'aporte_tss',label:'Aporte Patronal TSS'},
+ {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'}
+].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
+// Nota: seedDefaultCatAccountMap() se ejecuta dentro de init(), una vez que
+// PLAN_CUENTAS/ING_CAT_LABELS/EGR_CAT_LABELS (declarados más abajo con const) ya existen.
 
 let renameTarget=-1;
 function save(){
@@ -1819,13 +1942,28 @@ function methodBadge(m){
 }
 
 // ══════════════════ INIT ══════════════════
+function ensureContabFields(){
+  if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{},tarjeta:{}};
+  if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
+  if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
+  if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
+  if(!S.distribuciones) S.distribuciones=[];
+  if(!S.categoriasEgresos) S.categoriasEgresos=[];
+  [{key:'salario_titular',label:'Salario del Titular (bruto)'},
+   {key:'aporte_tss',label:'Aporte Patronal TSS'},
+   {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'}
+  ].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
+}
 function init(){
+  ensureContabFields();
   document.getElementById('cc-date').value=today();
   document.getElementById('cxc-issued').value=today();
   document.getElementById('ing-fecha').value=today();
   document.getElementById('egr-fecha').value=today();
   document.getElementById('cxc-issued').addEventListener('change', calcDue);
   calcDue();
+  seedDefaultCatAccountMap();
+  limpiarAsientosDevengoObsoletos();
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
   refreshIngresoSelects(); refreshEgresoSelects();
@@ -1847,7 +1985,8 @@ function renderTabs(){
    {id:'tab-sup',cls:'nav-indigo',label:'Suplidores',t:'suplidores'},
    {id:'tab-rent',cls:'',label:'Estado de Resultados',t:'rentabilidad'},
    {id:'tab-rep',cls:'',label:'Reportes',t:'reportes'},
-   {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'}
+   {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'},
+   {id:'tab-contab',cls:'nav-indigo',label:'Contabilidad',t:'contabilidad'}
   ].forEach(x=>{
     const btn=document.createElement('button');
     btn.className=`nav-btn ${x.cls}`; btn.id=x.id; btn.onclick=()=>activateTab(x.t);
@@ -1875,7 +2014,8 @@ function activateTab(idx){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   const map={cuentas:'tab-cuentas',cc:'tab-cc',cxc:'tab-cxc',cxp:'tab-cxp',
              ingresos:'tab-ing',egresos:'tab-egr',clientes:'tab-cli',
-             suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con'};
+             suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con',
+             contabilidad:'tab-contab'};
   if(typeof idx==='number'){
     _activeAccount=idx;
     document.getElementById('tab-cuentas').classList.add('active');
@@ -1895,6 +2035,7 @@ function activateTab(idx){
     if(idx==='rentabilidad') renderRentabilidad();
     if(idx==='reportes') renderReportes();
     if(idx==='consolidated') renderConsolidated();
+    if(idx==='contabilidad') renderContabilidad();
   }
 }
 
@@ -2148,7 +2289,8 @@ function addCCTx(){
   const cat=document.getElementById('cc-cat')?.value||'';
   if(!date||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa la Fecha y el Monto.');return;}
   if(cc.initAvailRD===undefined||cc.initAvailRD===null) cc.initAvailRD=cc.availableRD||0;
-  cc.transactions.push({id:Date.now(),date,type,amount,currency,desc,cat});
+  const txId=Date.now();
+  cc.transactions.push({id:txId,date,type,amount,currency,desc,cat});
   cc.transactions.sort((a,b)=>a.date.localeCompare(b.date));
   // USD balance update
   if(currency==='USD'){
@@ -2569,6 +2711,7 @@ function confirmPayment(){
     renderTx(bankIdx);
   }
   save(); renderCXC(); closePayModal();
+  // Base efectivo: el ingreso se reconoce al cobrar, no al emitir la factura.
   autoIngresoFromCxC(x, netAmount, date, method, isEfectivo ? null : bankIdx);
   let detail=`Factura: ${fmt(x.amount)}`;
   if(retType!=='ninguna') detail+=`<br>Retención (${retType.toUpperCase()}): -${fmt(retAmount)}`;
@@ -3064,7 +3207,7 @@ function confirmCXPPayment(){
     }
   }
   save(); closeCXPPayModal(); renderCXP();
-  // Auto-register as Egreso in P&L
+  // Base efectivo: el gasto se reconoce al pagar, no al recibir la obligación.
   autoEgresoFromCxP(item, amount, date, method, accountIdx);
 
   const isPartial = newPending > 0.009;
@@ -3371,13 +3514,23 @@ function openClienteModal(id=null){
   ['nombre','rnc','email','tel','contacto','dir'].forEach(f=>{const el=document.getElementById(`cli-${f}`);if(el)el.value=c?.[f]||'';});
   document.getElementById('clienteModal').classList.add('open');
 }
+// Nombres que son formas de pago, no personas/empresas reales — nunca deben poder
+// guardarse como Cliente o Suplidor (causaban que "Tarjeta de Crédito" apareciera en
+// los desplegables y buscadores de CxC/CxP/Egresos como si fuera un suplidor real).
+const NOMBRES_RESERVADOS_METODO_PAGO=['tarjeta de crédito','tarjeta de credito','tarjeta','efectivo',
+  'transferencia','transferencia bancaria','cheque','débito','debito','débito automático','debito automatico','tarjeta de débito','tarjeta de debito'];
+function esNombreDeMetodoDePago(nombre){
+  return NOMBRES_RESERVADOS_METODO_PAGO.includes((nombre||'').trim().toLowerCase());
+}
+
 function saveCliente(){
   const nombre=document.getElementById('cli-nombre').value.trim();if(!nombre){notify('error','Campo Requerido','El nombre es obligatorio.');return;}
+  if(esNombreDeMetodoDePago(nombre)){notify('error','Nombre No Válido',`"${nombre}" es una forma de pago, no un cliente. Usa el nombre real de la empresa o persona.`);return;}
   const obj={id:_editingClienteId||Date.now(),nombre,rnc:document.getElementById('cli-rnc').value.trim(),email:document.getElementById('cli-email').value.trim(),tel:document.getElementById('cli-tel').value.trim(),contacto:document.getElementById('cli-contacto').value.trim(),dir:document.getElementById('cli-dir').value.trim()};
   if(_editingClienteId){const i=S.clientes.findIndex(x=>x.id===_editingClienteId);S.clientes[i]=obj;}else S.clientes.push(obj);
   save();closeModal('clienteModal');renderClientes();refreshIngresoSelects();refreshCxCClientSelect();
   const origin=document.getElementById('clienteModal').dataset.origin||'';
-  if(origin==='cxc'){const s=document.getElementById('cxc-client');if(s)s.value=nuevo.id;}
+  if(origin==='cxc'){const s=document.getElementById('cxc-client');if(s)s.value=obj.id;}
   document.getElementById('clienteModal').dataset.origin='';
 }
 function deleteCliente(id){icgConfirm('¿Eliminar este cliente del directorio?','Eliminar Cliente','Eliminar').then(ok=>{if(!ok)return;S.clientes=S.clientes.filter(x=>x.id!==id);save();renderClientes();});}
@@ -3423,6 +3576,7 @@ function openSuplidorModal(id=null){
 }
 function saveSuplidor(){
   const nombre=document.getElementById('sup-nombre').value.trim();if(!nombre){notify('error','Campo Requerido','El nombre es obligatorio.');return;}
+  if(esNombreDeMetodoDePago(nombre)){notify('error','Nombre No Válido',`"${nombre}" es una forma de pago, no un suplidor. Usa el nombre real de la empresa o persona.`);return;}
   const obj={id:_editingSuplidorId||Date.now(),nombre,rnc:document.getElementById('sup-rnc').value.trim(),categoria:document.getElementById('sup-categoria').value,email:document.getElementById('sup-email').value.trim(),tel:document.getElementById('sup-tel').value.trim(),dir:document.getElementById('sup-dir').value.trim()};
   if(_editingSuplidorId){const i=S.suplidores.findIndex(x=>x.id===_editingSuplidorId);S.suplidores[i]=obj;}else S.suplidores.push(obj);
   save();closeModal('suplidorModal');renderSuplidores();refreshEgresoSelects();
@@ -3442,6 +3596,66 @@ function renderSuplidores(){
 // ══════════════════ INGRESOS ══════════════════
 const ING_CAT_LABELS={offset:'Impresión Offset',rot_vehicular:'Rotulación Vehicular',senaletica:'Señalética',rotulos_gen:'Rótulos Genéricos',diseño:'Diseño & Branding',exterior:'Publicidad Exterior',rotulos3d:'Rótulos 3D PVC',cristales:'Rotulación Cristales y Murales',acrilicas:'Placas Acrílicas',otros:'Otros'};
 const EGR_CAT_LABELS={materiales:'Materiales',nomina:'Nómina',alquiler:'Alquiler',luz:'Luz / Electricidad',internet:'Internet',telefono:'Teléfono',combustible:'Combustible',equipos:'Equipos',subcontratacion:'Subcontratación',publicidad:'Publicidad',impuestos:'Impuestos',contabilidad:'Contabilidad',transporte:'Transportación',impresion_offset:'Impresión Offset',impresion_gran_formato:'Gran Formato',impresion_digital:'Impresión Digital',rotulacion_egr:'Rotulación',instalacion:'Instalación',otros:'Otros'};
+
+// ══════════════════ PLAN DE CUENTAS ══════════════════
+// Categorías reservadas cuyo código contable NUNCA se remapea desde la UI
+// (compensación formal del titular — deben quedar siempre separadas de Gastos Operativos)
+const CUENTAS_FIJAS = { salario_titular:'5030', aporte_tss:'5031', aporte_infotep:'5032' };
+
+const PLAN_CUENTAS = [
+  {code:'1000',nombre:'ACTIVOS',nivel:1,tipo:'activo'},
+  {code:'1010',nombre:'Banco',nivel:2,tipo:'activo',parent:'1000'},
+  {code:'1020',nombre:'Cuentas por Cobrar',nivel:2,tipo:'activo',parent:'1000'},
+  {code:'1030',nombre:'Inventario/Repuestos',nivel:2,tipo:'activo',parent:'1000'},
+  {code:'2000',nombre:'PASIVOS',nivel:1,tipo:'pasivo'},
+  {code:'2010',nombre:'Cuentas por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
+  {code:'2020',nombre:'ITBIS por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
+  {code:'2030',nombre:'Tarjeta de Crédito por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
+  {code:'3000',nombre:'CAPITAL',nivel:1,tipo:'capital'},
+  {code:'3010',nombre:'Capital del Titular',nivel:2,tipo:'capital',parent:'3000'},
+  {code:'3020',nombre:'Utilidades Retenidas',nivel:2,tipo:'capital',parent:'3000'},
+  {code:'3030',nombre:'Distribuciones de Utilidades',nivel:2,tipo:'capital_contra',parent:'3000'},
+  {code:'4000',nombre:'INGRESOS',nivel:1,tipo:'ingreso'},
+  {code:'4010',nombre:'Ingresos por Servicios',nivel:2,tipo:'ingreso',parent:'4000'},
+  {code:'5000',nombre:'GASTOS',nivel:1,tipo:'gasto'},
+  {code:'5010',nombre:'Costo de Repuestos/Materiales',nivel:2,tipo:'gasto',parent:'5000'},
+  {code:'5020',nombre:'Gastos Operativos',nivel:2,tipo:'gasto',parent:'5000'},
+  {code:'5030',nombre:'Salario del Titular (bruto)',nivel:2,tipo:'gasto',parent:'5000'},
+  {code:'5031',nombre:'Aporte Patronal TSS',nivel:2,tipo:'gasto',parent:'5000'},
+  {code:'5032',nombre:'Aporte Patronal INFOTEP',nivel:2,tipo:'gasto',parent:'5000'},
+];
+function cuentaByCode(code){ return PLAN_CUENTAS.find(c=>c.code===code); }
+function cuentaLabel(code){ const c=cuentaByCode(code); return c?`${c.code} - ${c.nombre}`:code||'—'; }
+function leafAccounts(tipo){ return PLAN_CUENTAS.filter(c=>c.nivel===2 && c.tipo===tipo); }
+
+// Mapeo por defecto: cómo se clasifica cada categoría existente de Ingresos/Egresos
+// dentro del plan de cuentas formal. El usuario puede reasignar esto en la pestaña
+// Contabilidad → Plan de Cuentas (excepto las 3 categorías fijas de nómina del titular).
+function defaultAccountForCat(tipo,key){
+  if(tipo==='egresos'){
+    if(CUENTAS_FIJAS[key]) return CUENTAS_FIJAS[key];
+    if(key==='materiales') return '5010';
+    return '5020'; // Gastos Operativos por defecto (luz, alquiler, nómina general, etc.)
+  }
+  if(tipo==='tarjeta') return '5020'; // cargos de tarjeta = gastos operativos por defecto, remapeable
+  return '4010'; // única cuenta de ingresos definida hasta ahora
+}
+function seedDefaultCatAccountMap(){
+  getAllIngCats().forEach(c=>{ if(!S.catAccountMap.ingresos[c.key]) S.catAccountMap.ingresos[c.key]=defaultAccountForCat('ingresos',c.key); });
+  getAllEgrCats().forEach(c=>{
+    if(CUENTAS_FIJAS[c.key]) S.catAccountMap.egresos[c.key]=CUENTAS_FIJAS[c.key]; // siempre fijo, por si el usuario lo forzó a otro código
+    else if(!S.catAccountMap.egresos[c.key]) S.catAccountMap.egresos[c.key]=defaultAccountForCat('egresos',c.key);
+  });
+  (S.categoriasTarjeta||[]).forEach(c=>{ if(!S.catAccountMap.tarjeta[c.key]) S.catAccountMap.tarjeta[c.key]=defaultAccountForCat('tarjeta',c.key); });
+}
+function getCuentaCodigo(tipo,key){
+  if(tipo==='egresos' && CUENTAS_FIJAS[key]) return CUENTAS_FIJAS[key];
+  return (S.catAccountMap[tipo]||{})[key] || defaultAccountForCat(tipo,key);
+}
+function setCuentaCodigo(tipo,key,code){
+  if(tipo==='egresos' && CUENTAS_FIJAS[key]){ notify('info','Cuenta Fija','Esta categoría tiene su código contable fijo y no puede reasignarse.'); return; }
+  S.catAccountMap[tipo][key]=code; save(); renderPlanCuentas();
+}
 
 
 // ── Dynamic category helpers ──
@@ -3793,23 +4007,45 @@ function applyCorte(){
   notify('success','Corte Aplicado',clearHistory?'Historial limpiado. Saldos parten desde hoy.':'Ajustes registrados en el historial de cada cuenta.');
 }
 
-// ══ AUTO-INTEGRATION CxC/CxP → Ingresos/Egresos ══
+// ══ AUTO-INTEGRATION CxC/CxP → Ingresos/Egresos (base efectivo) ══
+// El ingreso/gasto se reconoce cuando se mueve el efectivo real (se cobra / se paga),
+// tal como funcionaba el sistema originalmente. Esta es la fuente de verdad para el
+// Estado de Resultados, Reportes y el Libro Diario/Mayor.
+// El <select> de categoriaEgreso en CxP guarda su value como texto.toLowerCase().replace(' ','_')
+// (ver buildCXPForm) — este mapa debe usar esas mismas llaves normalizadas, no las etiquetas
+// capitalizadas, o el match nunca ocurre (bug preexistente: todo caía en 'otros').
+const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquiler':'alquiler',
+  'luz_/_electricidad':'luz','internet':'internet','teléfono':'telefono',
+  'combustible':'combustible','equipos':'equipos','subcontratación':'subcontratacion',
+  'publicidad':'publicidad','impuestos':'impuestos','contabilidad':'contabilidad',
+  'transportación':'transporte','otros':'otros'};
+
 function autoIngresoFromCxC(x,netAmount,date,method,bankIdx){
   if(S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc'))return;
   addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
 }
 function autoEgresoFromCxP(item,amount,date,method,accountIdx){
   if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
-  // Use the category the user chose on the CxP item, NOT generic 'cxp'
-  const catMap={'Materiales':'materiales','Nómina':'nomina','Alquiler':'alquiler',
-    'Luz / Electricidad':'luz','Internet':'internet','Teléfono':'telefono',
-    'Combustible':'combustible','Equipos':'equipos','Subcontratación':'subcontratacion',
-    'Publicidad':'publicidad','Impuestos':'impuestos','Contabilidad':'contabilidad',
-    'Transportación':'transporte','Otros':'otros'};
-  const cat = item.categoriaEgreso ? (catMap[item.categoriaEgreso]||'otros') : 'otros';
+  const cat = item.categoriaEgreso ? (CXP_CAT_LABEL_TO_KEY[item.categoriaEgreso]||'otros') : 'otros';
   addEgreso(true,{fecha:date,suplidorId:null,suplidorNombre:item.nombre,categoria:cat,monto:amount,
     desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:item.id});
   save();
+}
+
+// Limpieza única: si en algún momento se probó la versión con causación (devengado), pudieron
+// haberse creado asientos "Devengado" en Ingresos/Egresos (fuente cxc_devengo/cxp_devengo/cc_devengo).
+// Como el sistema volvió a base efectivo, estos ya no aplican — se eliminan una sola vez para
+// que no queden como ingresos/gastos fantasma en el Estado de Resultados. No afecta ningún dato
+// de tu operación real (facturas CxC/CxP, cobros, pagos) — solo quita esos asientos auxiliares.
+function limpiarAsientosDevengoObsoletos(){
+  const antesIng=S.ingresos.length, antesEgr=S.egresos.length;
+  S.ingresos=S.ingresos.filter(i=>i.fuente!=='cxc_devengo');
+  S.egresos=S.egresos.filter(e=>e.fuente!=='cxp_devengo'&&e.fuente!=='cc_devengo');
+  // Limpieza del bug de "Tarjeta de Crédito" guardada como Cliente/Suplidor real
+  const antesCli=S.clientes.length, antesSup=S.suplidores.length;
+  S.clientes=S.clientes.filter(c=>!esNombreDeMetodoDePago(c.nombre));
+  S.suplidores=S.suplidores.filter(s=>!esNombreDeMetodoDePago(s.nombre));
+  if(S.ingresos.length!==antesIng||S.egresos.length!==antesEgr||S.clientes.length!==antesCli||S.suplidores.length!==antesSup) save();
 }
 
 // ══════════════════ REPORTES ══════════════════
@@ -3966,6 +4202,244 @@ function printReport(){
 </head><body><h1>${cfg.label}</h1><p>ICG Financial PRO &nbsp;·&nbsp; ICG Creatividad &nbsp;·&nbsp; ${new Date().toLocaleString('es-DO')}</p><div class="cards">${sum.replace(/<div class="bcard"[^>]*>/g,'<div class="card">').replace(/<div class="bcard-label">/g,'<div class="cl">').replace(/<div class="bcard-value"[^>]*>/g,'<div class="cv">').replace(/<style>[^<]*<\/style>/g,'')}</div>${area.outerHTML}<div class="ft">ICG Financial PRO · Sistema Financiero Integral</div></body></html>`);
   w.document.close();
   setTimeout(()=>{w.print();},600);
+}
+
+// ══════════════════ CONTABILIDAD — PLAN DE CUENTAS ══════════════════
+let _contabSection='plan';
+function switchContab(section){
+  _contabSection=section;
+  document.querySelectorAll('#contabSubTabs .acct-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`contab-tab-${section}`).classList.add('active');
+  document.getElementById('planCuentasView').style.display = section==='plan' ? '' : 'none';
+  document.getElementById('distribucionView').style.display = section==='distribucion' ? '' : 'none';
+  document.getElementById('diarioView').style.display = section==='diario' ? '' : 'none';
+  document.getElementById('mayorView').style.display = section==='mayor' ? '' : 'none';
+  if(section==='plan') renderPlanCuentas();
+  if(section==='distribucion') renderDistribuciones();
+  if(section==='diario') renderLibroDiario();
+  if(section==='mayor') renderLibroMayor();
+}
+function renderContabilidad(){
+  seedDefaultCatAccountMap();
+  switchContab(_contabSection);
+}
+
+function renderPlanCuentas(){
+  // Árbol del plan de cuentas
+  const grupos=[1000,2000,3000,4000,5000];
+  const treeHtml=grupos.map(g=>{
+    const head=cuentaByCode(String(g));
+    const hijos=PLAN_CUENTAS.filter(c=>c.parent===String(g));
+    return `<div style="margin-bottom:14px;">
+      <div style="font-weight:700;color:#818cf8;letter-spacing:.05em;font-size:14px;margin-bottom:4px;">${head.code} - ${head.nombre}</div>
+      ${hijos.map(h=>`<div style="padding-left:18px;color:#c8d0e0;font-size:13px;line-height:1.9;">${h.code} - ${h.nombre}${h.tipo==='capital_contra'?' <span style="color:#ef4444;font-size:11px;">(cuenta contra-capital, no pasa por Estado de Resultados)</span>':''}</div>`).join('')}
+    </div>`;
+  }).join('');
+  document.getElementById('planCuentasTree').innerHTML=treeHtml;
+
+  // Mapeo de categorías de Ingresos
+  document.getElementById('mapIngresosBody').innerHTML=getAllIngCats().map(c=>{
+    const code=getCuentaCodigo('ingresos',c.key);
+    const opts=leafAccounts('ingreso').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
+    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('ingresos','${c.key}',this.value)">${opts}</select></td></tr>`;
+  }).join('');
+
+  // Mapeo de categorías de Egresos
+  document.getElementById('mapEgresosBody').innerHTML=getAllEgrCats().map(c=>{
+    const code=getCuentaCodigo('egresos',c.key);
+    const fija=!!CUENTAS_FIJAS[c.key];
+    const opts=leafAccounts('gasto').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
+    return `<tr><td>${c.label}${fija?' <span style="color:#818cf8;font-size:11px;">(fija)</span>':''}</td><td><select ${fija?'disabled':''} onchange="setCuentaCodigo('egresos','${c.key}',this.value)">${opts}</select></td></tr>`;
+  }).join('');
+
+  // Mapeo de categorías de Tarjeta
+  const tarjetaCats=S.categoriasTarjeta||[];
+  document.getElementById('mapTarjetaBody').innerHTML=tarjetaCats.length?tarjetaCats.map(c=>{
+    const code=getCuentaCodigo('tarjeta',c.key);
+    const opts=leafAccounts('gasto').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
+    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('tarjeta','${c.key}',this.value)">${opts}</select></td></tr>`;
+  }).join(''):`<tr><td colspan="2"><div class="empty-state">Sin categorías de tarjeta creadas todavía.</div></td></tr>`;
+}
+
+// ══════════════════ DISTRIBUCIÓN DE UTILIDADES (3030) ══════════════════
+// Retiro de capital ya generado y ya gravado. NUNCA se registra como Egreso:
+// no debe pasar por S.egresos ni afectar el Estado de Resultados. Solo mueve
+// efectivo real de la cuenta bancaria y queda registrado en S.distribuciones
+// para restarse de Utilidades Retenidas en el Balance General.
+function refreshDistribAccountSelect(){
+  const sel=document.getElementById('dist-cuenta'); if(!sel)return;
+  sel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+}
+function confirmDistribucion(){
+  const fecha=document.getElementById('dist-fecha').value;
+  const monto=parseFloat(document.getElementById('dist-monto').value)||0;
+  const cuentaIdx=parseInt(document.getElementById('dist-cuenta').value)||0;
+  const metodo=document.getElementById('dist-metodo').value;
+  const ref=document.getElementById('dist-ref').value.trim();
+  if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
+  icgConfirm(`¿Registrar retiro de ${fmt(monto)} como Distribución de Utilidades desde ${S.accounts[cuentaIdx]?.name}? Esto reduce tu Capital, no se registrará como gasto.`,'Confirmar Distribución','Registrar').then(ok=>{
+    if(!ok)return;
+    const id=Date.now()+Math.random();
+    S.distribuciones.push({id,fecha,monto,cuentaIdx,metodo,ref});
+    S.distribuciones.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    // Sale efectivo real de la cuenta — pero NUNCA se agrega a S.egresos (fuera del P&L)
+    pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:metodo,amount:monto,
+      desc:`Distribución de Utilidades (Retiro de Capital)${ref?' · Ref: '+ref:''}`,esDistribucion:true,cuentaCode:'3030'});
+    renderTx(cuentaIdx);
+    save(); renderDistribuciones();
+    document.getElementById('dist-monto').value='';
+    document.getElementById('dist-ref').value='';
+    notify('success','Distribución Registrada',`${fmt(monto)} retirados de ${S.accounts[cuentaIdx]?.name}. No afecta el Estado de Resultados.`);
+  });
+}
+function delDistribucion(id){
+  icgConfirm('¿Eliminar este registro de distribución? El movimiento bancario asociado no se revertirá automáticamente.','Eliminar Distribución','Eliminar').then(ok=>{
+    if(!ok)return;
+    S.distribuciones=S.distribuciones.filter(x=>x.id!==id);
+    save(); renderDistribuciones();
+  });
+}
+function totalDistribuido(desde,hasta){
+  let items=[...S.distribuciones];
+  if(desde) items=items.filter(x=>x.fecha>=desde);
+  if(hasta) items=items.filter(x=>x.fecha<=hasta);
+  return items.reduce((s,x)=>s+x.monto,0);
+}
+function renderDistribuciones(){
+  refreshDistribAccountSelect();
+  document.getElementById('dist-fecha').value=document.getElementById('dist-fecha').value||today();
+  const total=totalDistribuido();
+  document.getElementById('dist-total-historico').textContent=fmt(total);
+  const cy=new Date().getFullYear().toString();
+  document.getElementById('dist-total-anio').textContent=fmt(totalDistribuido(cy+'-01-01',cy+'-12-31'));
+  const items=[...S.distribuciones].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  document.getElementById('dist-tbody').innerHTML=items.length?items.map(x=>
+    `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${S.accounts[x.cuentaIdx]?.name||'—'}</td><td>${methodBadge(x.metodo)}</td><td>${x.ref||'—'}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delDistribucion(${x.id})">×</button></td></tr>`
+  ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin distribuciones registradas.</div></td></tr>`;
+}
+
+// ══════════════════ LIBRO DIARIO (causación pura) ══════════════════
+// Reconstruye los asientos de partida doble a partir de los eventos ya existentes en el
+// sistema. Transferencias entre cuentas propias se omiten a propósito: ambos lados caen
+// bajo el mismo código 1010 Banco, así que no producen ningún efecto neto en el plan formal.
+function buildLibroDiario(desde,hasta){
+  const lines=[];
+  const add=(fecha,debeCode,haberCode,monto,concepto,ref)=>{
+    if(!(monto>0))return;
+    if(desde&&fecha<desde)return;
+    if(hasta&&fecha>hasta)return;
+    lines.push({fecha,debeCode,haberCode,monto,concepto,ref:ref||''});
+  };
+
+  // Ingresos (manuales o desde CxC cobrado) — se reconocen al cobrar, base efectivo
+  S.ingresos.forEach(x=>{
+    const ref=x.fuente==='cxc'?(S.cuentasCobrar.find(c=>c.id===x.fuenteId)?.invoice||''):'';
+    add(x.fecha,'1010',getCuentaCodigo('ingresos',x.categoria),x.monto,x.desc||'Ingreso',ref);
+  });
+
+  // Egresos (manuales o desde CxP pagado) — se reconocen al pagar, base efectivo.
+  // Haber = 2030 si se pagó con tarjeta (no salió de un banco), si no 1010 Banco.
+  S.egresos.forEach(x=>{
+    const haber=x.metodo==='tarjeta'?'2030':'1010';
+    add(x.fecha,getCuentaCodigo('egresos',x.categoria),haber,x.monto,x.desc,x.suplidorNombre||'');
+  });
+
+  // Tarjeta — pago de la tarjeta desde el banco (Debe Tarjeta por Pagar / Haber Banco)
+  (S.creditCard?.transactions||[]).filter(t=>t.type==='pago'&&(t.currency||'RD$')==='RD$').forEach(t=>{
+    add(t.date,'2030','1010',t.amount,`Pago Tarjeta: ${t.desc}`,'');
+  });
+
+  // Distribución de Utilidades — retiro de capital, nunca pasa por el Estado de Resultados
+  S.distribuciones.forEach(x=>{
+    add(x.fecha,'3030','1010',x.monto,`Distribución de Utilidades${x.ref?' – '+x.ref:''}`,x.ref||'');
+  });
+
+  lines.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  return lines;
+}
+
+let _diarioData=[];
+function renderLibroDiario(){
+  const dEl=document.getElementById('diario-desde'), hEl=document.getElementById('diario-hasta');
+  if(dEl&&!dEl.value){const now=new Date();dEl.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;}
+  if(hEl&&!hEl.value) hEl.value=today();
+  generarLibroDiario();
+}
+function generarLibroDiario(){
+  const desde=document.getElementById('diario-desde')?.value||'';
+  const hasta=document.getElementById('diario-hasta')?.value||'';
+  _diarioData=buildLibroDiario(desde,hasta);
+  const totalDebe=_diarioData.reduce((s,l)=>s+l.monto,0);
+  document.getElementById('diario-summary').innerHTML=
+    `<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Asientos (líneas)</div><div class="bcard-value" style="color:#818cf8;">${_diarioData.length}</div></div>
+     <div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Total Movido</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalDebe)}</div></div>`;
+  document.getElementById('diario-tbody').innerHTML=_diarioData.length?_diarioData.map(l=>
+    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${l.concepto}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:12px;">${l.ref}</td></tr>`
+  ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin movimientos en el período seleccionado.</div></td></tr>`;
+}
+function exportDiarioCSV(){
+  if(!_diarioData.length){notify('warning','Sin Datos','Genera el Libro Diario primero.');return;}
+  const rows=[['Fecha','Cuenta Debe','Cuenta Haber','Concepto','Monto','Referencia'].join(',')];
+  _diarioData.forEach(l=>rows.push([fmtDate(l.fecha),cuentaLabel(l.debeCode),cuentaLabel(l.haberCode),(l.concepto||'').replace(/,/g,';'),l.monto.toFixed(2),(l.ref||'').replace(/,/g,';')].join(',')));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.join('\n'));
+  a.download=`libro_diario_${today()}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// ══════════════════ LIBRO MAYOR ══════════════════
+// Agrupa el Libro Diario por número de cuenta, con saldo corriente acumulado.
+// Convención de saldo: Activos/Gastos/3030(contra-capital) son de naturaleza deudora
+// (Debe suma, Haber resta); Pasivos/Capital/Ingresos son de naturaleza acreedora
+// (Haber suma, Debe resta).
+function cuentaEsDeudora(code){
+  const c=cuentaByCode(code);
+  if(!c)return true;
+  return c.tipo==='activo'||c.tipo==='gasto'||c.tipo==='capital_contra';
+}
+function buildLibroMayor(desde,hasta){
+  const diario=buildLibroDiario(desde,hasta);
+  const porCuenta={};
+  diario.forEach(l=>{
+    [{code:l.debeCode,lado:'debe'},{code:l.haberCode,lado:'haber'}].forEach(({code,lado})=>{
+      if(!porCuenta[code]) porCuenta[code]=[];
+      porCuenta[code].push({fecha:l.fecha,concepto:l.concepto,ref:l.ref,lado,monto:l.monto});
+    });
+  });
+  const resultado=Object.keys(porCuenta).sort().map(code=>{
+    const movs=porCuenta[code].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    const deudora=cuentaEsDeudora(code);
+    let saldo=0;
+    const filas=movs.map(m=>{
+      const debe=m.lado==='debe'?m.monto:0, haber=m.lado==='haber'?m.monto:0;
+      saldo += deudora ? (debe-haber) : (haber-debe);
+      return {...m,debe,haber,saldo};
+    });
+    return {code,label:cuentaLabel(code),deudora,filas,saldoFinal:filas.length?filas[filas.length-1].saldo:0};
+  });
+  return resultado;
+}
+
+let _mayorData=[];
+function renderLibroMayor(){
+  const dEl=document.getElementById('mayor-desde'), hEl=document.getElementById('mayor-hasta');
+  if(dEl&&!dEl.value){const now=new Date();dEl.value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;}
+  if(hEl&&!hEl.value) hEl.value=today();
+  generarLibroMayor();
+}
+function generarLibroMayor(){
+  const desde=document.getElementById('mayor-desde')?.value||'';
+  const hasta=document.getElementById('mayor-hasta')?.value||'';
+  _mayorData=buildLibroMayor(desde,hasta);
+  document.getElementById('mayor-content').innerHTML=_mayorData.length?_mayorData.map(c=>`
+    <div class="add-form" style="margin-bottom:16px;">
+      <h3>${c.label} <span style="font-size:12px;color:#8899bb;font-weight:400;">(${c.deudora?'naturaleza deudora':'naturaleza acreedora'})</span></h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Concepto</th><th>Referencia</th><th>Debe</th><th>Haber</th><th>Saldo</th></tr></thead>
+        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${f.concepto}</td><td style="color:#8899bb;font-size:12px;">${f.ref}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;background:rgba(79,70,229,.06);">Saldo Final</td><td class="td-mono" style="font-weight:700;color:#818cf8;background:rgba(79,70,229,.06);">${fmt(c.saldoFinal)}</td></tr></tfoot>
+      </table></div>
+    </div>`).join(''):'<div class="empty-state">Sin movimientos en el período seleccionado.</div>';
 }
 
 function exportReportCSV(){
@@ -4213,6 +4687,15 @@ function applyFirebaseData(data){
   if(!S.categoriasIngresos) S.categoriasIngresos = [];
   if(!S.categoriasEgresos)  S.categoriasEgresos  = [];
   if(!S.categoriasTarjeta)  S.categoriasTarjeta  = [];
+  if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{},tarjeta:{}};
+  if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
+  if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
+  if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
+  if(!S.distribuciones) S.distribuciones=[];
+  [{key:'salario_titular',label:'Salario del Titular (bruto)'},
+   {key:'aporte_tss',label:'Aporte Patronal TSS'},
+   {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'}
+  ].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
   S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
   if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
     S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
