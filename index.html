@@ -4551,6 +4551,15 @@ function initFirebase(attempt){
     window.db = firebase.firestore();
     window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
     console.log('✅ Firebase inicializado correctamente');
+    // Captura errores del regreso de signInWithRedirect (si Google rechaza o hay un problema de configuración)
+    firebase.auth().getRedirectResult().catch(err=>{
+      console.error('Error de redirección de Google:', err);
+      const errEl=document.getElementById('login-error');
+      if(errEl){
+        errEl.textContent = 'No se pudo iniciar sesión con Google. Código: ' + (err.code||'desconocido');
+        errEl.style.display='block';
+      }
+    });
     // Acceso restringido: solo se carga la base de datos si hay una sesión válida
     // Y el correo coincide con el único autorizado (ver ALLOWED_EMAIL).
     firebase.auth().onAuthStateChanged(user=>{
@@ -4595,10 +4604,7 @@ function loginWithGoogle(){
   const errEl=document.getElementById('login-error');
   errEl.style.display='none';
   const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider).catch(()=>{
-    errEl.textContent='No se pudo iniciar sesión con Google. Intenta de nuevo.';
-    errEl.style.display='block';
-  });
+  firebase.auth().signInWithRedirect(provider);
 }
 function logoutUser(){
   icgConfirm('¿Cerrar sesión?','Cerrar Sesión','Salir').then(ok=>{
