@@ -425,6 +425,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 #splash::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(129,140,248,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(129,140,248,.05) 1px,transparent 1px);background-size:48px 48px;animation:gridPulse 3s ease infinite;}
 #splash::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 50%,rgba(79,70,229,.2) 0%,rgba(129,140,248,.07) 45%,transparent 70%);animation:glowPulse 2.5s ease-in-out infinite;}
 @keyframes gridPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+.pro-shine{color:#faff00;position:relative;display:inline-block;background:linear-gradient(115deg,#faff00 30%,#fffde8 48%,#faff00 66%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:proShine 2.8s ease-in-out infinite;text-shadow:0 0 14px rgba(250,255,0,.55),0 0 28px rgba(250,255,0,.25);}
+@keyframes proShine{0%{background-position:220% 0;}100%{background-position:-120% 0;}}
 @keyframes glowPulse{0%,100%{opacity:.7;transform:scale(1);}50%{opacity:1;transform:scale(1.1);}}
 .splash-logo-wrap{
   position:relative;z-index:1;margin-top:0;
@@ -550,17 +552,48 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ LOGIN GATE — acceso restringido con Firebase Authentication ══ -->
 <div id="loginGate" style="display:none;position:fixed;inset:0;z-index:999998;background:#020510;align-items:center;justify-content:center;">
   <div style="width:100%;max-width:360px;padding:32px;">
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-size:22px;font-weight:600;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;">ICG Financial <span style="color:#fff;">PRO</span></div>
-      <div style="font-size:12px;color:#6b7a99;margin-top:8px;letter-spacing:.05em;text-transform:uppercase;">Acceso Restringido</div>
+    <div style="text-align:center;margin-bottom:36px;">
+      <div style="font-size:38px;font-weight:700;color:#818cf8;letter-spacing:.06em;text-transform:uppercase;line-height:1.15;">ICG Financial <span class="pro-shine">PRO</span></div>
+      <div style="font-size:12px;color:#6b7a99;margin-top:10px;letter-spacing:.15em;text-transform:uppercase;">Acceso Restringido</div>
     </div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Correo</label><input type="email" id="login-email" autocomplete="off" placeholder="tu@correo.com" style="width:100%;height:44px;box-sizing:border-box;"></div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Contraseña</label><input type="password" id="login-password" autocomplete="off" placeholder="••••••••" style="width:100%;height:44px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')loginSubmit()"></div>
     <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
+    <div id="login-info" style="color:#4ade80;font-size:13px;margin-bottom:14px;display:none;"></div>
     <button class="btn btn-primary" style="width:100%;" onclick="loginSubmit()">Entrar</button>
+    <div style="text-align:center;margin-top:16px;">
+      <a href="javascript:void(0)" onclick="forgotPassword()" style="color:#6b7a99;font-size:12px;text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+    </div>
   </div>
 </div>
 <button id="logoutBtn" onclick="logoutUser()" style="display:none;position:fixed;top:14px;right:14px;z-index:9000;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Cerrar Sesión</button>
+<button id="changePinBtn" onclick="openPinGate('change')" style="display:none;position:fixed;top:14px;right:130px;z-index:9000;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">🔒 Cambiar PIN</button>
+<button id="lockNowBtn" onclick="lockProtectedTabsNow()" style="display:none;position:fixed;top:14px;right:250px;z-index:9000;background:rgba(250,255,0,.1);color:#faff00;border:1px solid rgba(250,255,0,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">🔒 Bloquear Ahora</button>
+
+<!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
+<div id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
+  <div style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
+    <h3 id="pinGateTitle" style="color:#818cf8;margin:0 0 8px;font-size:18px;">Acceso Protegido</h3>
+    <p id="pinGateSubtitle" style="color:#9ca3af;font-size:13px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
+    <div id="pinGateOldWrap" style="display:none;margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">PIN Actual</label>
+      <input type="password" id="pin-input-old" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label id="pinGateLabel1" style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">PIN</label>
+      <input type="password" id="pin-input-1" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+    </div>
+    <div id="pinGateConfirmWrap" style="display:none;margin-bottom:12px;">
+      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">Confirmar PIN</label>
+      <input type="password" id="pin-input-2" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+    </div>
+    <div id="pin-gate-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="cancelPinGate()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmPinGate()">Continuar</button>
+    </div>
+  </div>
+</div>
 
 
 
@@ -1897,7 +1930,8 @@ function defaultState() {
     categoriasIngresos: [],
     categoriasEgresos:  [],
     catAccountMap: { ingresos:{}, egresos:{}, tarjeta:{} },
-    distribuciones: []
+    distribuciones: [],
+    securityPin: null
   };
 }
 
@@ -1974,6 +2008,7 @@ function ensureContabFields(){
   if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
   if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
   if(!S.distribuciones) S.distribuciones=[];
+  if(S.securityPin===undefined) S.securityPin=null;
   if(!S.categoriasEgresos) S.categoriasEgresos=[];
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
@@ -2035,7 +2070,100 @@ function switchAccount(i){
   onFMethodChange(i);
 }
 
+// ══ PIN de seguridad: protege Cuentas y Estado de Resultados de cualquiera que
+// tenga acceso a la sesión iniciada, pero no sea el titular. Se pide una vez por
+// sesión (no en cada clic) — vive en Firestore (S.securityPin), igual que el resto
+// de los datos; no es un segundo factor de autenticación real, es una traba adicional
+// dentro de la app ya autenticada.
+let _pinUnlockedThisSession = false;
+let _pendingTabTarget = null;
+let _pinGateMode = 'enter'; // 'enter' | 'create' | 'change'
+
 function activateTab(idx){
+  const esProtegida = (typeof idx==='number') || idx==='cuentas' || idx==='rentabilidad';
+  if(esProtegida && !_pinUnlockedThisSession){
+    _pendingTabTarget = idx;
+    openPinGate(S.securityPin ? 'enter' : 'create');
+    return;
+  }
+  _activateTabReal(idx);
+}
+
+function openPinGate(mode){
+  _pinGateMode = mode;
+  const modal=document.getElementById('pinGateModal');
+  document.getElementById('pinGateOldWrap').style.display = mode==='change' ? 'block' : 'none';
+  document.getElementById('pinGateConfirmWrap').style.display = (mode==='create'||mode==='change') ? 'block' : 'none';
+  document.getElementById('pinGateTitle').textContent = mode==='create' ? 'Crear PIN de Seguridad' : mode==='change' ? 'Cambiar PIN de Seguridad' : 'Acceso Protegido';
+  document.getElementById('pinGateSubtitle').textContent = mode==='create'
+    ? 'Primera vez aquí — crea un PIN (mínimo 4 caracteres) para proteger Cuentas y Estado de Resultados.'
+    : mode==='change' ? 'Ingresa tu PIN actual y elige uno nuevo.'
+    : 'Ingresa tu PIN para continuar.';
+  document.getElementById('pinGateLabel1').textContent = (mode==='create'||mode==='change') ? 'PIN Nuevo' : 'PIN';
+  ['pin-input-old','pin-input-1','pin-input-2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pin-gate-error').style.display='none';
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById(mode==='change'?'pin-input-old':'pin-input-1').focus(),100);
+}
+function cancelPinGate(){
+  document.getElementById('pinGateModal').style.display='none';
+  if(_pinGateMode!=='change'){
+    _pendingTabTarget=null;
+    _activateTabReal('consolidated');
+  }
+}
+function confirmPinGate(){
+  const errEl=document.getElementById('pin-gate-error');
+  errEl.style.display='none';
+  const old=document.getElementById('pin-input-old').value.trim();
+  const p1=document.getElementById('pin-input-1').value.trim();
+  const p2=document.getElementById('pin-input-2').value.trim();
+
+  if(_pinGateMode==='enter'){
+    if(p1===S.securityPin){ document.getElementById('pinGateModal').style.display='none'; _grantPinAccess(); }
+    else{ errEl.textContent='PIN incorrecto.'; errEl.style.display='block'; }
+    return;
+  }
+  if(_pinGateMode==='create'){
+    if(!p1||p1.length<4){ errEl.textContent='El PIN debe tener al menos 4 caracteres.'; errEl.style.display='block'; return; }
+    if(p1!==p2){ errEl.textContent='Los PIN no coinciden.'; errEl.style.display='block'; return; }
+    S.securityPin=p1; save();
+    document.getElementById('pinGateModal').style.display='none';
+    notify('success','PIN Creado','Tu PIN de seguridad quedó guardado.');
+    _grantPinAccess();
+    return;
+  }
+  if(_pinGateMode==='change'){
+    if(old!==S.securityPin){ errEl.textContent='El PIN actual no coincide.'; errEl.style.display='block'; return; }
+    if(!p1||p1.length<4){ errEl.textContent='El PIN nuevo debe tener al menos 4 caracteres.'; errEl.style.display='block'; return; }
+    if(p1!==p2){ errEl.textContent='Los PIN nuevos no coinciden.'; errEl.style.display='block'; return; }
+    S.securityPin=p1; save();
+    document.getElementById('pinGateModal').style.display='none';
+    notify('success','PIN Actualizado','Tu PIN de seguridad fue actualizado.');
+    return;
+  }
+}
+function _grantPinAccess(){
+  _pinUnlockedThisSession=true;
+  const target=_pendingTabTarget; _pendingTabTarget=null;
+  _activateTabReal(target!=null?target:'cuentas');
+}
+
+// Botón "Bloquear Ahora" — para usar justo antes de mostrarle el sistema a alguien
+// (colega, visita), sin tener que cerrar sesión completa. Vuelve a pedir el PIN la
+// próxima vez que se entre a Cuentas o Estado de Resultados, y si en ese momento
+// están en pantalla, saca de inmediato a Consolidado.
+function lockProtectedTabsNow(){
+  if(!_pinUnlockedThisSession){ notify('info','Ya Bloqueado','Cuentas y Estado de Resultados ya están protegidos.'); return; }
+  _pinUnlockedThisSession=false;
+  const panelCuentas=document.getElementById('panel-cuentas');
+  const panelRent=document.getElementById('panel-rentabilidad');
+  const enPantallaProtegida=(panelCuentas&&panelCuentas.classList.contains('active'))||(panelRent&&panelRent.classList.contains('active'));
+  if(enPantallaProtegida) _activateTabReal('consolidated');
+  notify('success','Bloqueado','Cuentas y Estado de Resultados requieren el PIN de nuevo.');
+}
+
+function _activateTabReal(idx){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   const map={cuentas:'tab-cuentas',cc:'tab-cc',cxc:'tab-cxc',cxp:'tab-cxp',
@@ -4521,18 +4649,32 @@ document.getElementById('reportModal').addEventListener('click',function(e){if(e
 
 
 
-// ── Hide splash after fade-out animation ──
-document.getElementById('splash').addEventListener('animationend', function(e){
-  if(e.animationName === 'splashFadeOut'){
-    this.style.display='none';
-  }
-});
-// Also allow click to skip splash
-document.getElementById('splash').addEventListener('click', function(){
-  this.style.animation='splashFadeOut .4s ease forwards';
-  this.style.animationDelay='0s';
-  setTimeout(()=>this.style.display='none', 400);
-});
+// ── Splash / animación de introducción ──
+// Ahora se reproduce DESPUÉS de iniciar sesión (no antes), justo antes de cargar los datos.
+function playIntroThenLoad(){
+  const splash=document.getElementById('splash');
+  if(!splash){ loadFromFirebase(); return; }
+  let done=false;
+  const finish=()=>{
+    if(done)return; done=true;
+    splash.removeEventListener('animationend',onEnd);
+    splash.onclick=null;
+    splash.style.display='none';
+    loadFromFirebase();
+  };
+  splash.style.display='flex';
+  // Reinicia la animación desde cero (pudo haber corrido ya mientras el usuario escribía sus credenciales)
+  splash.style.animation='none';
+  void splash.offsetWidth; // fuerza reflow para poder reiniciar la animación
+  splash.style.animation='';
+  function onEnd(e){ if(e.animationName==='splashFadeOut') finish(); }
+  splash.addEventListener('animationend', onEnd);
+  splash.onclick=()=>{
+    splash.style.animation='splashFadeOut .4s ease forwards';
+    splash.style.animationDelay='0s';
+    setTimeout(finish,400);
+  };
+}
 
 
 // ══════════════════ FIREBASE ══════════════════
@@ -4571,21 +4713,29 @@ function initFirebase(attempt){
       if(user && user.email && user.email.toLowerCase()===ALLOWED_EMAIL){
         hideLoginGate();
         document.getElementById('logoutBtn').style.display='block';
-        if(!_authResolved){ _authResolved=true; loadFromFirebase(); }
+        document.getElementById('changePinBtn').style.display='block';
+        document.getElementById('lockNowBtn').style.display='block';
+        if(!_authResolved){ _authResolved=true; playIntroThenLoad(); }
       } else if(user){
         // Sesión válida pero no autorizada para este sistema — fuera.
         _authResolved=false;
+        _pinUnlockedThisSession=false;
         firebase.auth().signOut();
         showLoadingOverlay(false);
         document.getElementById('logoutBtn').style.display='none';
+        document.getElementById('changePinBtn').style.display='none';
+        document.getElementById('lockNowBtn').style.display='none';
         const errEl=document.getElementById('login-error');
         errEl.textContent='Esta cuenta no tiene acceso a este sistema.';
         errEl.style.display='block';
         showLoginGate();
       } else {
         _authResolved=false;
+        _pinUnlockedThisSession=false;
         showLoadingOverlay(false);
         document.getElementById('logoutBtn').style.display='none';
+        document.getElementById('changePinBtn').style.display='none';
+        document.getElementById('lockNowBtn').style.display='none';
         showLoginGate();
       }
     });
@@ -4602,6 +4752,11 @@ let _authResolved = false;
 function showLoginGate(){
   const s=document.getElementById('splash'); if(s) s.style.display='none';
   document.getElementById('loginGate').style.display='flex';
+  // Nunca dejar la contraseña (ni el correo) visibles al volver a esta pantalla —
+  // pasa después de cerrar sesión, tras un login fallido, o al cargar sin sesión.
+  const eEl=document.getElementById('login-email'); if(eEl) eEl.value='';
+  const pEl=document.getElementById('login-password'); if(pEl) pEl.value='';
+  const iEl=document.getElementById('login-info'); if(iEl) iEl.style.display='none';
 }
 function hideLoginGate(){ document.getElementById('loginGate').style.display='none'; }
 function loginSubmit(){
@@ -4610,9 +4765,25 @@ function loginSubmit(){
   const errEl=document.getElementById('login-error');
   errEl.style.display='none';
   if(!email||!pass){ errEl.textContent='Completa correo y contraseña.'; errEl.style.display='block'; return; }
+  document.getElementById('login-password').value=''; // no dejar la contraseña visible mientras se procesa
   firebase.auth().signInWithEmailAndPassword(email,pass).catch(()=>{
     errEl.textContent='Correo o contraseña incorrectos.';
     errEl.style.display='block';
+  });
+}
+function forgotPassword(){
+  const errEl=document.getElementById('login-error');
+  const infoEl=document.getElementById('login-info');
+  errEl.style.display='none'; infoEl.style.display='none';
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){ errEl.textContent='Escribe tu correo arriba primero, y luego click en "¿Olvidaste tu contraseña?".'; errEl.style.display='block'; return; }
+  firebase.auth().sendPasswordResetEmail(email).then(()=>{
+    infoEl.textContent=`Si ${email} tiene acceso a este sistema, te enviamos un correo con instrucciones para restablecer tu contraseña. Revisa también la carpeta de spam.`;
+    infoEl.style.display='block';
+  }).catch(()=>{
+    // No revelamos si el correo existe o no (por seguridad) — mismo mensaje siempre.
+    infoEl.textContent=`Si ${email} tiene acceso a este sistema, te enviamos un correo con instrucciones para restablecer tu contraseña. Revisa también la carpeta de spam.`;
+    infoEl.style.display='block';
   });
 }
 function logoutUser(){
@@ -4780,6 +4951,7 @@ function applyFirebaseData(data){
   if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
   if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
   if(!S.distribuciones) S.distribuciones=[];
+  if(S.securityPin===undefined) S.securityPin=null;
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
    {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'}
