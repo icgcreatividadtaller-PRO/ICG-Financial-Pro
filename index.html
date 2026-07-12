@@ -80,6 +80,11 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .nav-btn.nav-indigo.active::after{background:var(--indigo2);box-shadow:0 0 8px var(--indigo2);}
 .rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;15px;padding:2px 5px;opacity:0;transition:opacity .2s;}
 .nav-btn:hover .rename-btn{opacity:1;}
+.block-nav-btn{font-size:15px;font-weight:700;padding:18px 28px;letter-spacing:.16em;}
+#subTabsBar{background:var(--s1);border-bottom:1px solid var(--border2);padding:0 32px;display:flex;align-items:center;gap:2px;overflow-x:auto;}
+#subTabsBar::-webkit-scrollbar{height:0;}
+#subTabsBar .nav-btn{padding:12px 16px;font-size:12px;}
+@keyframes asSpin{to{transform:rotate(360deg);}}
 
 /* ── BUTTONS ── */
 .btn{
@@ -334,14 +339,6 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 .del-btn{background:none;border:none;color:var(--text3);cursor:pointer;16px;padding:4px 7px;border-radius:3px;transition:all .2s;letter-spacing:0;}
 .del-btn:hover{color:var(--red);background:var(--red-dim);}
 
-/* ── EXPORT WARNING ── */
-#exportBar{
-  background:linear-gradient(90deg,#0a0600,#120e00,#0a0600);
-  border-bottom:1px solid rgba(129,140,248,.3);
-}
-#closeOverlay{backdrop-filter:blur(8px);}
-#floatExportBtn{border-radius:5px;letter-spacing:.1em;}
-
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -425,8 +422,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 #splash::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(129,140,248,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(129,140,248,.05) 1px,transparent 1px);background-size:48px 48px;animation:gridPulse 3s ease infinite;}
 #splash::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 50%,rgba(79,70,229,.2) 0%,rgba(129,140,248,.07) 45%,transparent 70%);animation:glowPulse 2.5s ease-in-out infinite;}
 @keyframes gridPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
-.pro-shine{color:#faff00;position:relative;display:inline-block;background:linear-gradient(115deg,#faff00 30%,#fffde8 48%,#faff00 66%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:proShine 2.8s ease-in-out infinite;text-shadow:0 0 14px rgba(250,255,0,.55),0 0 28px rgba(250,255,0,.25);}
-@keyframes proShine{0%{background-position:220% 0;}100%{background-position:-120% 0;}}
+.pro-wrap{color:#fdc901;position:relative;display:inline-block;text-shadow:0 0 14px rgba(253,201,1,.5),0 0 26px rgba(253,201,1,.22);animation:proGlowPulse 3.4s ease-in-out infinite;}
+.pro-flash{position:absolute;top:0;left:0;pointer-events:none;color:transparent;
+  background:linear-gradient(102deg,transparent 40%,rgba(255,255,255,.97) 49%,rgba(255,255,255,.97) 51%,transparent 60%);
+  background-size:340% 100%;background-position:170% 0;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:proStrike 3.4s ease-in-out infinite;}
+@keyframes proStrike{0%,52%{background-position:170% 0;}68%{background-position:-170% 0;}100%{background-position:-170% 0;}}
+@keyframes proGlowPulse{0%,52%{text-shadow:0 0 14px rgba(253,201,1,.5),0 0 26px rgba(253,201,1,.22);}62%{text-shadow:0 0 30px rgba(253,201,1,.95),0 0 55px rgba(253,201,1,.65),0 0 12px #fff;}78%,100%{text-shadow:0 0 14px rgba(253,201,1,.5),0 0 26px rgba(253,201,1,.22);}}
 @keyframes glowPulse{0%,100%{opacity:.7;transform:scale(1);}50%{opacity:1;transform:scale(1.1);}}
 .splash-logo-wrap{
   position:relative;z-index:1;margin-top:0;
@@ -553,7 +556,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div id="loginGate" style="display:none;position:fixed;inset:0;z-index:999998;background:#020510;align-items:center;justify-content:center;">
   <div style="width:100%;max-width:360px;padding:32px;">
     <div style="text-align:center;margin-bottom:36px;">
-      <div style="font-size:38px;font-weight:700;color:#818cf8;letter-spacing:.06em;text-transform:uppercase;line-height:1.15;">ICG Financial <span class="pro-shine">PRO</span></div>
+      <div style="font-size:38px;font-weight:700;color:#818cf8;letter-spacing:.06em;text-transform:uppercase;line-height:1.15;">ICG Financial <span class="pro-wrap">PRO<span class="pro-flash" aria-hidden="true">PRO</span></span></div>
       <div style="font-size:12px;color:#6b7a99;margin-top:10px;letter-spacing:.15em;text-transform:uppercase;">Acceso Restringido</div>
     </div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Correo</label><input type="email" id="login-email" autocomplete="off" placeholder="tu@correo.com" style="width:100%;height:44px;box-sizing:border-box;"></div>
@@ -566,9 +569,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
   </div>
 </div>
-<button id="logoutBtn" onclick="logoutUser()" style="display:none;position:fixed;top:14px;right:14px;z-index:9000;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Cerrar Sesión</button>
-<button id="changePinBtn" onclick="openPinGate('change')" style="display:none;position:fixed;top:14px;right:130px;z-index:9000;background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">🔒 Cambiar PIN</button>
-<button id="lockNowBtn" onclick="lockProtectedTabsNow()" style="display:none;position:fixed;top:14px;right:250px;z-index:9000;background:rgba(250,255,0,.1);color:#faff00;border:1px solid rgba(250,255,0,.3);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">🔒 Bloquear Ahora</button>
+
 
 <!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
 <div id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
@@ -609,71 +610,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
-    <span id="lastSavedTag" style="font-size:11px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;"></span>
-    <button class="btn" style="background:transparent;border:1px solid rgba(129,140,248,.25);color:#818cf8;font-size:12px;padding:12px 24px;" onclick="guardarManual()">Guardar</button>
+    <div id="autoSaveIndicator" style="display:flex;align-items:center;gap:8px;font-size:11px;color:#818cf8;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;border:1px solid rgba(129,140,248,.25);border-radius:6px;">
+      <span id="autoSaveSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(129,140,248,.25);border-top-color:#818cf8;border-radius:50%;animation:asSpin .8s linear infinite;"></span>
+      <span id="autoSaveIcon">☁</span>
+      <span id="autoSaveText">Autoguardado</span>
+    </div>
     <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:12px;padding:12px 22px;" onclick="importData()">Importar</button>
-    <button class="btn" style="background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:12px;padding:12px 22px;" onclick="cerrarSistema()" title="Exportar y cerrar">Cerrar</button>
     <button class="btn btn-indigo" style="font-size:12px;padding:12px 26px;" onclick="exportData()">Exportar</button>
+    <button id="logoutBtn" class="btn" style="display:none;background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:12px;padding:12px 22px;" onclick="logoutUser()">Cerrar Sesión</button>
     <input autocomplete="off" type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
   </div>
 </div>
 
-<!-- BARRA PERSISTENTE DE EXPORTACIÓN -->
-<div id="exportBar" style="display:none;position:sticky;top:0;z-index:990;background:linear-gradient(90deg,#1a1000,#2a1800,#1a1000);border-bottom:3px solid #818cf8;padding:11px 24px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(129,140,248,.3);">
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span style="27px;">!</span>
-    <div>
-      <div style="19px;font-weight:700;color:#818cf8;">Cambios sin exportar</div>
-      <div style="16px;color:#9ca3af;">Exporta tu .json para no perder los datos al cerrar.</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <button onclick="exportDataAndMark()" style="background:#818cf8;color:#020510;border:none;border-radius:8px;19px;font-weight:800;padding:10px 24px;cursor:pointer;box-shadow:0 0 16px rgba(129,140,248,.4);">
-      EXPORTAR AHORA
-    </button>
-    <button onclick="closeExportBar()" style="background:transparent;border:1px solid #374151;color:#6b7280;border-radius:7px;16px;padding:8px 14px;cursor:pointer;">×</button>
-  </div>
-</div>
-
-<!-- BOTÓN FLOTANTE PULSANTE (siempre visible cuando hay cambios sin exportar) -->
-<button id="floatExportBtn" onclick="exportDataAndMark()" title="¡Exportar datos ahora!" style="
-  display:none;position:fixed;bottom:28px;right:28px;z-index:991;
-  background:#818cf8;color:#020510;border:none;border-radius:50px;
-  19px;font-weight:800;padding:14px 22px;cursor:pointer;
-  box-shadow:0 0 0 0 rgba(129,140,248,.7);
-  animation:pulse-export 2s infinite;">
-  Exportar
-</button>
-<style>
-@keyframes pulse-export{
-  0%{box-shadow:0 0 0 0 rgba(129,140,248,.7);}
-  70%{box-shadow:0 0 0 16px rgba(129,140,248,0);}
-  100%{box-shadow:0 0 0 0 rgba(129,140,248,0);}
-}
-</style>
-
-<!-- OVERLAY COMPLETO — aparece cuando el usuario cancela el cierre del navegador -->
-<div id="closeOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;gap:20px;">
-  <div style="81px;">!</div>
-  <div style="font-family:'DM Serif Display',serif;35px;color:#818cf8;text-align:center;max-width:500px;">¡Datos sin exportar!</div>
-  <div style="20px;color:#9ca3af;text-align:center;line-height:1.9;max-width:480px;">
-    Intentaste cerrar la ventana.<br>
-    Si cierras sin exportar, tus datos <strong style="color:#ef4444;">podrían perderse</strong> si limpias el caché o cambias de PC.
-  </div>
-  <button onclick="exportAndClose()" style="
-    background:#818cf8;color:#020510;border:none;border-radius:12px;
-    27px;font-weight:900;padding:18px 52px;cursor:pointer;
-    box-shadow:0 0 40px rgba(129,140,248,.6);letter-spacing:.5px;">
-    EXPORTAR Y SALIR
-  </button>
-  <button onclick="document.getElementById('closeOverlay').style.display='none'" style="
-    background:transparent;border:1px solid #374151;color:#6b7280;
-    border-radius:7px;18px;padding:10px 24px;cursor:pointer;margin-top:4px;">
-    Cancelar (quedarme aquí)
-  </button>
-</div>
 
 <div id="tabsBar" class="nav-bar"></div>
+<div id="subTabsBar"></div>
 <div id="panelsContainer" style="display:none;"></div>
 
 <!-- ══ CUENTAS (consolidates all 6 accounts) ══ -->
@@ -1460,6 +1411,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <button class="acct-tab"        id="contab-tab-diario"       onclick="switchContab('diario')">Libro Diario</button>
     <button class="acct-tab"        id="contab-tab-mayor"        onclick="switchContab('mayor')">Libro Mayor</button>
     <button class="acct-tab"        id="contab-tab-distribucion" onclick="switchContab('distribucion')">Distribución de Utilidades</button>
+    <button class="acct-tab"        id="contab-tab-seguridad"    onclick="switchContab('seguridad')">Seguridad</button>
   </div>
 
   <!-- PLAN DE CUENTAS VIEW -->
@@ -1552,6 +1504,18 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <thead><tr><th>Fecha</th><th>Cuenta</th><th>Método</th><th>Referencia</th><th>Monto</th><th></th></tr></thead>
         <tbody id="dist-tbody"></tbody>
       </table></div>
+    </div>
+  </div>
+
+  <!-- SEGURIDAD VIEW -->
+  <div id="seguridadView" style="display:none;">
+    <div class="add-form" style="margin-bottom:20px;">
+      <h3>PIN de Cuentas / Consolidado / Reportes / Estado de Resultados</h3>
+      <p style="14px;color:#9ca3af;margin:8px 0 20px;line-height:1.5;">Estas cuatro pestañas viven en el bloque "🔒 Finanzas" y piden un PIN una vez por sesión. Usa "Bloquear Ahora" justo antes de mostrarle el sistema a alguien — vuelve a exigir el PIN de inmediato, sin cerrar tu sesión completa.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn" style="background:rgba(250,255,0,.1);color:#faff00;border:1px solid rgba(250,255,0,.3);" onclick="lockProtectedTabsNow()">🔒 Bloquear Ahora</button>
+        <button class="btn" style="background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.3);" onclick="openPinGate('change')">🔒 Cambiar PIN</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1839,28 +1803,6 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div id="notif-container"></div>
 
 <!-- ══ EXIT MODAL ══ -->
-<div class="modal-overlay" id="exitModal" style="z-index:99997;">
-  <div class="modal" style="max-width:420px;border:2px solid rgba(129,140,248,.4);text-align:center;">
-    <div style="font-size:48px;margin-bottom:16px;">👋</div>
-    <h2 style="color:#e8eeff;font-size:20px;letter-spacing:.05em;margin-bottom:10px;">¿Cerrar el sistema?</h2>
-    <p style="font-size:14px;color:#8899bb;line-height:1.7;margin-bottom:24px;">
-      Tus datos están guardados automáticamente en la nube ☁<br>
-      Puedes cerrar la pestaña en cualquier momento sin perder nada.
-    </p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn" style="background:#4f46e5;color:#fff;border-color:#6366f1;font-size:13px;width:100%;height:48px;" onclick="doExportAndExit()">
-        📥 Exportar respaldo JSON y cerrar
-      </button>
-      <button class="btn btn-ghost" style="font-size:13px;width:100%;height:48px;border-color:rgba(129,140,248,.3);" onclick="doJustExit()">
-        ☁ Mis datos están en la nube — solo cerrar
-      </button>
-      <button class="btn btn-ghost" style="font-size:12px;color:#4a5578;border-color:rgba(255,255,255,.1);height:40px;" onclick="document.getElementById('exitModal').classList.remove('open')">
-        Cancelar
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- ══ CUSTOM CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="confirmModal" style="z-index:99998;">
   <div class="modal" style="max-width:400px;border-color:rgba(239,68,68,.3);">
@@ -1968,6 +1910,7 @@ let renameTarget=-1;
 function save(){
   // Instant local backup
   try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){}
+  markSavingNow();
   // Debounced Firestore save with timestamp to identify own saves
   clearTimeout(window._fbSaveTimer);
   window._fbSaveTimer = setTimeout(()=>{
@@ -1975,9 +1918,35 @@ function save(){
     _lastLocalSaveTs = Date.now();
     const payload = JSON.parse(JSON.stringify({...S, _ts: _lastLocalSaveTs}));
     window.ICG_DOC.set(payload)
-      .then(()=>{ showSyncIndicator('saved'); })
-      .catch(err=>{ console.error('Firebase save error:', err); showSyncIndicator('error'); });
+      .then(()=>{ showSyncIndicator('saved'); markSavedAt(); })
+      .catch(err=>{ console.error('Firebase save error:', err); showSyncIndicator('error'); markSaveError(); });
   }, 300);
+}
+
+// ── Indicador de Autoguardado (barra superior) ──
+// Se conecta directamente a save() — que ya corre en cada acción real (factura, pago,
+// ajuste, etc.) — así el spinner y la hora reflejan guardados reales, no un temporizador
+// de mentira. Además, un refuerzo periódico llama a save() cada 60s por si acaso.
+function markSavingNow(){
+  const s=document.getElementById('autoSaveSpinner'), i=document.getElementById('autoSaveIcon');
+  if(s) s.style.display='inline-block';
+  if(i) i.style.display='none';
+}
+function markSavedAt(){
+  const s=document.getElementById('autoSaveSpinner'), i=document.getElementById('autoSaveIcon'), t=document.getElementById('autoSaveText');
+  if(s) s.style.display='none';
+  if(i){ i.style.display='inline'; i.textContent='☁'; }
+  if(t){ t.style.color='#818cf8'; t.textContent='Autoguardado · '+new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}); }
+}
+function markSaveError(){
+  const s=document.getElementById('autoSaveSpinner'), i=document.getElementById('autoSaveIcon'), t=document.getElementById('autoSaveText');
+  if(s) s.style.display='none';
+  if(i){ i.style.display='inline'; i.textContent='⚠'; }
+  if(t){ t.style.color='#ef4444'; t.textContent='Error al guardar'; }
+}
+function startAutoSaveTimer(){
+  if(window._autoSaveInterval) clearInterval(window._autoSaveInterval);
+  window._autoSaveInterval=setInterval(()=>{ save(); }, 60000);
 }
 
 // ══════════════════ HELPERS ══════════════════
@@ -2028,31 +1997,62 @@ function init(){
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
   refreshIngresoSelects(); refreshEgresoSelects();
-  activateTab('cuentas');
+  activateTab('ingresos');
+  startAutoSaveTimer();
+  markSavedAt();
 }
 
 // ══════════════════ TABS ══════════════════
 let _activeAccount=0;
 
+const NAV_BLOCKS={
+  operaciones:{label:'Operaciones',locked:false,default:'ingresos',tabs:[
+    {id:'tab-ing',cls:'',label:'Ingresos',t:'ingresos'},
+    {id:'tab-egr',cls:'nav-indigo',label:'Egresos',t:'egresos'},
+    {id:'tab-cxc',cls:'nav-indigo',label:'CxC',t:'cxc'},
+    {id:'tab-cxp',cls:'nav-indigo',label:'CxP',t:'cxp'},
+    {id:'tab-cli',cls:'',label:'Clientes',t:'clientes'},
+    {id:'tab-sup',cls:'nav-indigo',label:'Suplidores',t:'suplidores'},
+    {id:'tab-cc',cls:'nav-indigo',label:'Tarjeta',t:'cc'},
+    {id:'tab-contab',cls:'nav-indigo',label:'Contabilidad',t:'contabilidad'}
+  ]},
+  finanzas:{label:'🔒 Finanzas',locked:true,default:'cuentas',tabs:[
+    {id:'tab-cuentas',cls:'',label:'Cuentas',t:'cuentas'},
+    {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'},
+    {id:'tab-rep',cls:'',label:'Reportes',t:'reportes'},
+    {id:'tab-rent',cls:'nav-indigo',label:'Estado de Resultados',t:'rentabilidad'}
+  ]}
+};
+let _activeBlock='operaciones';
+
 function renderTabs(){
   const bar=document.getElementById('tabsBar'); bar.innerHTML='';
-  [{id:'tab-cuentas',cls:'',label:'Cuentas',t:'cuentas'},
-   {id:'tab-cc',cls:'nav-indigo',label:'Tarjeta',t:'cc'},
-   {id:'tab-cxc',cls:'nav-indigo',label:'CxC',t:'cxc'},
-   {id:'tab-cxp',cls:'nav-indigo',label:'CxP',t:'cxp'},
-   {id:'tab-ing',cls:'',label:'Ingresos',t:'ingresos'},
-   {id:'tab-egr',cls:'nav-indigo',label:'Egresos',t:'egresos'},
-   {id:'tab-cli',cls:'',label:'Clientes',t:'clientes'},
-   {id:'tab-sup',cls:'nav-indigo',label:'Suplidores',t:'suplidores'},
-   {id:'tab-rent',cls:'',label:'Estado de Resultados',t:'rentabilidad'},
-   {id:'tab-rep',cls:'',label:'Reportes',t:'reportes'},
-   {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'},
-   {id:'tab-contab',cls:'nav-indigo',label:'Contabilidad',t:'contabilidad'}
-  ].forEach(x=>{
+  Object.keys(NAV_BLOCKS).forEach(key=>{
+    const btn=document.createElement('button');
+    btn.className=`nav-btn block-nav-btn ${_activeBlock===key?'active':''}`;
+    btn.id=`block-${key}`; btn.onclick=()=>switchBlock(key);
+    btn.textContent=NAV_BLOCKS[key].label; bar.appendChild(btn);
+  });
+  renderSubTabs();
+}
+function renderSubTabs(){
+  const bar=document.getElementById('subTabsBar'); if(!bar)return;
+  bar.innerHTML='';
+  NAV_BLOCKS[_activeBlock].tabs.forEach(x=>{
     const btn=document.createElement('button');
     btn.className=`nav-btn ${x.cls}`; btn.id=x.id; btn.onclick=()=>activateTab(x.t);
     btn.textContent=x.label; bar.appendChild(btn);
   });
+}
+function _setActiveBlock(key){
+  _activeBlock=key;
+  document.querySelectorAll('.block-nav-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById(`block-${key}`); if(btn) btn.classList.add('active');
+  renderSubTabs();
+}
+function switchBlock(key){
+  if(_activeBlock===key) return; // ya estás aquí, no reiniciar a la sub-pestaña por defecto
+  activateTab(NAV_BLOCKS[key].default);
 }
 
 function renderAccountSubNav(){
@@ -2080,12 +2080,13 @@ let _pendingTabTarget = null;
 let _pinGateMode = 'enter'; // 'enter' | 'create' | 'change'
 
 function activateTab(idx){
-  const esProtegida = (typeof idx==='number') || idx==='cuentas' || idx==='rentabilidad';
+  const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes'].includes(idx);
   if(esProtegida && !_pinUnlockedThisSession){
     _pendingTabTarget = idx;
     openPinGate(S.securityPin ? 'enter' : 'create');
     return;
   }
+  _setActiveBlock(esProtegida ? 'finanzas' : 'operaciones');
   _activateTabReal(idx);
 }
 
@@ -2109,7 +2110,8 @@ function cancelPinGate(){
   document.getElementById('pinGateModal').style.display='none';
   if(_pinGateMode!=='change'){
     _pendingTabTarget=null;
-    _activateTabReal('consolidated');
+    _setActiveBlock('operaciones');
+    _activateTabReal('ingresos');
   }
 }
 function confirmPinGate(){
@@ -2146,6 +2148,7 @@ function confirmPinGate(){
 function _grantPinAccess(){
   _pinUnlockedThisSession=true;
   const target=_pendingTabTarget; _pendingTabTarget=null;
+  _setActiveBlock('finanzas');
   _activateTabReal(target!=null?target:'cuentas');
 }
 
@@ -2154,13 +2157,12 @@ function _grantPinAccess(){
 // próxima vez que se entre a Cuentas o Estado de Resultados, y si en ese momento
 // están en pantalla, saca de inmediato a Consolidado.
 function lockProtectedTabsNow(){
-  if(!_pinUnlockedThisSession){ notify('info','Ya Bloqueado','Cuentas y Estado de Resultados ya están protegidos.'); return; }
+  if(!_pinUnlockedThisSession){ notify('info','Ya Bloqueado','Cuentas, Consolidado, Reportes y Estado de Resultados ya están protegidos.'); return; }
   _pinUnlockedThisSession=false;
-  const panelCuentas=document.getElementById('panel-cuentas');
-  const panelRent=document.getElementById('panel-rentabilidad');
-  const enPantallaProtegida=(panelCuentas&&panelCuentas.classList.contains('active'))||(panelRent&&panelRent.classList.contains('active'));
-  if(enPantallaProtegida) _activateTabReal('consolidated');
-  notify('success','Bloqueado','Cuentas y Estado de Resultados requieren el PIN de nuevo.');
+  const paneles=['panel-cuentas','panel-consolidated','panel-reportes','panel-rentabilidad'];
+  const enPantallaProtegida=paneles.some(id=>{const el=document.getElementById(id);return el&&el.classList.contains('active');});
+  if(enPantallaProtegida){ _setActiveBlock('operaciones'); _activateTabReal('ingresos'); }
+  notify('success','Bloqueado','Cuentas, Consolidado, Reportes y Estado de Resultados requieren el PIN de nuevo.');
 }
 
 function _activateTabReal(idx){
@@ -3534,21 +3536,6 @@ function confirmRename(){
 document.getElementById('renameInput').addEventListener('keydown',e=>{if(e.key==='Enter')confirmRename();if(e.key==='Escape')closeRename();});
 
 // ══════════════════ EXPORT / IMPORT ══════════════════
-function cerrarSistema(){
-  // Show custom exit modal - never use native browser dialogs
-  document.getElementById('exitModal').classList.add('open');
-}
-function doExportAndExit(){
-  exportAndClose();
-  document.getElementById('exitModal').classList.remove('open');
-  setTimeout(()=>{
-    notify('success','Datos Exportados','☁ Tus datos ya están en la nube. Puedes cerrar la pestaña con Ctrl+W.');
-  }, 600);
-}
-function doJustExit(){
-  document.getElementById('exitModal').classList.remove('open');
-  notify('info','Hasta pronto','☁ Tus datos están guardados en la nube. Cierra la pestaña cuando quieras.');
-}
 
 function togglePayRetenciones(){
   const body = document.getElementById('pay-ret-body');
@@ -3561,21 +3548,17 @@ function togglePayRetenciones(){
   toggle.style.borderBottomColor = open ? 'transparent' : '';
 }
 
-function guardarManual(){
-  save();
-  const tag=document.getElementById('lastSavedTag');
-  tag.textContent='Guardado '+new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
-  tag.style.color='#818cf8';
-  setTimeout(()=>{tag.textContent='';tag.style.color='#4a5568';},3000);
-}
 
 function exportData(){
   const a=document.createElement('a');
   a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({version:3,exportedAt:new Date().toISOString(),...S},null,2));
   a.download=`banca_balance_${today()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  const tag=document.getElementById('lastSavedTag');
-  tag.textContent=`Exportado ${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}`; tag.style.color='#818cf8';
-  setTimeout(()=>{tag.style.color='#4a5568';tag.textContent='';},4000);
+  const t=document.getElementById('autoSaveText');
+  if(t){
+    const previo=t.textContent;
+    t.textContent=`Exportado ${new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}`;
+    setTimeout(()=>{ markSavedAt(); }, 4000);
+  }
 }
 function importData(){document.getElementById('importFileInput').click();}
 function handleImportFile(event){
@@ -4372,6 +4355,7 @@ function switchContab(section){
   document.getElementById('distribucionView').style.display = section==='distribucion' ? '' : 'none';
   document.getElementById('diarioView').style.display = section==='diario' ? '' : 'none';
   document.getElementById('mayorView').style.display = section==='mayor' ? '' : 'none';
+  document.getElementById('seguridadView').style.display = section==='seguridad' ? '' : 'none';
   if(section==='plan') renderPlanCuentas();
   if(section==='distribucion') renderDistribuciones();
   if(section==='diario') renderLibroDiario();
@@ -4620,31 +4604,6 @@ function exportReportCSV(){
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
-let _bye=false;
-
-function markSaved(){
-  document.getElementById('exportBar').style.display='none';
-  document.getElementById('floatExportBtn').style.display='none';
-  document.getElementById('closeOverlay').style.display='none';
-}
-function closeExportBar(){ document.getElementById('exportBar').style.display='none'; }
-function closeSaveWarning(){ closeExportBar(); }
-
-function showCloseWarning(){
-  document.getElementById('exportBar').style.display='flex';
-  document.getElementById('floatExportBtn').style.display='block';
-  document.getElementById('closeOverlay').style.display='flex';
-}
-
-function exportDataAndMark(){ exportData(); markSaved(); }
-
-// Beforeunload removed — data is safely stored in Firebase cloud
-
-function exportAndClose(){
-  exportData(); markSaved(); _bye=true;
-  notify('success','Datos Exportados','Ahora puedes cerrar la ventana con seguridad.');
-}
-
 document.getElementById('reportModal').addEventListener('click',function(e){if(e.target===this)closeReport();});
 
 
@@ -4712,9 +4671,7 @@ function initFirebase(attempt){
     firebase.auth().onAuthStateChanged(user=>{
       if(user && user.email && user.email.toLowerCase()===ALLOWED_EMAIL){
         hideLoginGate();
-        document.getElementById('logoutBtn').style.display='block';
-        document.getElementById('changePinBtn').style.display='block';
-        document.getElementById('lockNowBtn').style.display='block';
+        document.getElementById('logoutBtn').style.display='inline-flex';
         if(!_authResolved){ _authResolved=true; playIntroThenLoad(); }
       } else if(user){
         // Sesión válida pero no autorizada para este sistema — fuera.
@@ -4723,8 +4680,6 @@ function initFirebase(attempt){
         firebase.auth().signOut();
         showLoadingOverlay(false);
         document.getElementById('logoutBtn').style.display='none';
-        document.getElementById('changePinBtn').style.display='none';
-        document.getElementById('lockNowBtn').style.display='none';
         const errEl=document.getElementById('login-error');
         errEl.textContent='Esta cuenta no tiene acceso a este sistema.';
         errEl.style.display='block';
@@ -4734,8 +4689,6 @@ function initFirebase(attempt){
         _pinUnlockedThisSession=false;
         showLoadingOverlay(false);
         document.getElementById('logoutBtn').style.display='none';
-        document.getElementById('changePinBtn').style.display='none';
-        document.getElementById('lockNowBtn').style.display='none';
         showLoginGate();
       }
     });
@@ -4974,7 +4927,7 @@ function reRenderAll(){
   renderClientes();
   renderSuplidores();
   renderConsolidated();
-  activateTab('cuentas');
+  activateTab('ingresos');
 }
 
 function loadFromFirebase(){
