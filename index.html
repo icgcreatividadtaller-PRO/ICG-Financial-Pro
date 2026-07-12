@@ -200,7 +200,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
   background:linear-gradient(90deg,transparent,rgba(79,70,229,.3),transparent);
 }
 .add-form h3{14px;color:var(--indigo2);font-weight:700;margin-bottom:18px;letter-spacing:.15em;}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;align-items:end;}
 .form-group label{12px;color:var(--text3);letter-spacing:.14em;display:block;margin-bottom:6px;font-weight:600;}
 .form-group input,.form-group select,.form-group textarea{
   width:100%;background:var(--s2);border:1px solid var(--border2);
@@ -826,8 +826,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
     </div>
-    <!-- Row 2: Fecha · Condiciones · Vencimiento · Total -->
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:4px;">
+    <!-- Row 2: Fecha · Condiciones · Vencimiento · Subtotal · ITBIS · Total -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:4px;flex-wrap:wrap;">
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Fecha de Creación</label>
         <input autocomplete="off" type="date" id="cxc-issued" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
@@ -847,13 +847,25 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <strong id="cxc-due-display" data-raw="">—</strong>
         </div>
       </div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>Subtotal RD$</label>
+        <input autocomplete="off" type="number" id="cxc-subtotal" placeholder="0.00" min="0" step="0.01"
+          oninput="calcCxCTotales()"
+          style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
+      </div>
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>ITBIS (18%)</label>
+        <input autocomplete="off" type="number" id="cxc-itbis" placeholder="0.00" min="0" step="0.01"
+          oninput="calcCxCTotales(true)"
+          style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
+      </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
         <label style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
-        <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01"
-          oninput="this.style.color=this.value?'#818cf8':'#4a5578'"
-          style="font-family:var(--mono);font-size:20px;font-weight:700;color:#4a5578;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01" readonly
+          style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.1);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;cursor:not-allowed;">
       </div>
     </div>
+    <div style="font-size:11px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
       <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:12px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
       <button class="btn btn-ghost" id="cxc-cancel-btn" style="display:none;font-size:12px;" onclick="cancelEditCXC()">✕ Cancelar edición</button>
@@ -1303,7 +1315,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
 
   <!-- KPI Cards -->
-  <div class="balance-cards" id="rent-kpis" style="margin-bottom:24px;flex-wrap:wrap;gap:14px;"></div>
+  <div class="balance-cards" id="rent-kpis" style="margin-bottom:14px;flex-wrap:wrap;gap:14px;"></div>
+  <div style="font-size:11px;color:#6b7a99;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em;">ITBIS Facturado (CxC) · por fecha de emisión — no es lo mismo que Ingresos cobrados arriba</div>
+  <div class="balance-cards" id="rent-itbis-kpis" style="margin-bottom:24px;flex-wrap:wrap;gap:14px;"></div>
 
   <!-- Chart -->
   <div class="add-form" style="margin-bottom:20px;">
@@ -2678,6 +2692,21 @@ function calcDue(){
   if(dEl){dEl.textContent=fmtDate(due);dEl.dataset.raw=due;}
 }
 
+// Subtotal → ITBIS (18%, editable a mano) → Total (siempre automático, no editable)
+function calcCxCTotales(itbisEditadoAMano){
+  const subEl=document.getElementById('cxc-subtotal');
+  const itbisEl=document.getElementById('cxc-itbis');
+  const totalEl=document.getElementById('cxc-amount');
+  const sub=parseFloat(subEl.value)||0;
+  if(!itbisEditadoAMano){
+    itbisEl.value = sub>0 ? (sub*0.18).toFixed(2) : '';
+  }
+  const itbis=parseFloat(itbisEl.value)||0;
+  const total = sub+itbis;
+  totalEl.value = total>0 ? total.toFixed(2) : '';
+  totalEl.style.color = total>0 ? '#818cf8' : '#4a5578';
+}
+
 let _editingCxCId = null;
 
 function editCXC(id){
@@ -2690,6 +2719,11 @@ function editCXC(id){
   refreshCxCCatSelect(x.categoria||'');
   document.getElementById('cxc-desc').value    = x.desc||'';
   document.getElementById('cxc-issued').value  = x.issued||'';
+  // Subtotal/ITBIS: si la factura es de antes de este cambio, se calculan hacia atrás desde el Total (18/118)
+  const subtotalGuardado = x.subtotal!=null ? x.subtotal : Math.round((x.amount||0)*100/118*100)/100;
+  const itbisGuardado    = x.itbis!=null    ? x.itbis    : Math.round((x.amount||0)*100)/100 - subtotalGuardado;
+  document.getElementById('cxc-subtotal').value = subtotalGuardado||'';
+  document.getElementById('cxc-itbis').value    = itbisGuardado||'';
   document.getElementById('cxc-amount').value  = x.amount||'';
   document.getElementById('cxc-days').value    = x.creditDays||'30';
   // Set client in select
@@ -2720,6 +2754,8 @@ function cancelEditCXC(){
   // Clear form
   document.getElementById('cxc-invoice').value='';
   document.getElementById('cxc-desc').value='';
+  document.getElementById('cxc-subtotal').value='';
+  document.getElementById('cxc-itbis').value='';
   document.getElementById('cxc-amount').value='';
   document.getElementById('cxc-client').selectedIndex=0;
   const inv=document.getElementById('cxc-invoice');
@@ -2739,8 +2775,16 @@ function addCXC(){
   const categoria = document.getElementById('cxc-categoria')?.value||'';
   const issued    = document.getElementById('cxc-issued').value;
   const days      = parseInt(document.getElementById('cxc-days').value||'30');
+  const subtotal  = parseFloat(document.getElementById('cxc-subtotal').value)||0;
+  const itbis     = parseFloat(document.getElementById('cxc-itbis').value)||0;
   const amount    = parseFloat(document.getElementById('cxc-amount').value);
-  if(!invoice||!client||!issued||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa Factura, Cliente, Fecha y Monto.');return;}
+
+  // Validación explícita campo por campo — nunca bloquear sin decir cuál falta
+  if(!invoice){ notify('error','Falta el NCF','Escribe el número de comprobante fiscal (NCF) antes de registrar.'); document.getElementById('cxc-invoice').focus(); return; }
+  if(!client){ notify('error','Falta el Cliente','Selecciona o crea el cliente de esta factura.'); return; }
+  if(!issued){ notify('error','Falta la Fecha','Selecciona la fecha de creación de la factura.'); return; }
+  if(!categoria){ notify('error','Falta la Categoría','Selecciona una categoría para esta factura.'); document.getElementById('cxc-categoria')?.focus(); return; }
+  if(isNaN(amount)||amount<=0){ notify('error','Falta el Monto','Completa el Subtotal (el Total se calcula solo).'); document.getElementById('cxc-subtotal').focus(); return; }
 
   const d=new Date(issued+'T00:00:00'); d.setDate(d.getDate()+days);
   const due=d.toISOString().slice(0,10);
@@ -2755,7 +2799,7 @@ function addCXC(){
         return;
       }
       const existing = S.cuentasCobrar[idx];
-      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount};
+      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount, subtotal, itbis};
     }
     save(); renderCXC(); cancelEditCXC();
     notify('success','Factura Actualizada',`La factura ${invoice} ha sido actualizada correctamente.`);
@@ -2768,7 +2812,7 @@ function addCXC(){
     document.getElementById('cxc-invoice').focus();
     return;
   }
-  S.cuentasCobrar.push({id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null});
+  S.cuentasCobrar.push({id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null});
   save(); renderCXC();
   document.getElementById('cxc-invoice').value='';
   const invEl=document.getElementById('cxc-invoice');
@@ -2777,6 +2821,8 @@ function addCXC(){
   if(warnEl) warnEl.style.display='none';
   document.getElementById('cxc-client').selectedIndex=0;
   document.getElementById('cxc-desc').value='';
+  document.getElementById('cxc-subtotal').value='';
+  document.getElementById('cxc-itbis').value='';
   document.getElementById('cxc-amount').value='';
   const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
   refreshCxCCatSelect('');
@@ -2989,23 +3035,23 @@ const CXP_CONFIG = {
       {id:'referencia',label:'RNC / Referencia',        type:'text',  span:2, placeholder:'RNC del proveedor o referencia...'},
       {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Materiales','Nómina','Alquiler','Luz / Electricidad','Internet','Teléfono','Combustible','Equipos','Subcontratación','Publicidad','Impuestos','Contabilidad','Transportación','Otros']},
     ],
-    headers: ['Proveedor','Concepto','Monto','Factura','Método','Estado',''],
+    headers: ['Proveedor','Concepto','Categoría','Monto','Fecha','Método','Cuenta','Estado',''],
   },
   serviciosFijos: {
     title: 'Servicio Fijo',
     tableTitle: 'Servicios Fijos',
     icon: '🔌',
     fields: [
-      {id:'nombre',    label:'Nombre del Servicio',     type:'text',  span:2, placeholder:'Ej: EDENORTE, Claro, Netflix...'},
-      {id:'concepto',  label:'Descripción / Cuenta',    type:'text',  span:2, placeholder:'Detalle del servicio...'},
-      {id:'monto',     label:'Monto Mensual (RD$)',      type:'number',span:1, placeholder:'0.00'},
+      {id:'nombre',    label:'Nombre del Servicio',     type:'text',  span:1, placeholder:'Ej: EDENORTE, Claro, Netflix...'},
+      {id:'cuenta',    label:'Cuenta / N° Referencia',  type:'text',  span:1, placeholder:'N° de cuenta con el proveedor...'},
+      {id:'concepto',  label:'Descripción',             type:'text',  span:2, placeholder:'Detalle del servicio...'},
+      {id:'monto',     label:'Monto (RD$)',              type:'number',span:1, placeholder:'0.00'},
       {id:'fecha',     label:'Fecha del Período',        type:'date',  span:1},
       {id:'vence',     label:'Fecha Vencimiento',        type:'date',  span:1},
       {id:'metodo',    label:'Forma de Pago',            type:'select',span:1, options:['Transferencia','Efectivo','Tarjeta de Crédito','Débito Automático']},
-      {id:'frecuencia',label:'Frecuencia',               type:'select',span:2, options:['Mensual','Bimestral','Trimestral','Anual']},
       {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Luz / Electricidad','Internet','Teléfono','Alquiler','Combustible','Materiales','Nómina','Otros']},
     ],
-    headers: ['Servicio','Descripción','Monto','Período','Vencimiento','Frecuencia','Estado',''],
+    headers: ['Servicio','N° Cuenta','Descripción','Categoría','Monto','Período','Vencimiento','Método','Cuenta Pago','Estado',''],
   },
   prestamos: {
     title: 'Préstamo',
@@ -3022,7 +3068,7 @@ const CXP_CONFIG = {
       {id:'tasa',      label:'Tasa de Interés (%)',      type:'number',span:1, placeholder:'Ej: 12.5'},
       {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Contabilidad','Otros','Materiales','Nómina']},
     ],
-    headers: ['Entidad','Préstamo','Cuota','Saldo','Vencimiento','Tasa','Estado',''],
+    headers: ['Entidad','Préstamo','Categoría','Cuota','Saldo','Vencimiento','Tasa','Cuenta','Estado',''],
   },
   otros: {
     title: 'Otro',
@@ -3038,7 +3084,7 @@ const CXP_CONFIG = {
       {id:'referencia',label:'Referencia / Nota',       type:'text',  span:2, placeholder:'Número de referencia u observación...'},
       {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Otros','Materiales','Nómina','Impuestos','Contabilidad','Transportación','Subcontratación','Publicidad']},
     ],
-    headers: ['Nombre','Concepto','Monto','Fecha','Método','Estado',''],
+    headers: ['Nombre','Concepto','Categoría','Monto','Fecha','Método','Cuenta','Estado',''],
   }
 };
 
@@ -3194,18 +3240,24 @@ function renderCXP(){
   };
 
   const acctName = x => `<span style="color:#8899bb;font-size:12px;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
+  const catLabel = x => {
+    if(!x.categoriaEgreso) return '<span style="color:#6b7a99;">—</span>';
+    const key = CXP_CAT_LABEL_TO_KEY[x.categoriaEgreso] || 'otros';
+    const label = EGR_CAT_LABELS[key] || (S.categoriasEgresos||[]).find(c=>c.key===key)?.label || x.categoriaEgreso;
+    return `<span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(label)}</span>`;
+  };
 
   const rowMap = {
-    proveedores:    x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
-    serviciosFijos: x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), fmtDate(x.vence), esc(x.frecuencia)||'Mensual', methodBadge(x.metodo), acctName(x), stBtn(x)],
-    prestamos:      x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmt(x.saldo||0), fmtDate(x.vence), x.tasa?(x.tasa+'%'):'—', acctName(x), stBtn(x)],
-    otros:          x=>[esc(x.nombre), esc(x.concepto)||'—', fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
+    proveedores:    x=>[esc(x.nombre), esc(x.concepto)||'—', catLabel(x), fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
+    serviciosFijos: x=>[esc(x.nombre), esc(x.cuenta)||'—', esc(x.concepto)||'—', catLabel(x), fmt(x.monto), fmtDate(x.fecha), fmtDate(x.vence), methodBadge(x.metodo), acctName(x), stBtn(x)],
+    prestamos:      x=>[esc(x.nombre), esc(x.concepto)||'—', catLabel(x), fmt(x.monto), fmt(x.saldo||0), fmtDate(x.vence), x.tasa?(x.tasa+'%'):'—', acctName(x), stBtn(x)],
+    otros:          x=>[esc(x.nombre), esc(x.concepto)||'—', catLabel(x), fmt(x.monto), fmtDate(x.fecha), methodBadge(x.metodo), acctName(x), stBtn(x)],
   };
   const hMap = {
-    proveedores:    ['Proveedor','Concepto','Monto','Fecha','Método','Cuenta','Estado',''],
-    serviciosFijos: ['Servicio','Descripción','Monto','Período','Vencimiento','Frecuencia','Método','Cuenta','Estado',''],
-    prestamos:      ['Entidad','Préstamo','Cuota','Saldo','Vencimiento','Tasa','Cuenta','Estado',''],
-    otros:          ['Nombre','Concepto','Monto','Fecha','Método','Cuenta','Estado',''],
+    proveedores:    ['Proveedor','Concepto','Categoría','Monto','Fecha','Método','Cuenta','Estado',''],
+    serviciosFijos: ['Servicio','N° Cuenta','Descripción','Categoría','Monto','Período','Vencimiento','Método','Cuenta Pago','Estado',''],
+    prestamos:      ['Entidad','Préstamo','Categoría','Cuota','Saldo','Vencimiento','Tasa','Cuenta','Estado',''],
+    otros:          ['Nombre','Concepto','Categoría','Monto','Fecha','Método','Cuenta','Estado',''],
   };
   document.getElementById('cxpTableHead').innerHTML=`<tr>${(hMap[_cxpSection]||hMap.proveedores).map(h=>`<th>${h}</th>`).join('')}</tr>`;
 
@@ -3814,6 +3866,15 @@ function getCatLabel(key,list){
   const found=list.find(c=>c.key===key);
   return found?found.label:key||'—';
 }
+// Traduce categoriaEgreso de un ítem de CxP (guardado como lo normaliza el <select>,
+// ej. 'luz_/_electricidad') a su etiqueta legible ('Luz / Electricidad'). Antes esta
+// función se llamaba en la tabla de CxP pero nunca se había definido — rompía el
+// renderizado silenciosamente y por eso la columna Categoría nunca se veía.
+function catLabel(x){
+  if(!x.categoriaEgreso) return '—';
+  const key = CXP_CAT_LABEL_TO_KEY[x.categoriaEgreso] || x.categoriaEgreso;
+  return esc(getCatLabel(key, getAllEgrCats()));
+}
 function addCustomCategory(type){
   const name=prompt(type==='ing'?'Nueva categoría de Ingreso:':'Nueva categoría de Egreso:');
   if(!name||!name.trim())return;
@@ -3856,7 +3917,7 @@ function addIngreso(auto=false,data={}){
   const cuentaIdx=auto?data.cuentaIdx:parseInt(document.getElementById('ing-cuenta').value)||0;
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const cliente=S.clientes.find(x=>x.id===clienteId);
-  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
   S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
   if(!auto){
     // Acreditar en la cuenta bancaria seleccionada
@@ -4001,13 +4062,18 @@ function renderRentabilidad(){
     ?Array.from({length:12},(_,i)=>({key:`${year}-${String(i+1).padStart(2,'0')}`,label:new Date(year,i,1).toLocaleString('es',{month:'short'}).replace(/^\w/,c=>c.toUpperCase())}))
     :[{key:`${year}-Q1`,label:'Q1 Ene-Mar',months:[1,2,3]},{key:`${year}-Q2`,label:'Q2 Abr-Jun',months:[4,5,6]},{key:`${year}-Q3`,label:'Q3 Jul-Sep',months:[7,8,9]},{key:`${year}-Q4`,label:'Q4 Oct-Dic',months:[10,11,12]}];
   const gI=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+x.monto,0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+x.monto,0);
+  const gITBIS=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+(x.itbis||0),0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+(x.itbis||0),0);
   const gE=p=>period==='mensual'?S.egresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+x.monto,0):S.egresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+x.monto,0);
-  const data=periods.map(p=>({...p,ing:gI(p),egr:gE(p),util:gI(p)-gE(p),margen:gI(p)>0?((gI(p)-gE(p))/gI(p)*100):0}));
-  const totIng=data.reduce((s,p)=>s+p.ing,0),totEgr=data.reduce((s,p)=>s+p.egr,0),totUtil=totIng-totEgr,totMarg=totIng>0?(totUtil/totIng*100):0;
+  // "ing" = Ingresos Netos (SIN ITBIS) — el ITBIS cobrado nunca es ingreso real, es dinero
+  // que le debes a la DGII. Usar el bruto (con ITBIS) aquí infla la utilidad artificialmente.
+  const data=periods.map(p=>{const bruto=gI(p),itbisP=gITBIS(p),neto=bruto-itbisP,egr=gE(p);return{...p,ing:neto,itbis:itbisP,bruto,egr,util:neto-egr,margen:neto>0?((neto-egr)/neto*100):0};});
+  const totIng=data.reduce((s,p)=>s+p.ing,0),totItbis=data.reduce((s,p)=>s+p.itbis,0),totBruto=data.reduce((s,p)=>s+p.bruto,0),totEgr=data.reduce((s,p)=>s+p.egr,0),totUtil=totIng-totEgr,totMarg=totIng>0?(totUtil/totIng*100):0;
   document.getElementById('rent-kpis').innerHTML=`
-    <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Ingresos ${year}</div><div class="bcard-value positive">${fmt(totIng)}</div></div>
+    <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Ingresos Netos ${year} <span title="Sin ITBIS — antes de impuestos">ⓘ</span></div><div class="bcard-value positive">${fmt(totIng)}</div></div>
+    <div class="bcard" style="border-color:rgba(250,255,1,.3);flex:1;min-width:130px;"><div class="bcard-label">ITBIS Cobrado ${year}</div><div class="bcard-value" style="color:#fdc901;">${fmt(totItbis)}</div></div>
+    <div class="bcard" style="border-color:rgba(129,140,248,.15);flex:1;min-width:130px;"><div class="bcard-label">Total Facturado (con ITBIS)</div><div class="bcard-value" style="color:#9ca3af;">${fmt(totBruto)}</div></div>
     <div class="bcard" style="border-color:rgba(239,68,68,.3);flex:1;min-width:130px;"><div class="bcard-label">Egresos ${year}</div><div class="bcard-value negative">${fmt(totEgr)}</div></div>
-    <div class="bcard" style="border-color:${totUtil>=0?'rgba(79,70,229,.3)':'rgba(239,68,68,.3)'};flex:1;min-width:130px;"><div class="bcard-label">Utilidad Neta</div><div class="bcard-value ${totUtil>=0?'neutral':'negative'}">${fmt(totUtil)}</div></div>
+    <div class="bcard" style="border-color:${totUtil>=0?'rgba(79,70,229,.3)':'rgba(239,68,68,.3)'};flex:1;min-width:130px;"><div class="bcard-label">Utilidad Neta (Después de ITBIS)</div><div class="bcard-value ${totUtil>=0?'neutral':'negative'}">${fmt(totUtil)}</div></div>
     <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Margen Neto</div><div class="bcard-value" style="color:${totMarg>=0?'#818cf8':'#ef4444'}">${totMarg.toFixed(1)}%</div></div>`;
   // SVG Chart
   const W=760,H=200,pL=60,pB=36,pT=16,pR=16,iW=W-pL-pR,iH=H-pB-pT;
@@ -4026,8 +4092,8 @@ function renderRentabilidad(){
   document.getElementById('rent-chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;">${grid}<line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="rgba(255,255,255,.08)"/><line x1="${pL}" y1="${pT+iH}" x2="${W-pR}" y2="${pT+iH}" stroke="rgba(255,255,255,.08)"/>${bars}${labs}<rect x="${W-120}" y="${pT}" width="10" height="10" fill="#818cf8" rx="2"/><text x="${W-106}" y="${pT+9}" fill="#9ca3af" font-size="10">Ingresos</text><rect x="${W-58}" y="${pT}" width="10" height="10" fill="#ef4444" rx="2"/><text x="${W-44}" y="${pT+9}" fill="#9ca3af" font-size="10">Egresos</text></svg>`;
   // P&L Table
   document.getElementById('rent-table-title').textContent=`Estado de Resultados ${period==='mensual'?'Mensual':'Trimestral'} ${year}`;
-  document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
-  document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
+  document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos (sin ITBIS)</th><th>ITBIS Cobrado</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
+  document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono" style="color:#fdc901;">${fmt(p.itbis)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono" style="color:#fdc901;font-weight:700;">${fmt(totItbis)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
   // Category bars
   const catBar=(items,labels,col)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--font-mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;18px;text-align:center;padding:16px;">Sin datos</p>`;};
   const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString()));
@@ -4163,7 +4229,11 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
 
 function autoIngresoFromCxC(x,netAmount,date,method,bankIdx){
   if(S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc'))return;
-  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
+  // Prorratea el ITBIS de la factura según la proporción realmente cobrada
+  // (si hubo retención, el ITBIS efectivo también se reduce proporcionalmente).
+  const itbisFactura = parseFloat(x.itbis)||0;
+  const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(netAmount/x.amount) : 0;
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
 }
 function autoEgresoFromCxP(item,amount,date,method,accountIdx){
   if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
