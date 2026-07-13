@@ -2629,14 +2629,14 @@ function addCustomCCCat(){
 function refreshCCCatSelect(selectVal){
   const sel = document.getElementById('cc-cat');
   if(!sel) return;
-  const custom = (S.categoriasTarjeta||[]);
-  // Remove old custom options and re-add
-  [...sel.options].filter(o=>o.dataset.custom).forEach(o=>o.remove());
-  custom.forEach(c=>{
-    const o = document.createElement('option');
-    o.value = c.key; o.textContent = c.label; o.dataset.custom = '1';
-    sel.appendChild(o);
-  });
+  // Junta las opciones fijas (definidas en el HTML) + las personalizadas, y reordena
+  // todo alfabéticamente en un solo lote — 'Sin categoría' se queda siempre primera.
+  const fijas = [...sel.options].filter(o=>o.value!=='').map(o=>({key:o.value,label:o.textContent}));
+  const custom = (S.categoriasTarjeta||[]).map(c=>({key:c.key,label:c.label}));
+  const vistos = new Set();
+  const todas = [...fijas,...custom].filter(c=>{ if(vistos.has(c.key)) return false; vistos.add(c.key); return true; })
+    .sort((a,b)=>a.label.localeCompare(b.label,'es'));
+  sel.innerHTML = `<option value="">Sin categoría</option>` + todas.map(c=>`<option value="${esc(c.key)}">${esc(c.label)}</option>`).join('');
   if(selectVal) sel.value = selectVal;
 }
 
@@ -3110,10 +3110,11 @@ function buildCXPForm(section){
     const spanStyle = f.span===2 ? 'grid-column:span 2;' : '';
     let input = '';
     if(f.type==='suplidor-select'){
-      const opts=S.suplidores.map(s=>`<option value="${esc(s.nombre)}">${esc(s.nombre)}</option>`).join('');
+      const opts=[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(s=>`<option value="${esc(s.nombre)}">${esc(s.nombre)}</option>`).join('');
       input=`<div style="display:flex;gap:6px;"><select id="cxp-f-${f.id}" style="flex:1;min-width:0;"><option value="">— Seleccionar —</option>${opts}</select><button type="button" class="btn btn-ghost btn-sm" onclick="openSuplidorModal()" style="border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 12px;flex-shrink:0;white-space:nowrap;">+ Nuevo</button></div>`;
     } else if(f.type==='select'){
-      input = `<select id="cxp-f-${f.id}">${f.options.map(o=>`<option value="${o.toLowerCase().replace(/ /g,'_')}">${o}</option>`).join('')}</select>`;
+      const opts = f.id==='categoriaEgreso' ? [...f.options].sort((a,b)=>a.localeCompare(b,'es')) : f.options;
+      input = `<select id="cxp-f-${f.id}">${opts.map(o=>`<option value="${o.toLowerCase().replace(/ /g,'_')}">${o}</option>`).join('')}</select>`;
     } else if(f.type==='date'){
       input = `<input autocomplete="off" type="date" id="cxp-f-${f.id}" value="${today()}" onclick="cdpOpen(this,event)">`;
     } else {
@@ -3855,12 +3856,12 @@ function setCuentaCodigo(tipo,key,code){
 function getAllIngCats(){
   const custom=(S.categoriasIngresos||[]).map(c=>({key:c.key,label:c.label}));
   const builtin=Object.entries(ING_CAT_LABELS).map(([k,v])=>({key:k,label:v}));
-  return [...builtin,...custom];
+  return [...builtin,...custom].sort((a,b)=>a.label.localeCompare(b.label,'es'));
 }
 function getAllEgrCats(){
   const custom=(S.categoriasEgresos||[]).map(c=>({key:c.key,label:c.label}));
   const builtin=Object.entries(EGR_CAT_LABELS).map(([k,v])=>({key:k,label:v}));
-  return [...builtin,...custom];
+  return [...builtin,...custom].sort((a,b)=>a.label.localeCompare(b.label,'es'));
 }
 function getCatLabel(key,list){
   const found=list.find(c=>c.key===key);
@@ -3897,8 +3898,8 @@ function addCustomCategory(type){
 
 function refreshIngresoSelects(){
   const sel=document.getElementById('ing-cliente');if(!sel)return;
-  sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+S.clientes.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
-  const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+  sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+[...S.clientes].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+  const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
   // Rebuild ingreso category dropdown with custom categories
   const ingCatSel=document.getElementById('ing-categoria');
   if(ingCatSel){
@@ -3914,17 +3915,21 @@ function addIngreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('ing-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
-  const cuentaIdx=auto?data.cuentaIdx:parseInt(document.getElementById('ing-cuenta').value)||0;
+  const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
+  const esHistorico=!auto&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const cliente=S.clientes.find(x=>x.id===clienteId);
-  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?false:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
   S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
   if(!auto){
-    // Acreditar en la cuenta bancaria seleccionada
-    const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
-    pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
-      desc:`Ingreso: ${cliente?.nombre||''} – ${desc||ING_CAT_LABELS[cat]||cat}`});
-    renderTx(cuentaIdx);
+    if(!esHistorico){
+      // Acreditar en la cuenta bancaria seleccionada
+      const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
+      pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
+        desc:`Ingreso: ${cliente?.nombre||''} – ${desc||ING_CAT_LABELS[cat]||cat}`});
+      renderTx(cuentaIdx);
+    }
     save();renderIngresos();
     document.getElementById('ing-monto').value='';
     document.getElementById('ing-desc').value='';
@@ -3945,7 +3950,7 @@ function renderIngresos(){
   if(fC)items=items.filter(x=>x.categoria===fC);
   items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('ing-tbody').innerHTML=items.length?items.map(x=>{
-    const acct=S.accounts[x.cuentaIdx]?.name||'—';
+    const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const ingCatLabel = ({...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
@@ -3979,8 +3984,8 @@ function onEgrMetodoChange(sel){
 
 function refreshEgresoSelects(){
   const sel=document.getElementById('egr-suplidor');if(!sel)return;
-  sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+S.suplidores.map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
-  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
+  sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
   // Rebuild egreso category dropdown with custom categories
   const egrCatSel=document.getElementById('egr-categoria');
   if(egrCatSel){
@@ -3996,14 +4001,18 @@ function addEgreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('egr-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
-  const cuentaIdx=auto?data.cuentaIdx:parseInt(document.getElementById('egr-cuenta').value)||0;
+  const cuentaSelVal=auto?null:document.getElementById('egr-cuenta').value;
+  const esHistorico=!auto&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const suplidor=S.suplidores.find(x=>x.id===suplidorId);
-  S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+  S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?false:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
   S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
   if(!auto){
-    // Debit bank account (except credit card — CC handles its own balance)
-    if(metodo !== 'tarjeta'){
+    if(esHistorico){
+      // Histórico: solo cuenta para el Estado de Resultados, no toca banco ni tarjeta.
+    } else if(metodo !== 'tarjeta'){
+      // Debit bank account (except credit card — CC handles its own balance)
       const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
       pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:txMethod,amount:monto,
         desc:`Egreso: ${suplidor?.nombre||''} – ${desc||EGR_CAT_LABELS[cat]||cat}`});
@@ -4040,7 +4049,7 @@ function renderEgresos(){
   if(fC)items=items.filter(x=>x.categoria===fC);
   items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
   document.getElementById('egr-tbody').innerHTML=items.length?items.map(x=>{
-    const acct=S.accounts[x.cuentaIdx]?.name||'—';
+    const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
     return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
