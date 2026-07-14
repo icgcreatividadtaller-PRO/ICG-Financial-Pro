@@ -3440,6 +3440,7 @@ function renderFlujoCaja(){
   let cxpComprometido = [];
   ['proveedores','serviciosFijos','prestamos','otros'].forEach(section=>{
     S.cuentasPagar[section].forEach(item=>{
+      if(item.estado==='pagada') return; // la bandera manda, igual que en la tabla de CxP
       const pend = cxpPending(item);
       if(pend>0 && item.vence && item.vence<=limite){
         cxpComprometido.push({...item, _section:section, _pendiente:pend});
@@ -3517,9 +3518,9 @@ function renderBalanceGeneral(){
   // ── PASIVOS ──
   let cxpTotal=0;
   ['proveedores','serviciosFijos','otros'].forEach(section=>{
-    S.cuentasPagar[section].forEach(item=>{ cxpTotal += cxpPending(item); });
+    S.cuentasPagar[section].forEach(item=>{ if(item.estado!=='pagada') cxpTotal += cxpPending(item); });
   });
-  S.cuentasPagar.prestamos.forEach(item=>{ cxpTotal += parseFloat(item.saldo)||0; }); // saldo real de capital, no la cuota
+  S.cuentasPagar.prestamos.forEach(item=>{ if(item.estado!=='pagada') cxpTotal += parseFloat(item.saldo)||0; }); // saldo real de capital, no la cuota
   const itbisCobradoHistorico = S.ingresos.reduce((s,x)=>s+(x.itbis||0),0);
   const itbisPagadoHistorico = S.egresos.filter(x=>x.categoria==='itbis').reduce((s,x)=>s+x.monto,0);
   const itbisPorPagar = Math.max(0, itbisCobradoHistorico - itbisPagadoHistorico);
