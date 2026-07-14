@@ -1395,7 +1395,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <div class="add-form">
     <h3>Activos Fijos — Maquinaria y Equipo (1040)</h3>
-    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas conforman tu Capital de Apertura (3010) — el mismo monto en ambos lados, como corresponde a un negocio que ya operaba antes de este sistema.</p>
+    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas forman parte de tu Capital de Apertura (3010), junto con el Saldo Inicial que le pusiste a tus cuentas bancarias — ambos representan valor que ya existía antes de este sistema.</p>
     <div class="form-grid">
       <div class="form-group"><label>Nombre del Activo</label><input autocomplete="off" type="text" id="bg-af-nombre" placeholder="Ej: Cortadora Láser..."></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="bg-af-monto" min="0" step="0.01" placeholder="0.00"></div>
@@ -3529,7 +3529,8 @@ function renderBalanceGeneral(){
   const totalPasivos = cxpTotal + itbisPorPagar + tarjetaAdeudado;
 
   // ── CAPITAL ──
-  const capitalTitular = totalActivosFijos; // Balance de apertura: mismo monto que 1040
+  const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
+  const capitalTitular = totalActivosFijos + saldosInicialesCuentas; // Balance de apertura: máquinas + efectivo que ya existía en las cuentas
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
   const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
   const utilidadesRetenidas = ingresosNetosHistoricos - egresosHistoricos;
@@ -3557,6 +3558,7 @@ function renderBalanceGeneral(){
     <div class="add-form" style="margin-bottom:0;">
       <h3 style="color:#818cf8;">CAPITAL</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3010 Capital del Titular</span><span class="td-mono">${fmt(capitalTitular)}</span></div>
+      <div style="padding:0 0 8px 12px;font-size:11px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)}</div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3020 Utilidades Retenidas</span><span class="td-mono">${fmt(utilidadesRetenidas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3030 Distribuciones (−)</span><span class="td-mono negative">−${fmt(distribucionesHistoricas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
