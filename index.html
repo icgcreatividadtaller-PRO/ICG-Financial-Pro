@@ -1316,8 +1316,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <!-- KPI Cards -->
   <div class="balance-cards" id="rent-kpis" style="margin-bottom:14px;flex-wrap:wrap;gap:14px;"></div>
-  <div style="font-size:11px;color:#6b7a99;margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em;">ITBIS Facturado (CxC) · por fecha de emisión — no es lo mismo que Ingresos cobrados arriba</div>
-  <div class="balance-cards" id="rent-itbis-kpis" style="margin-bottom:24px;flex-wrap:wrap;gap:14px;"></div>
+
 
   <!-- Chart -->
   <div class="add-form" style="margin-bottom:20px;">
@@ -1344,6 +1343,72 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <h3>Egresos por Categoría</h3>
       <div id="rent-cat-egr"></div>
     </div>
+  </div>
+</div>
+
+<!-- ══ FLUJO DE CAJA ══ -->
+<div class="panel" id="panel-flujocaja">
+  <div class="account-top">
+    <div class="account-name-area"><h2 style="color:#818cf8;">Flujo de Caja</h2><p>Proyección a 30 días · ¿es seguro retirar tu salario y/o una distribución este mes?</p></div>
+  </div>
+
+  <div class="balance-cards" id="flujo-kpis" style="margin-bottom:20px;flex-wrap:wrap;gap:14px;"></div>
+
+  <div class="add-form" style="margin-bottom:20px;">
+    <h3>¿Cuánto planeas retirar este mes?</h3>
+    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estos montos no se registran como Egreso ni Distribución real todavía — son solo para simular el impacto antes de decidir.</p>
+    <div class="form-grid">
+      <div class="form-group"><label>Salario Planeado (RD$)</label><input autocomplete="off" type="number" id="flujo-salario" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
+      <div class="form-group"><label>Distribución Planeada (RD$)</label><input autocomplete="off" type="number" id="flujo-distribucion" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
+    </div>
+  </div>
+
+  <div id="flujo-veredicto" style="margin-bottom:24px;"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <div class="transactions-section">
+      <h3>Cobros Esperados de CxC (próximos 30 días)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Vence</th><th>Cliente</th><th>Factura</th><th>Monto</th><th>Estado</th></tr></thead>
+        <tbody id="flujo-cxc-tbody"></tbody>
+      </table></div>
+    </div>
+    <div class="transactions-section">
+      <h3>Pagos Comprometidos de CxP (próximos 30 días)</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Vence</th><th>Nombre</th><th>Sección</th><th>Pendiente</th></tr></thead>
+        <tbody id="flujo-cxp-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BALANCE GENERAL ══ -->
+<div class="panel" id="panel-balancegeneral">
+  <div class="account-top">
+    <div class="account-name-area"><h2 style="color:#818cf8;">Balance General</h2><p>Activos, Pasivos y Capital · ICG Creatividad · al día de hoy</p></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;" id="bg-columnas"></div>
+
+  <div id="bg-cuadre" style="margin-bottom:24px;"></div>
+
+  <div class="add-form">
+    <h3>Activos Fijos — Maquinaria y Equipo (1040)</h3>
+    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas conforman tu Capital de Apertura (3010) — el mismo monto en ambos lados, como corresponde a un negocio que ya operaba antes de este sistema.</p>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre del Activo</label><input autocomplete="off" type="text" id="bg-af-nombre" placeholder="Ej: Cortadora Láser..."></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="bg-af-monto" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label>Fecha de Adquisición (opcional)</label><input autocomplete="off" type="date" id="bg-af-fecha" onclick="cdpOpen(this,event)"></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="addActivoFijo()">Agregar Activo</button></div>
+  </div>
+  <div class="transactions-section">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Activo</th><th>Fecha</th><th>Monto</th><th></th></tr></thead>
+      <tbody id="bg-af-tbody"></tbody>
+      <tfoot><tr><td style="font-weight:700;color:#818cf8;">TOTAL 1040 / 3010</td><td></td><td class="td-mono" style="font-weight:700;color:#818cf8;" id="bg-af-total"></td><td></td></tr></tfoot>
+    </table></div>
   </div>
 </div>
 
@@ -1887,7 +1952,9 @@ function defaultState() {
     categoriasEgresos:  [],
     catAccountMap: { ingresos:{}, egresos:{}, tarjeta:{} },
     distribuciones: [],
-    securityPin: null
+    securityPin: null,
+    flujoCajaPlan: { salario: 0, distribucion: 0 },
+    activosFijos: []
   };
 }
 
@@ -1995,6 +2062,16 @@ function ensureContabFields(){
   if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
   if(!S.distribuciones) S.distribuciones=[];
   if(S.securityPin===undefined) S.securityPin=null;
+  if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
+  if(!S.activosFijos) S.activosFijos=[];
+  if(!S.activosFijos.length && !S._activosFijosSembrados){
+    [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
+     {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
+     {nombre:'Acrylic Bending Machine',monto:15000},{nombre:'Inversor',monto:15000},{nombre:'Baterías',monto:32000},
+     {nombre:'Computadoras',monto:50000}
+    ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
+    S._activosFijosSembrados=true;
+  }
   if(!S.categoriasEgresos) S.categoriasEgresos=[];
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
@@ -2040,7 +2117,9 @@ const NAV_BLOCKS={
     {id:'tab-cuentas',cls:'',label:'Cuentas',t:'cuentas'},
     {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'},
     {id:'tab-rep',cls:'',label:'Reportes',t:'reportes'},
-    {id:'tab-rent',cls:'nav-indigo',label:'Estado de Resultados',t:'rentabilidad'}
+    {id:'tab-rent',cls:'nav-indigo',label:'Estado de Resultados',t:'rentabilidad'},
+    {id:'tab-flujo',cls:'nav-indigo',label:'Flujo de Caja',t:'flujocaja'},
+    {id:'tab-balance',cls:'',label:'Balance General',t:'balancegeneral'}
   ]}
 };
 let _activeBlock='operaciones';
@@ -2100,7 +2179,7 @@ let _pendingTabTarget = null;
 let _pinGateMode = 'enter'; // 'enter' | 'create' | 'change'
 
 function activateTab(idx){
-  const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes'].includes(idx);
+  const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes','flujocaja','balancegeneral'].includes(idx);
   if(esProtegida && !_pinUnlockedThisSession){
     _pendingTabTarget = idx;
     openPinGate(S.securityPin ? 'enter' : 'create');
@@ -2191,7 +2270,7 @@ function _activateTabReal(idx){
   const map={cuentas:'tab-cuentas',cc:'tab-cc',cxc:'tab-cxc',cxp:'tab-cxp',
              ingresos:'tab-ing',egresos:'tab-egr',clientes:'tab-cli',
              suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con',
-             contabilidad:'tab-contab'};
+             contabilidad:'tab-contab',flujocaja:'tab-flujo',balancegeneral:'tab-balance'};
   // Defensa contra valores residuales (restauración del navegador u otra causa) en campos de
   // texto libre que NUNCA deben traer contenido por defecto — deben abrir siempre vacíos.
   const limpiarCampo=id=>{const el=document.getElementById(id);if(el)el.value='';};
@@ -2216,6 +2295,8 @@ function _activateTabReal(idx){
     if(idx==='reportes') renderReportes();
     if(idx==='consolidated') renderConsolidated();
     if(idx==='contabilidad') renderContabilidad();
+    if(idx==='flujocaja') renderFlujoCaja();
+    if(idx==='balancegeneral') renderBalanceGeneral();
   }
 }
 
@@ -3327,6 +3408,170 @@ let _cxpPayType = 'full'; // 'full' or 'partial'
 function cxpPaidSoFar(item){ return (item.pagos||[]).reduce((s,p)=>s+p.amount,0); }
 function cxpPending(item){ return Math.max(0, item.monto - cxpPaidSoFar(item)); }
 
+// ══════════════════ FLUJO DE CAJA (30 días, base efectivo) ══════════════════
+function guardarFlujoPlan(){
+  S.flujoCajaPlan.salario = parseFloat(document.getElementById('flujo-salario').value)||0;
+  S.flujoCajaPlan.distribucion = parseFloat(document.getElementById('flujo-distribucion').value)||0;
+  save();
+}
+function renderFlujoCaja(){
+  if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
+  document.getElementById('flujo-salario').value = S.flujoCajaPlan.salario||'';
+  document.getElementById('flujo-distribucion').value = S.flujoCajaPlan.distribucion||'';
+
+  const hoy = today();
+  const d30 = new Date(); d30.setDate(d30.getDate()+30);
+  const limite = d30.toISOString().slice(0,10);
+
+  // Saldo actual real de todas las cuentas bancarias (no incluye Tarjeta, que es pasivo, no efectivo disponible)
+  let saldoActual = 0;
+  S.accounts.forEach(acc=>{
+    let bal = acc.initialBalance||0;
+    (acc.transactions||[]).forEach(t=>{ bal += t.type==='ingreso' ? t.amount : -t.amount; });
+    saldoActual += bal;
+  });
+
+  // Cobros esperados de CxC — pendientes con vencimiento dentro de los próximos 30 días (incluye ya vencidas)
+  const cxcEsperado = S.cuentasCobrar.filter(x=>x.estado!=='pagada' && x.due<=limite).sort((a,b)=>a.due.localeCompare(b.due));
+  const totalCxC = cxcEsperado.reduce((s,x)=>s+x.amount,0);
+
+  // Pagos comprometidos de CxP — todas las secciones, pendiente real (ya descontando abonos), vencimiento dentro de 30 días
+  const seccionLabels = {proveedores:'Proveedor',serviciosFijos:'Servicio Fijo',prestamos:'Préstamo',otros:'Otro'};
+  let cxpComprometido = [];
+  ['proveedores','serviciosFijos','prestamos','otros'].forEach(section=>{
+    S.cuentasPagar[section].forEach(item=>{
+      const pend = cxpPending(item);
+      if(pend>0 && item.vence && item.vence<=limite){
+        cxpComprometido.push({...item, _section:section, _pendiente:pend});
+      }
+    });
+  });
+  cxpComprometido.sort((a,b)=>(a.vence||'').localeCompare(b.vence||''));
+  const totalCxP = cxpComprometido.reduce((s,x)=>s+x._pendiente,0);
+
+  const salarioPlan = S.flujoCajaPlan.salario||0;
+  const distribPlan = S.flujoCajaPlan.distribucion||0;
+  const subtotalAntes = saldoActual + totalCxC - totalCxP;
+  const proyectado = subtotalAntes - salarioPlan - distribPlan;
+
+  document.getElementById('flujo-kpis').innerHTML = `
+    <div class="bcard" style="flex:1;min-width:150px;"><div class="bcard-label">Saldo Actual (Cuentas)</div><div class="bcard-value positive">${fmt(saldoActual)}</div></div>
+    <div class="bcard" style="flex:1;min-width:150px;"><div class="bcard-label">+ Cobros CxC Esperados</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalCxC)}</div></div>
+    <div class="bcard" style="flex:1;min-width:150px;"><div class="bcard-label">− Pagos CxP Comprometidos</div><div class="bcard-value negative">${fmt(totalCxP)}</div></div>
+    <div class="bcard" style="flex:1;min-width:150px;border-color:rgba(129,140,248,.4);"><div class="bcard-label">Subtotal Antes de Retiros</div><div class="bcard-value" style="color:#818cf8;font-weight:700;">${fmt(subtotalAntes)}</div></div>`;
+
+  let color,icono,veredicto;
+  if(proyectado<0){ color='#ef4444'; icono='🔴'; veredicto='No es seguro — el proyectado queda en negativo. No retires ese monto completo todavía.'; }
+  else if(subtotalAntes>0 && proyectado<subtotalAntes*0.15){ color='#fdc901'; icono='⚠️'; veredicto='Cuidado — quedaría un margen muy ajustado después de retirar. Considera un monto menor.'; }
+  else { color='#4ade80'; icono='✅'; veredicto='Se ve seguro — quedaría un margen razonable después de retirar salario y/o distribución.'; }
+
+  document.getElementById('flujo-veredicto').innerHTML = `
+    <div style="border:2px solid ${color};border-radius:12px;padding:24px;text-align:center;">
+      <div style="font-size:36px;">${icono}</div>
+      <div style="font-size:26px;font-weight:700;color:${color};margin:10px 0 4px;">${fmt(proyectado)}</div>
+      <div style="font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Saldo Proyectado a 30 días (después de salario + distribución planeados)</div>
+      <div style="font-size:14px;color:${color};margin-top:14px;font-weight:600;max-width:520px;margin-left:auto;margin-right:auto;">${veredicto}</div>
+    </div>`;
+
+  document.getElementById('flujo-cxc-tbody').innerHTML = cxcEsperado.length ? cxcEsperado.map(x=>
+    `<tr><td class="td-mono">${fmtDate(x.due)}</td><td>${esc(x.client)}</td><td class="td-mono">${esc(x.invoice)}</td><td class="td-mono positive">${fmt(x.amount)}</td><td>${x.due<hoy?'<span style="color:#ef4444;">Vencida</span>':'Por cobrar'}</td></tr>`
+  ).join('') : `<tr><td colspan="5"><div class="empty-state">Sin cobros pendientes en este rango.</div></td></tr>`;
+
+  document.getElementById('flujo-cxp-tbody').innerHTML = cxpComprometido.length ? cxpComprometido.map(x=>
+    `<tr><td class="td-mono">${fmtDate(x.vence)}</td><td>${esc(x.nombre)}</td><td>${seccionLabels[x._section]}</td><td class="td-mono negative">${fmt(x._pendiente)}</td></tr>`
+  ).join('') : `<tr><td colspan="4"><div class="empty-state">Sin pagos comprometidos en este rango.</div></td></tr>`;
+}
+
+// ══════════════════ BALANCE GENERAL ══════════════════
+function addActivoFijo(){
+  const nombre=document.getElementById('bg-af-nombre').value.trim();
+  const monto=parseFloat(document.getElementById('bg-af-monto').value)||0;
+  const fecha=document.getElementById('bg-af-fecha').value||null;
+  if(!nombre||monto<=0){ notify('error','Campos Requeridos','Completa el Nombre y el Monto del activo.'); return; }
+  S.activosFijos.push({id:Date.now()+Math.random(),nombre,monto,fecha});
+  save(); renderBalanceGeneral();
+  document.getElementById('bg-af-nombre').value='';
+  document.getElementById('bg-af-monto').value='';
+  document.getElementById('bg-af-fecha').value='';
+}
+function delActivoFijo(id){
+  icgConfirm('¿Eliminar este activo fijo? Esto reduce tanto Maquinaria y Equipo (1040) como el Capital del Titular (3010).','Eliminar Activo','Eliminar').then(ok=>{
+    if(!ok)return;
+    S.activosFijos=S.activosFijos.filter(x=>x.id!==id);
+    save(); renderBalanceGeneral();
+  });
+}
+function renderBalanceGeneral(){
+  // ── ACTIVOS ──
+  let saldoBancos=0;
+  S.accounts.forEach(acc=>{
+    let bal=acc.initialBalance||0;
+    (acc.transactions||[]).forEach(t=>{ bal += t.type==='ingreso' ? t.amount : -t.amount; });
+    saldoBancos+=bal;
+  });
+  const cxcPendiente = S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+x.amount,0);
+  const inventario = 0; // no se lleva inventario formal — confirmado con el usuario
+  const totalActivosFijos = S.activosFijos.reduce((s,x)=>s+x.monto,0);
+  const totalActivos = saldoBancos + cxcPendiente + inventario + totalActivosFijos;
+
+  // ── PASIVOS ──
+  let cxpTotal=0;
+  ['proveedores','serviciosFijos','otros'].forEach(section=>{
+    S.cuentasPagar[section].forEach(item=>{ cxpTotal += cxpPending(item); });
+  });
+  S.cuentasPagar.prestamos.forEach(item=>{ cxpTotal += parseFloat(item.saldo)||0; }); // saldo real de capital, no la cuota
+  const itbisCobradoHistorico = S.ingresos.reduce((s,x)=>s+(x.itbis||0),0);
+  const itbisPagadoHistorico = S.egresos.filter(x=>x.categoria==='itbis').reduce((s,x)=>s+x.monto,0);
+  const itbisPorPagar = Math.max(0, itbisCobradoHistorico - itbisPagadoHistorico);
+  const limitRD = S.creditCard.creditLimit||0;
+  const tarjetaAdeudado = Math.max(0, limitRD - ccEffectiveAvail());
+  const totalPasivos = cxpTotal + itbisPorPagar + tarjetaAdeudado;
+
+  // ── CAPITAL ──
+  const capitalTitular = totalActivosFijos; // Balance de apertura: mismo monto que 1040
+  const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
+  const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
+  const utilidadesRetenidas = ingresosNetosHistoricos - egresosHistoricos;
+  const distribucionesHistoricas = S.distribuciones.reduce((s,x)=>s+x.monto,0);
+  const totalCapital = capitalTitular + utilidadesRetenidas - distribucionesHistoricas;
+
+  const diferencia = totalActivos - (totalPasivos + totalCapital);
+
+  document.getElementById('bg-columnas').innerHTML = `
+    <div class="add-form" style="margin-bottom:0;">
+      <h3 style="color:#4ade80;">ACTIVOS</h3>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1010 Banco</span><span class="td-mono">${fmt(saldoBancos)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1020 Cuentas por Cobrar</span><span class="td-mono">${fmt(cxcPendiente)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1030 Inventario/Repuestos</span><span class="td-mono">${fmt(inventario)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1040 Maquinaria y Equipo</span><span class="td-mono">${fmt(totalActivosFijos)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#4ade80;"><span>TOTAL ACTIVOS</span><span class="td-mono">${fmt(totalActivos)}</span></div>
+    </div>
+    <div class="add-form" style="margin-bottom:0;">
+      <h3 style="color:#ef4444;">PASIVOS</h3>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2010 Cuentas por Pagar</span><span class="td-mono">${fmt(cxpTotal)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2020 ITBIS por Pagar</span><span class="td-mono">${fmt(itbisPorPagar)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2030 Tarjeta de Crédito por Pagar</span><span class="td-mono">${fmt(tarjetaAdeudado)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#ef4444;"><span>TOTAL PASIVOS</span><span class="td-mono">${fmt(totalPasivos)}</span></div>
+    </div>
+    <div class="add-form" style="margin-bottom:0;">
+      <h3 style="color:#818cf8;">CAPITAL</h3>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3010 Capital del Titular</span><span class="td-mono">${fmt(capitalTitular)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3020 Utilidades Retenidas</span><span class="td-mono">${fmt(utilidadesRetenidas)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3030 Distribuciones (−)</span><span class="td-mono negative">−${fmt(distribucionesHistoricas)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
+    </div>`;
+
+  const cuadra = Math.abs(diferencia) < 0.01;
+  document.getElementById('bg-cuadre').innerHTML = cuadra
+    ? `<div style="border:2px solid rgba(74,222,128,.4);border-radius:12px;padding:16px;text-align:center;color:#4ade80;font-weight:600;">✅ El Balance cuadra — Activos = Pasivos + Capital</div>`
+    : `<div style="border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:16px;text-align:center;color:#ef4444;font-weight:600;">⚠️ Diferencia de cuadre: ${fmt(diferencia)} — revisa los montos manuales (Activos Fijos) o si falta registrar algún movimiento histórico.</div>`;
+
+  document.getElementById('bg-af-tbody').innerHTML = S.activosFijos.length ? S.activosFijos.map(x=>
+    `<tr><td>${esc(x.nombre)}</td><td class="td-mono">${x.fecha?fmtDate(x.fecha):'—'}</td><td class="td-mono">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delActivoFijo(${x.id})">×</button></td></tr>`
+  ).join('') : `<tr><td colspan="4"><div class="empty-state">Sin activos fijos registrados.</div></td></tr>`;
+  document.getElementById('bg-af-total').textContent = fmt(totalActivosFijos);
+}
+
 function openCXPPayModal(section, id){
   _cxpPaySection = section;
   _cxpPayId = id;
@@ -3807,6 +4052,7 @@ const PLAN_CUENTAS = [
   {code:'1010',nombre:'Banco',nivel:2,tipo:'activo',parent:'1000'},
   {code:'1020',nombre:'Cuentas por Cobrar',nivel:2,tipo:'activo',parent:'1000'},
   {code:'1030',nombre:'Inventario/Repuestos',nivel:2,tipo:'activo',parent:'1000'},
+  {code:'1040',nombre:'Maquinaria y Equipo',nivel:2,tipo:'activo',parent:'1000'},
   {code:'2000',nombre:'PASIVOS',nivel:1,tipo:'pasivo'},
   {code:'2010',nombre:'Cuentas por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
   {code:'2020',nombre:'ITBIS por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
@@ -4990,6 +5236,16 @@ function applyFirebaseData(data){
   if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
   if(!S.distribuciones) S.distribuciones=[];
   if(S.securityPin===undefined) S.securityPin=null;
+  if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
+  if(!S.activosFijos) S.activosFijos=[];
+  if(!S.activosFijos.length && !S._activosFijosSembrados){
+    [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
+     {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
+     {nombre:'Acrylic Bending Machine',monto:15000},{nombre:'Inversor',monto:15000},{nombre:'Baterías',monto:32000},
+     {nombre:'Computadoras',monto:50000}
+    ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
+    S._activosFijosSembrados=true;
+  }
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
    {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'},
