@@ -1023,6 +1023,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="cheque">Cheque</option>
           <option value="tarjeta">Tarjeta de Crédito</option>
           <option value="debito">Tarjeta de Débito</option>
+          <option value="historico">Histórico (no afecta ninguna cuenta)</option>
         </select>
       </div>
       <div class="form-group" style="grid-column:span 2;">
@@ -1635,6 +1636,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="transferencia">Transferencia Bancaria</option>
           <option value="cheque">Cheque</option>
           <option value="efectivo">Efectivo</option>
+          <option value="historico">Histórico (no afecta ninguna cuenta)</option>
         </select>
       </div>
       <div class="form-group">
@@ -2071,6 +2073,12 @@ function ensureContabFields(){
      {nombre:'Computadoras',monto:50000}
     ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
     S._activosFijosSembrados=true;
+  }
+  if(!S._prestamosBHDSembrados && !S.cuentasPagar.prestamos.some(p=>p.nombre==='BHD - Personal a Cuotas')){
+    const proximaFechaDia=(dia)=>{ const n=new Date(); let y=n.getFullYear(),m=n.getMonth(); if(n.getDate()>=dia) m+=1; const d=new Date(y,m,dia); return d.toISOString().slice(0,10); };
+    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random(),nombre:'BHD - Personal a Cuotas',concepto:'Préstamo personal',monto:0,saldo:364216.51,fecha:null,vence:proximaFechaDia(29),metodo:'debito_automático',tasa:21.35,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
+    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random()+1,nombre:'BHD - Crediclick',concepto:'Línea de crédito personal',monto:0,saldo:368539.07,fecha:null,vence:proximaFechaDia(21),metodo:'debito_automático',tasa:23.70,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
+    S._prestamosBHDSembrados=true;
   }
   if(!S.categoriasEgresos) S.categoriasEgresos=[];
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
@@ -2665,10 +2673,17 @@ function updateCCCards(){
 // ══════════════════ CUENTAS POR COBRAR ══════════════════
 function onPayMethodChange(sel){
   const isEfectivo = sel.value === 'efectivo';
+  const isHistorico = sel.value === 'historico';
   const bankWrap  = document.getElementById('pay-bank-wrap');
   const noteWrap  = document.getElementById('pay-efectivo-note');
-  if(bankWrap)  bankWrap.style.display  = isEfectivo ? 'none' : '';
-  if(noteWrap)  noteWrap.style.display  = isEfectivo ? '' : 'none';
+  if(bankWrap)  bankWrap.style.display  = (isEfectivo||isHistorico) ? 'none' : '';
+  if(noteWrap){
+    noteWrap.style.display = (isEfectivo||isHistorico) ? '' : 'none';
+    const noteText=noteWrap.querySelector('div');
+    if(noteText) noteText.textContent = isHistorico
+      ? 'Este cobro se registra solo para el Estado de Resultados — no toca ninguna cuenta bancaria.'
+      : 'Este cobro se registra como efectivo recibido — no toca ninguna cuenta bancaria.';
+  }
 }
 
 // Invoice duplicate check ──
@@ -2986,6 +3001,7 @@ function confirmPayment(){
   const method=document.getElementById('pay-method').value;
   const bankIdx=parseInt(document.getElementById('pay-bank').value)||0;
   const isEfectivo = method==='efectivo';
+  const isHistorico = method==='historico';
   const ref=document.getElementById('pay-ref').value.trim();
   const netAmount=parseFloat(document.getElementById('pay-net-amount').value)||0;
   const retType=document.getElementById('pay-ret-type').value;
@@ -2993,22 +3009,23 @@ function confirmPayment(){
   if(!date){notify('error','Fecha Requerida','Selecciona la fecha de cobro.');return;}
   if(netAmount<=0){notify('error','Monto Inválido','El monto a acreditar debe ser mayor a cero.');return;}
   x.estado='pagada'; x.paidDate=date; x.payMethod=method;
-  x.payBankIdx=isEfectivo?null:bankIdx;
+  x.payBankIdx=(isEfectivo||isHistorico)?null:bankIdx;
   x.amountPaid=netAmount; x.retType=retType; x.retAmount=retAmount; x.payRef=ref;
   let desc=`CxC Cobrada – ${x.client} | Fact. ${x.invoice}`;
   if(retType!=='ninguna') desc+=` | Ret. ${retType.toUpperCase()}: -${fmt(retAmount)}`;
   if(ref) desc+=` | Ref: ${ref}`;
-  if(!isEfectivo){
+  if(!isEfectivo && !isHistorico){
     // Credit the bank account
     pushTx(bankIdx,{id:Date.now(),date,type:'ingreso',method,amount:netAmount,desc});
     renderTx(bankIdx);
   }
   save(); renderCXC(); closePayModal();
   // Base efectivo: el ingreso se reconoce al cobrar, no al emitir la factura.
-  autoIngresoFromCxC(x, netAmount, date, method, isEfectivo ? null : bankIdx);
+  // Histórico: mismo ingreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
+  autoIngresoFromCxC(x, netAmount, date, method, (isEfectivo||isHistorico) ? null : bankIdx, isHistorico);
   let detail=`Factura: ${fmt(x.amount)}`;
   if(retType!=='ninguna') detail+=`<br>Retención (${retType.toUpperCase()}): -${fmt(retAmount)}`;
-  detail+=`<br>Cobrado: ${fmt(netAmount)} ${isEfectivo?'· <b>Efectivo</b>':'→ '+esc(S.accounts[bankIdx]?.name)}`;
+  detail+=`<br>Cobrado: ${fmt(netAmount)} ${isHistorico?'· <b>Histórico (sin cuenta)</b>':isEfectivo?'· <b>Efectivo</b>':'→ '+esc(S.accounts[bankIdx]?.name)}`;
   notify('success','Cobro Registrado',detail);
 }
 
@@ -3530,7 +3547,8 @@ function renderBalanceGeneral(){
 
   // ── CAPITAL ──
   const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
-  const capitalTitular = totalActivosFijos + saldosInicialesCuentas; // Balance de apertura: máquinas + efectivo que ya existía en las cuentas
+  const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>p.nombre==='BHD - Personal a Cuotas'||p.nombre==='BHD - Crediclick').reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
+  const capitalTitular = totalActivosFijos + saldosInicialesCuentas - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial, menos deuda que ya existía en ese momento
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
   const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
   const utilidadesRetenidas = ingresosNetosHistoricos - egresosHistoricos;
@@ -3558,7 +3576,7 @@ function renderBalanceGeneral(){
     <div class="add-form" style="margin-bottom:0;">
       <h3 style="color:#818cf8;">CAPITAL</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3010 Capital del Titular</span><span class="td-mono">${fmt(capitalTitular)}</span></div>
-      <div style="padding:0 0 8px 12px;font-size:11px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)}</div>
+      <div style="padding:0 0 8px 12px;font-size:11px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)} − Préstamos de Apertura: ${fmt(prestamosAperturaBHD)}</div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3020 Utilidades Retenidas</span><span class="td-mono">${fmt(utilidadesRetenidas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3030 Distribuciones (−)</span><span class="td-mono negative">−${fmt(distribucionesHistoricas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
@@ -3657,8 +3675,8 @@ function confirmCXPPayment(){
   item.payMethod     = method;
   item.payAccountIdx = accountIdx;
 
-  // Debit from bank account — hardened version
-  if(method !== 'tarjeta'){
+  // Debit from bank account — hardened version (histórico y tarjeta no debitan cuenta)
+  if(method !== 'tarjeta' && method !== 'historico'){
     const methodKey = method==='cheque'?'cheque':method==='efectivo'?'efectivo':'transferencia';
     const numPagos = item.pagos.length;
     const desc = `CxP: ${item.nombre}${item.concepto?' – '+item.concepto:''}`
@@ -3675,10 +3693,11 @@ function confirmCXPPayment(){
   }
   save(); closeCXPPayModal(); renderCXP();
   // Base efectivo: el gasto se reconoce al pagar, no al recibir la obligación.
-  autoEgresoFromCxP(item, amount, date, method, accountIdx);
+  // Histórico: mismo egreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
+  autoEgresoFromCxP(item, amount, date, method, accountIdx, method==='historico');
 
   const isPartial = newPending > 0.009;
-  const pdetail=`Monto: ${fmt(amount)} → ${esc(S.accounts[accountIdx]?.name)||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
+  const pdetail=`Monto: ${fmt(amount)} → ${method==='historico'?'<b>Histórico (sin cuenta)</b>':esc(S.accounts[accountIdx]?.name)||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
   notify(isPartial?'info':'success', isPartial?'Abono Registrado':'Pago Completo', pdetail);
 }
 
@@ -4175,7 +4194,7 @@ function addIngreso(auto=false,data={}){
   const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const cliente=S.clientes.find(x=>x.id===clienteId);
-  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?false:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
   S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
   if(!auto){
     if(!esHistorico){
@@ -4261,7 +4280,7 @@ function addEgreso(auto=false,data={}){
   const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const suplidor=S.suplidores.find(x=>x.id===suplidorId);
-  S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?false:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+  S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
   S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
   if(!auto){
     if(esHistorico){
@@ -4491,19 +4510,19 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
   'publicidad':'publicidad','impuestos':'impuestos','contabilidad':'contabilidad',
   'transportación':'transporte','otros':'otros'};
 
-function autoIngresoFromCxC(x,netAmount,date,method,bankIdx){
+function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false){
   if(S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc'))return;
   // Prorratea el ITBIS de la factura según la proporción realmente cobrada
   // (si hubo retención, el ITBIS efectivo también se reduce proporcionalmente).
   const itbisFactura = parseFloat(x.itbis)||0;
   const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(netAmount/x.amount) : 0;
-  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id});save();
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id,esHistorico});save();
 }
-function autoEgresoFromCxP(item,amount,date,method,accountIdx){
+function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false){
   if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
   const cat = item.categoriaEgreso ? (CXP_CAT_LABEL_TO_KEY[item.categoriaEgreso]||'otros') : 'otros';
   addEgreso(true,{fecha:date,suplidorId:null,suplidorNombre:item.nombre,categoria:cat,monto:amount,
-    desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:item.id});
+    desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:item.id,esHistorico});
   save();
 }
 
@@ -5248,6 +5267,12 @@ function applyFirebaseData(data){
      {nombre:'Computadoras',monto:50000}
     ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
     S._activosFijosSembrados=true;
+  }
+  if(!S._prestamosBHDSembrados && !S.cuentasPagar.prestamos.some(p=>p.nombre==='BHD - Personal a Cuotas')){
+    const proximaFechaDia=(dia)=>{ const n=new Date(); let y=n.getFullYear(),m=n.getMonth(); if(n.getDate()>=dia) m+=1; const d=new Date(y,m,dia); return d.toISOString().slice(0,10); };
+    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random(),nombre:'BHD - Personal a Cuotas',concepto:'Préstamo personal',monto:0,saldo:364216.51,fecha:null,vence:proximaFechaDia(29),metodo:'debito_automático',tasa:21.35,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
+    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random()+1,nombre:'BHD - Crediclick',concepto:'Línea de crédito personal',monto:0,saldo:368539.07,fecha:null,vence:proximaFechaDia(21),metodo:'debito_automático',tasa:23.70,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
+    S._prestamosBHDSembrados=true;
   }
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
