@@ -2053,6 +2053,7 @@ function methodBadge(m){
   if(m==='transferencia') return `<span class="badge badge-transfer">Transf.</span>`;
   if(m==='cheque')        return `<span class="badge badge-check">Cheque</span>`;
   if(m==='retiro')        return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">Retiro</span>`;
+  if(m==='debito_directo')return `<span class="badge" style="background:rgba(253,201,1,.15);color:#fdc901;">Déb. Directo</span>`;
   return `<span class="badge badge-cash">Efectivo</span>`;
 }
 
@@ -2339,12 +2340,13 @@ function accountHTML(i){
     <h3>Registrar Movimiento</h3>
     <div class="form-grid">
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="f-date-${i}" value="${today()}" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Tipo</label><select id="f-type-${i}" onchange="onFTypeChange(${i})"><option value="ingreso">Ingreso / Depósito</option><option value="egreso">Egreso / Retiro / Pago</option></select></div>
+      <div class="form-group"><label>Tipo</label><select id="f-type-${i}" onchange="onFTypeChange(${i})"><option value="ingreso">Ingreso / Depósito</option><option value="egreso">Egreso / Retiro / Pago</option><option value="impuesto">Impuesto / Comisión Bancaria</option></select></div>
       <div class="form-group"><label>Método</label><select id="f-method-${i}" onchange="onFMethodChange(${i})">
           <option value="transferencia">Transferencia</option>
           <option value="efectivo">Efectivo</option>
           <option value="cheque">Cheque</option>
           <option value="retiro">Retiro de Efectivo</option>
+          <option value="debito_directo">Débito Directo</option>
         </select></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
@@ -2367,7 +2369,7 @@ function accountHTML(i){
     <div class="filter-bar">
       <div class="form-group"><label>Desde</label><input autocomplete="off" type="date" id="f-from-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
       <div class="form-group"><label>Hasta</label><input autocomplete="off" type="date" id="f-to-${i}" oninput="renderTx(${i})" onclick="cdpOpen(this,event)"></div>
-      <div class="form-group"><label>Tipo</label><select id="f-ftype-${i}" onchange="renderTx(${i})"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="egreso">Egresos</option></select></div>
+      <div class="form-group"><label>Tipo</label><select id="f-ftype-${i}" onchange="renderTx(${i})"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="egreso">Egresos</option><option value="impuesto">Impuestos</option></select></div>
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="clearF(${i})">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
@@ -2413,6 +2415,23 @@ function addTx(i){
   const desc=document.getElementById(`f-desc-${i}`).value.trim()||'(sin descripción)';
   if(!date||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa la Fecha y el Monto.');return;}
 
+  const relSel=document.getElementById(`f-related-${i}`);
+  const relIdx=relSel?parseInt(relSel.value):NaN;
+  const esTransferenciaInterna = method==='transferencia' && !isNaN(relIdx) && relIdx>=0 && relIdx<S.accounts.length;
+  const esMovimientoSeguro = esTransferenciaInterna || type==='impuesto';
+
+  if(!esMovimientoSeguro){
+    icgConfirm(
+      `¿Este ${type==='ingreso'?'ingreso':'egreso'} de ${fmt(amount)} es una VENTA, COBRO, COMPRA o GASTO real del negocio? Si es así, NO lo registres aquí — ve a la pestaña ${type==='ingreso'?'Ingresos':'Egresos'}, o no va a contar en tu Estado de Resultados ni en tus reportes por categoría. Solo continúa aquí si es una transferencia, ajuste, o un cobro del banco.`,
+      '¿Es esto un movimiento de negocio?',
+      'No, es solo un ajuste/transferencia — continuar aquí',
+      true
+    ).then(ok=>{ if(ok) _addTxConfirmed(i,date,type,method,amount,desc); });
+    return;
+  }
+  _addTxConfirmed(i,date,type,method,amount,desc);
+}
+function _addTxConfirmed(i,date,type,method,amount,desc){
   pushTx(i,{id:Date.now(),date,type,method,amount,desc});
 
   // ── Inter-account transfer: auto-post the matching side ──
@@ -2478,12 +2497,14 @@ function renderTx(i){
   if(from) S.accounts[i].transactions.forEach(t=>{if(t.date<from)run+=t.type==='ingreso'?t.amount:-t.amount;});
   tbody.innerHTML=txs.length?txs.map(t=>{
     run+=t.type==='ingreso'?t.amount:-t.amount;
+    const esSalida = t.type==='egreso'||t.type==='impuesto';
+    const tipoLabel = t.type==='ingreso'?'↑ Ingreso':t.type==='impuesto'?'🏦 Impuesto':'↓ Egreso';
     return `<tr>
       <td class="td-mono">${fmtDate(t.date)}</td><td>${esc(t.desc)}</td>
-      <td><span class="badge badge-dep">${t.type==='ingreso'?'↑ Ingreso':'↓ Egreso'}</span></td>
+      <td><span class="badge badge-dep">${tipoLabel}</span></td>
       <td>${methodBadge(t.method)}</td>
       <td class="td-deposit">${t.type==='ingreso'?fmt(t.amount):'—'}</td>
-      <td class="td-withdrawal">${t.type==='egreso'?fmt(t.amount):'—'}</td>
+      <td class="td-withdrawal">${esSalida?fmt(t.amount):'—'}</td>
       <td class="td-mono ${run>=0?'positive':'negative'}">${fmt(run)}</td>
       <td><button class="del-btn" onclick="delTx(${i},${t.id})">×</button></td>
     </tr>`;
@@ -2491,7 +2512,7 @@ function renderTx(i){
   // Cards
   const all=S.accounts[i].transactions;
   const inc=all.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0);
-  const exp=all.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+  const exp=all.filter(t=>t.type==='egreso'||t.type==='impuesto').reduce((s,t)=>s+t.amount,0);
   const bal=(S.accounts[i].initialBalance||0)+inc-exp;
   document.getElementById(`tInc-${i}`).textContent=fmt(inc);
   document.getElementById(`tExp-${i}`).textContent=fmt(exp);
@@ -3562,7 +3583,7 @@ function renderBalanceGeneral(){
       <h3 style="color:#4ade80;">ACTIVOS</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1010 Banco</span><span class="td-mono">${fmt(saldoBancos)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1020 Cuentas por Cobrar</span><span class="td-mono">${fmt(cxcPendiente)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1030 Inventario/Repuestos</span><span class="td-mono">${fmt(inventario)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1030 Inventario/Materiales</span><span class="td-mono">${fmt(inventario)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>1040 Maquinaria y Equipo</span><span class="td-mono">${fmt(totalActivosFijos)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#4ade80;"><span>TOTAL ACTIVOS</span><span class="td-mono">${fmt(totalActivos)}</span></div>
     </div>
@@ -3709,7 +3730,7 @@ function renderConsolidated(){
   S.accounts.forEach(acc=>{
     gInit+=acc.initialBalance||0;
     gInc+=acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0);
-    gExp+=acc.transactions.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+    gExp+=acc.transactions.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
   });
   const gBal=gInit+gInc-gExp;
 
@@ -3758,7 +3779,7 @@ function renderConsolidated(){
   const colors=['#818cf8','#4f46e5','#818cf8','#ef4444','#4f46e5','#818cf8'];
   grid.innerHTML=S.accounts.map((acc,i)=>{
     const inc=acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0);
-    const exp=acc.transactions.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+    const exp=acc.transactions.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
     const init=acc.initialBalance||0; const bal=init+inc-exp;
     const trI=acc.transactions.filter(t=>t.type==='ingreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
     const cI=acc.transactions.filter(t=>t.type==='ingreso'&&t.method==='efectivo').reduce((s,t)=>s+t.amount,0);
@@ -3790,7 +3811,7 @@ function openReport(idx,mode){
       S.accounts.forEach(acc=>{
         const txs=acc.transactions.filter(t=>t.date>=p.from&&t.date<=p.to);
         const i=txs.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0);
-        const e=txs.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+        const e=txs.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
         ti+=i; te+=e;
         if(txs.length) rows+=`<div class="report-row"><span>${acc.name}</span><span>↑${fmt(i)} ↓${fmt(e)} <b style="color:${i-e>=0?'#818cf8':'#ef4444'}">${fmt(i-e)}</b></span></div>`;
       });
@@ -3804,7 +3825,7 @@ function openReport(idx,mode){
       const txs=acc.transactions.filter(t=>t.date>=p.from&&t.date<=p.to);
       if(!txs.length)return;
       const i=txs.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0);
-      const e=txs.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+      const e=txs.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
       const trI=txs.filter(t=>t.type==='ingreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
       const cI=txs.filter(t=>t.type==='ingreso'&&t.method==='efectivo').reduce((s,t)=>s+t.amount,0);
       const trE=txs.filter(t=>t.type==='egreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
@@ -4073,7 +4094,7 @@ const PLAN_CUENTAS = [
   {code:'1000',nombre:'ACTIVOS',nivel:1,tipo:'activo'},
   {code:'1010',nombre:'Banco',nivel:2,tipo:'activo',parent:'1000'},
   {code:'1020',nombre:'Cuentas por Cobrar',nivel:2,tipo:'activo',parent:'1000'},
-  {code:'1030',nombre:'Inventario/Repuestos',nivel:2,tipo:'activo',parent:'1000'},
+  {code:'1030',nombre:'Inventario/Materiales',nivel:2,tipo:'activo',parent:'1000'},
   {code:'1040',nombre:'Maquinaria y Equipo',nivel:2,tipo:'activo',parent:'1000'},
   {code:'2000',nombre:'PASIVOS',nivel:1,tipo:'pasivo'},
   {code:'2010',nombre:'Cuentas por Pagar',nivel:2,tipo:'pasivo',parent:'2000'},
@@ -4450,7 +4471,7 @@ function saveQuickBeneficiario(){
 function openCorteModal(){
   const list=document.getElementById('corteAccountList');
   list.innerHTML=S.accounts.map((acc,i)=>{
-    const currentBal=(acc.initialBalance||0)+acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0)-acc.transactions.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+    const currentBal=(acc.initialBalance||0)+acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0)-acc.transactions.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
     return `<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:5px;padding:12px 16px;">
       <div>
         <div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#e8eeff;">${acc.name}</div>
@@ -4477,7 +4498,7 @@ function applyCorte(){
       acc.initialBalance=newBal;
     } else {
       // Add an adjustment transaction to reconcile
-      const currentBal=(acc.initialBalance||0)+acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0)-acc.transactions.filter(t=>t.type==='egreso').reduce((s,t)=>s+t.amount,0);
+      const currentBal=(acc.initialBalance||0)+acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0)-acc.transactions.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
       const diff=newBal-currentBal;
       if(Math.abs(diff)>0.009){
         acc.transactions.push({
