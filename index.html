@@ -560,7 +560,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div style="font-size:12px;color:#6b7a99;margin-top:10px;letter-spacing:.15em;text-transform:uppercase;">Acceso Restringido</div>
     </div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Correo</label><input type="email" id="login-email" autocomplete="off" placeholder="tu@correo.com" style="width:100%;height:44px;box-sizing:border-box;"></div>
-    <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Contraseña</label><input type="password" id="login-password" autocomplete="off" placeholder="••••••••" style="width:100%;height:44px;box-sizing:border-box;" onkeydown="if(event.key==='Enter')loginSubmit()"></div>
+    <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Contraseña</label>
+      <div style="position:relative;">
+        <input type="password" id="login-password" autocomplete="off" placeholder="••••••••" style="width:100%;height:44px;box-sizing:border-box;padding-right:44px;" onkeydown="if(event.key==='Enter')loginSubmit()">
+        <button type="button" onclick="toggleLoginPasswordVisibility()" title="Mostrar/ocultar contraseña" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:8px;color:#6b7a99;font-size:16px;line-height:1;">
+          <span id="login-password-eye">👁</span>
+        </button>
+      </div>
+    </div>
     <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
     <div id="login-info" style="color:#4ade80;font-size:13px;margin-bottom:14px;display:none;"></div>
     <button class="btn btn-primary" style="width:100%;" onclick="loginSubmit()">Entrar</button>
@@ -5087,6 +5094,12 @@ function showLoginGate(){
   const iEl=document.getElementById('login-info'); if(iEl) iEl.style.display='none';
 }
 function hideLoginGate(){ document.getElementById('loginGate').style.display='none'; }
+function toggleLoginPasswordVisibility(){
+  const input=document.getElementById('login-password');
+  const eye=document.getElementById('login-password-eye');
+  if(input.type==='password'){ input.type='text'; eye.textContent='🙈'; }
+  else{ input.type='password'; eye.textContent='👁'; }
+}
 function loginSubmit(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-password').value;
@@ -5094,8 +5107,19 @@ function loginSubmit(){
   errEl.style.display='none';
   if(!email||!pass){ errEl.textContent='Completa correo y contraseña.'; errEl.style.display='block'; return; }
   document.getElementById('login-password').value=''; // no dejar la contraseña visible mientras se procesa
-  firebase.auth().signInWithEmailAndPassword(email,pass).catch(()=>{
-    errEl.textContent='Correo o contraseña incorrectos.';
+  firebase.auth().signInWithEmailAndPassword(email,pass).catch(err=>{
+    console.error('Error de login:', err.code, err.message);
+    const mensajes={
+      'auth/wrong-password':'Contraseña incorrecta.',
+      'auth/user-not-found':'No existe ninguna cuenta con ese correo.',
+      'auth/invalid-email':'El formato del correo no es válido.',
+      'auth/user-disabled':'Esta cuenta fue deshabilitada. Revisa Firebase Console → Authentication → Users.',
+      'auth/too-many-requests':'Demasiados intentos fallidos — Firebase bloqueó el acceso temporalmente. Espera unos minutos e intenta de nuevo.',
+      'auth/network-request-failed':'Problema de conexión a internet. Verifica tu red e intenta de nuevo.',
+      'auth/operation-not-allowed':'El método de correo/contraseña está desactivado en Firebase Console.',
+      'auth/invalid-credential':'Correo o contraseña incorrectos.',
+    };
+    errEl.textContent = (mensajes[err.code] || `Error inesperado (${err.code||'sin código'}). Intenta de nuevo o avísame con este código.`);
     errEl.style.display='block';
   });
 }
@@ -5106,11 +5130,11 @@ function forgotPassword(){
   const email=document.getElementById('login-email').value.trim();
   if(!email){ errEl.textContent='Escribe tu correo arriba primero, y luego click en "¿Olvidaste tu contraseña?".'; errEl.style.display='block'; return; }
   firebase.auth().sendPasswordResetEmail(email).then(()=>{
-    infoEl.textContent=`Si ${email} tiene acceso a este sistema, te enviamos un correo con instrucciones para restablecer tu contraseña. Revisa también la carpeta de spam.`;
+    infoEl.textContent=`Enlace de recuperación enviado a ${email}. Revisa tu bandeja de entrada (y spam) en los próximos minutos.`;
     infoEl.style.display='block';
-  }).catch(()=>{
-    // No revelamos si el correo existe o no (por seguridad) — mismo mensaje siempre.
-    infoEl.textContent=`Si ${email} tiene acceso a este sistema, te enviamos un correo con instrucciones para restablecer tu contraseña. Revisa también la carpeta de spam.`;
+  }).catch(err=>{
+    console.error('Error al enviar reset:', err.code, err.message);
+    infoEl.textContent=`Enlace de recuperación enviado a ${email}. Revisa tu bandeja de entrada (y spam) en los próximos minutos.`;
     infoEl.style.display='block';
   });
 }
