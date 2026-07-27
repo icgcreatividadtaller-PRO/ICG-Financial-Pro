@@ -876,6 +876,11 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
     <div style="font-size:11px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
+    <div class="form-group" style="width:260px;margin-top:12px;">
+      <label>Anticipos Ya Cobrados (RD$) — opcional</label>
+      <input autocomplete="off" type="number" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
+      <div style="font-size:11px;color:#6b7a99;margin-top:4px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
+    </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
       <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:12px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
       <button class="btn btn-ghost" id="cxc-cancel-btn" style="display:none;font-size:12px;" onclick="cancelEditCXC()">✕ Cancelar edición</button>
@@ -889,6 +894,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="">Todos</option>
           <option value="por_cobrar">Por Cobrar (incl. Vencidas)</option>
           <option value="vencida">Solo Vencidas</option>
+          <option value="parcial">Parcial</option>
           <option value="pagada">Pagada</option>
         </select>
       </div>
@@ -899,6 +905,80 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <th>N° Factura</th><th>Cliente</th><th>Descripción</th><th>Creación</th><th>Vencimiento</th><th>Total RD$</th><th>Estado</th><th></th>
       </tr></thead>
       <tbody id="cxc-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══ RECIBOS DE INGRESO ══ -->
+<div class="panel" id="panel-recibos">
+  <div class="account-top">
+    <div class="account-name-area"><h2 style="color:#818cf8;">Recibos de Ingreso</h2><p>Cobros sin factura formal todavía · ICG Creatividad</p></div>
+    <div class="balance-cards">
+      <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value positive" id="rec-mes">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value positive" id="rec-anio">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value positive" id="rec-total">RD$0.00</div></div>
+    </div>
+  </div>
+  <div class="add-form">
+    <h3>Nuevo Recibo de Ingreso</h3>
+    <p style="14px;color:#9ca3af;margin:6px 0 12px;">Para cobros donde todavía no existe (o no habrá) una factura formal con NCF — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input autocomplete="off" type="date" id="rec-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Cliente</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
+        </div>
+      </div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Categoría</label>
+        <select id="rec-categoria" style="font-size:14px;height:44px;box-sizing:border-box;width:100%;"></select>
+      </div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input autocomplete="off" type="number" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Concepto / Proyecto</label>
+        <input autocomplete="off" type="text" id="rec-concepto" placeholder="Ej: Anticipo Proyecto Rotulación Local X..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Forma de Cobro</label>
+        <select id="rec-metodo" onchange="onRecMetodoChange(this)" style="height:44px;box-sizing:border-box;">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="cheque">Cheque</option>
+          <option value="debito">Tarjeta de Débito</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:200px;flex-shrink:0;" id="rec-cuenta-wrap">
+        <label>Cuenta</label>
+        <select id="rec-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" id="rec-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
+        <label>&nbsp;</label>
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+          Efectivo — sin acreditar
+        </div>
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Referencia (opcional)</label>
+        <input autocomplete="off" type="text" id="rec-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="addRecibo()">Registrar Recibo</button></div>
+  </div>
+  <div class="transactions-section">
+    <h3>Historial de Recibos</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
+      <tbody id="rec-tbody"></tbody>
     </table></div>
   </div>
 </div>
@@ -1633,9 +1713,20 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <p id="payModalSubtitle" style="margin-bottom:16px;font-size:15px;color:#c8d0e0;font-weight:600;text-transform:none;letter-spacing:.02em;"></p>
 
     <!-- Monto factura -->
-    <div style="background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.25);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;">Monto de la Factura:</span>
       <span id="pay-invoice-amount" style="font-family:var(--mono);font-size:22px;font-weight:600;color:#818cf8;"></span>
+    </div>
+    <div id="pay-abonos-info" style="display:none;background:rgba(129,140,248,.04);border:1px solid rgba(129,140,248,.15);border-radius:8px;padding:10px 16px;margin-bottom:10px;font-size:13px;color:#9ca3af;display:flex;justify-content:space-between;">
+      <span>Ya abonado: <strong id="pay-abonado-display" style="color:#818cf8;"></strong></span>
+      <span>Pendiente: <strong id="pay-pendiente-display" style="color:#ef4444;"></strong></span>
+    </div>
+    <div style="background:rgba(79,70,229,.06);border:2px solid rgba(79,70,229,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
+      <label style="display:block;margin-bottom:6px;font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Cobrar Ahora (antes de retención)</label>
+      <input autocomplete="off" type="number" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
+        style="width:100%;border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;height:44px;box-sizing:border-box;"
+        oninput="calcPayNet()">
+      <div style="font-size:11px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
     </div>
 
     <!-- Método + Banco + Fecha + Referencia -->
@@ -1699,7 +1790,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           </div>
         </div>
         <div style="font-size:12px;color:#6b7a99;line-height:1.6;">
-          💡 ITBIS: 30% del ITBIS facturado · ISR: 10% del total · O ingresa el monto manualmente.
+          💡 ITBIS: 30% del ITBIS de este abono · ISR: 10% de este abono · O ingresa el monto manualmente.
         </div>
       </div>
     </div>
@@ -1966,7 +2057,9 @@ function defaultState() {
     distribuciones: [],
     securityPin: null,
     flujoCajaPlan: { salario: 0, distribucion: 0 },
-    activosFijos: []
+    activosFijos: [],
+    recibos: [],
+    recibosCounter: 0
   };
 }
 
@@ -2065,7 +2158,11 @@ function methodBadge(m){
   if(m==='cheque')        return `<span class="badge badge-check">Cheque</span>`;
   if(m==='retiro')        return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">Retiro</span>`;
   if(m==='debito_directo')return `<span class="badge" style="background:rgba(253,201,1,.15);color:#fdc901;">Déb. Directo</span>`;
-  return `<span class="badge badge-cash">Efectivo</span>`;
+  if(m==='debito')        return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">T. Débito</span>`;
+  if(m==='historico')     return `<span class="badge" style="background:rgba(107,122,153,.15);color:#8899bb;">📋 Histórico</span>`;
+  if(m==='anticipo_previo')return `<span class="badge" style="background:rgba(74,222,128,.15);color:#4ade80;">Anticipo Previo</span>`;
+  if(m==='efectivo')      return `<span class="badge badge-cash">Efectivo</span>`;
+  return `<span class="badge badge-cash">${esc(m||'—')}</span>`;
 }
 
 // ══════════════════ INIT ══════════════════
@@ -2078,6 +2175,8 @@ function ensureContabFields(){
   if(S.securityPin===undefined) S.securityPin=null;
   if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
   if(!S.activosFijos) S.activosFijos=[];
+  if(!S.recibos) S.recibos=[];
+  if(S.recibosCounter===undefined) S.recibosCounter=0;
   if(!S.activosFijos.length && !S._activosFijosSembrados){
     [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
      {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
@@ -2128,6 +2227,7 @@ const NAV_BLOCKS={
     {id:'tab-ing',cls:'',label:'Ingresos',t:'ingresos'},
     {id:'tab-egr',cls:'nav-indigo',label:'Egresos',t:'egresos'},
     {id:'tab-cxc',cls:'nav-indigo',label:'CxC',t:'cxc'},
+    {id:'tab-recibos',cls:'nav-indigo',label:'Recibos',t:'recibos'},
     {id:'tab-cxp',cls:'nav-indigo',label:'CxP',t:'cxp'},
     {id:'tab-cli',cls:'',label:'Clientes',t:'clientes'},
     {id:'tab-sup',cls:'nav-indigo',label:'Suplidores',t:'suplidores'},
@@ -2291,7 +2391,7 @@ function _activateTabReal(idx){
   const map={cuentas:'tab-cuentas',cc:'tab-cc',cxc:'tab-cxc',cxp:'tab-cxp',
              ingresos:'tab-ing',egresos:'tab-egr',clientes:'tab-cli',
              suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con',
-             contabilidad:'tab-contab',flujocaja:'tab-flujo',balancegeneral:'tab-balance'};
+             contabilidad:'tab-contab',flujocaja:'tab-flujo',balancegeneral:'tab-balance',recibos:'tab-recibos'};
   // Defensa contra valores residuales (restauración del navegador u otra causa) en campos de
   // texto libre que NUNCA deben traer contenido por defecto — deben abrir siempre vacíos.
   const limpiarCampo=id=>{const el=document.getElementById(id);if(el)el.value='';};
@@ -2307,6 +2407,7 @@ function _activateTabReal(idx){
     if(idx==='cuentas'){renderAccountSubNav();switchAccount(_activeAccount);}
     if(idx==='cc') renderCCPanel();
     if(idx==='cxc') renderCXC();
+    if(idx==='recibos') renderRecibos();
     if(idx==='cxp') renderCXP();
     if(idx==='ingresos') renderIngresos();
     if(idx==='egresos') renderEgresos();
@@ -2954,7 +3055,23 @@ function addCXC(){
     document.getElementById('cxc-invoice').focus();
     return;
   }
-  S.cuentasCobrar.push({id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null});
+  const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[]};
+
+  const anticipo=parseFloat(document.getElementById('cxc-anticipo')?.value)||0;
+  if(anticipo>0){
+    if(anticipo>amount+0.009){
+      notify('error','Anticipo Excedido',`El anticipo (${fmt(anticipo)}) no puede ser mayor al total de la factura (${fmt(amount)}).`);
+      return;
+    }
+    // Este dinero ya se contó como Ingreso cuando llegó vía Recibo — aquí solo se
+    // reduce el pendiente de la factura, sin volver a generar un Ingreso nuevo.
+    nuevaFactura.pagos.push({id:Date.now()+1,date:issued,montoBruto:anticipo,netAmount:anticipo,method:'anticipo_previo',bankIdx:null,retType:'ninguna',retAmount:0,ref:'Anticipo ya cobrado vía Recibo(s) de Ingreso'});
+    const pendienteInicial=amount-anticipo;
+    if(pendienteInicial<=0.009){ nuevaFactura.estado='pagada'; nuevaFactura.paidDate=issued; }
+    else { nuevaFactura.estado='parcial'; }
+  }
+
+  S.cuentasCobrar.push(nuevaFactura);
   save(); renderCXC();
   document.getElementById('cxc-invoice').value='';
   const invEl=document.getElementById('cxc-invoice');
@@ -2966,15 +3083,19 @@ function addCXC(){
   document.getElementById('cxc-subtotal').value='';
   document.getElementById('cxc-itbis').value='';
   document.getElementById('cxc-amount').value='';
+  document.getElementById('cxc-anticipo').value='';
   const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
   refreshCxCCatSelect('');
 }
 
 function cxcSt(x){
   if(x.estado==='pagada') return 'pagada';
+  if(x.estado==='parcial') return 'parcial';
   if(x.due<today()) return 'vencida';
   return 'por_cobrar';
 }
+function cxcPaidSoFar(x){ return (x.pagos||[]).reduce((s,p)=>s+p.montoBruto,0); }
+function cxcPending(x){ return Math.max(0, x.amount - cxcPaidSoFar(x)); }
 
 // ── Payment Modal ──
 let _payId=null;
@@ -2985,14 +3106,24 @@ function openPayModal(id){
     `<strong style="color:#e8eeff;font-size:15px;">${esc(x.client)}</strong> &nbsp;·&nbsp; Fact. <strong style="color:#818cf8;font-size:15px;">${esc(x.invoice)}</strong>`;
   document.getElementById('paymentModal').dataset.invoiceAmount=x.amount;
   document.getElementById('pay-invoice-amount').textContent=fmt(x.amount);
+  const pend=cxcPending(x), abonado=cxcPaidSoFar(x);
+  const infoBox=document.getElementById('pay-abonos-info');
+  if(abonado>0){
+    infoBox.style.display='flex';
+    document.getElementById('pay-abonado-display').textContent=fmt(abonado);
+    document.getElementById('pay-pendiente-display').textContent=fmt(pend);
+  } else {
+    infoBox.style.display='none';
+  }
+  document.getElementById('pay-monto-ahora').value=pend.toFixed(2);
   // Reset retentions
   document.getElementById('pay-ret-type').value='ninguna';
   document.getElementById('pay-ret-amount').value='';
   document.getElementById('pay-ret-amount').readOnly=true;
   document.getElementById('pay-ret-amount').style.opacity='0.4';
   document.getElementById('pay-ret-display').textContent=fmt(0);
-  document.getElementById('pay-net-amount').value=x.amount.toFixed(2);
-  document.getElementById('pay-net-display').textContent=fmt(x.amount);
+  document.getElementById('pay-net-amount').value=pend.toFixed(2);
+  document.getElementById('pay-net-display').textContent=fmt(pend);
   document.getElementById('pay-ref').value='';
   const sel=document.getElementById('pay-bank');
   sel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
@@ -3003,16 +3134,16 @@ function openPayModal(id){
 }
 
 function calcPayNet(){
-  const invoiceAmount=parseFloat(document.getElementById('paymentModal').dataset.invoiceAmount)||0;
+  const montoAhora=parseFloat(document.getElementById('pay-monto-ahora').value)||0;
   const retType=document.getElementById('pay-ret-type').value;
   const retInput=document.getElementById('pay-ret-amount');
   const retDisplay=document.getElementById('pay-ret-display');
   const netInput=document.getElementById('pay-net-amount');
   const netDisplay=document.getElementById('pay-net-display');
-  // ITBIS implícito en el total (precio con ITBIS incluido)
-  const itbisInvoice=invoiceAmount*18/118;
-  const itbisRet=itbisInvoice*0.30;   // 30% del ITBIS
-  const isrRet=invoiceAmount*0.10;    // 10% del total
+  // ITBIS implícito en el monto de este abono (precio con ITBIS incluido)
+  const itbisAbono=montoAhora*18/118;
+  const itbisRet=itbisAbono*0.30;   // 30% del ITBIS de este abono
+  const isrRet=montoAhora*0.10;     // 10% de este abono
   let retAmount=0;
   if(retType==='ninguna'){
     retAmount=0; retInput.readOnly=true; retInput.style.opacity='0.4'; retInput.value='';
@@ -3027,7 +3158,7 @@ function calcPayNet(){
     retAmount=parseFloat(retInput.value)||0;
   }
   retDisplay.textContent=fmt(retAmount);
-  const net=Math.max(0,invoiceAmount-retAmount);
+  const net=Math.max(0,montoAhora-retAmount);
   netInput.value=net.toFixed(2);
   netDisplay.textContent=fmt(net);
 }
@@ -3043,15 +3174,27 @@ function confirmPayment(){
   const isEfectivo = method==='efectivo';
   const isHistorico = method==='historico';
   const ref=document.getElementById('pay-ref').value.trim();
+  const montoAhora=parseFloat(document.getElementById('pay-monto-ahora').value)||0;
   const netAmount=parseFloat(document.getElementById('pay-net-amount').value)||0;
   const retType=document.getElementById('pay-ret-type').value;
   const retAmount=parseFloat(document.getElementById('pay-ret-amount').value)||0;
   if(!date){notify('error','Fecha Requerida','Selecciona la fecha de cobro.');return;}
+  if(montoAhora<=0){notify('error','Monto Inválido','El monto a cobrar debe ser mayor a cero.');return;}
+  const pendienteActual=cxcPending(x);
+  if(montoAhora>pendienteActual+0.009){notify('error','Monto Excedido',`Ingresado: ${fmt(montoAhora)} · Pendiente: ${fmt(pendienteActual)}`);return;}
   if(netAmount<=0){notify('error','Monto Inválido','El monto a acreditar debe ser mayor a cero.');return;}
-  x.estado='pagada'; x.paidDate=date; x.payMethod=method;
-  x.payBankIdx=(isEfectivo||isHistorico)?null:bankIdx;
+
+  if(!x.pagos) x.pagos=[];
+  const pagoId=Date.now()+Math.random();
+  x.pagos.push({id:pagoId,date,montoBruto:montoAhora,netAmount,method,bankIdx:(isEfectivo||isHistorico)?null:bankIdx,retType,retAmount,ref});
+
+  const nuevoPendiente=cxcPending(x);
+  const quedaSaldada = nuevoPendiente<=0.009;
+  x.estado = quedaSaldada ? 'pagada' : 'parcial';
+  x.paidDate=date; x.payMethod=method; x.payBankIdx=(isEfectivo||isHistorico)?null:bankIdx;
   x.amountPaid=netAmount; x.retType=retType; x.retAmount=retAmount; x.payRef=ref;
-  let desc=`CxC Cobrada – ${x.client} | Fact. ${x.invoice}`;
+
+  let desc=`CxC ${quedaSaldada?'Cobrada':'Abono'} – ${x.client} | Fact. ${x.invoice}`;
   if(retType!=='ninguna') desc+=` | Ret. ${retType.toUpperCase()}: -${fmt(retAmount)}`;
   if(ref) desc+=` | Ref: ${ref}`;
   if(!isEfectivo && !isHistorico){
@@ -3062,11 +3205,14 @@ function confirmPayment(){
   save(); renderCXC(); closePayModal();
   // Base efectivo: el ingreso se reconoce al cobrar, no al emitir la factura.
   // Histórico: mismo ingreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
-  autoIngresoFromCxC(x, netAmount, date, method, (isEfectivo||isHistorico) ? null : bankIdx, isHistorico);
-  let detail=`Factura: ${fmt(x.amount)}`;
+  // Cada abono es su propio ingreso — se identifica por el id del abono, no de la factura,
+  // para que varios abonos a la misma factura no se pisen entre sí.
+  autoIngresoFromCxC(x, netAmount, date, method, (isEfectivo||isHistorico) ? null : bankIdx, isHistorico, montoAhora, pagoId);
+  let detail=`Abono: ${fmt(montoAhora)}`;
   if(retType!=='ninguna') detail+=`<br>Retención (${retType.toUpperCase()}): -${fmt(retAmount)}`;
   detail+=`<br>Cobrado: ${fmt(netAmount)} ${isHistorico?'· <b>Histórico (sin cuenta)</b>':isEfectivo?'· <b>Efectivo</b>':'→ '+esc(S.accounts[bankIdx]?.name)}`;
-  notify('success','Cobro Registrado',detail);
+  detail+= quedaSaldada ? `<br><strong style="color:#4ade80;">Factura completamente saldada</strong>` : `<br>Pendiente restante: <strong>${fmt(nuevoPendiente)}</strong>`;
+  notify('success', quedaSaldada?'Factura Saldada':'Abono Registrado', detail);
 }
 
 function reopenCXC(id){
@@ -3087,10 +3233,10 @@ function delCXC(id){
 
 function renderCXC(){
   refreshCxCClientSelect();
-  // Cards — Por Cobrar = TODO lo no pagado (pendiente + vencido)
+  // Cards — Por Cobrar = TODO lo no pagado (pendiente + vencido), usando el saldo real
   const tot=S.cuentasCobrar.reduce((s,x)=>s+x.amount,0);
-  const unpaid=S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+x.amount,0);
-  const venc=S.cuentasCobrar.filter(x=>cxcSt(x)==='vencida').reduce((s,x)=>s+x.amount,0);
+  const unpaid=S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+cxcPending(x),0);
+  const venc=S.cuentasCobrar.filter(x=>cxcSt(x)==='vencida').reduce((s,x)=>s+cxcPending(x),0);
   const paid=S.cuentasCobrar.filter(x=>x.estado==='pagada').reduce((s,x)=>s+x.amount,0);
   document.getElementById('cxcTotal').textContent=fmt(tot);
   document.getElementById('cxcPending').textContent=fmt(unpaid);
@@ -3117,6 +3263,7 @@ function renderCXC(){
   tbody.innerHTML=items.map(x=>{
     const isOverdue=x._st==='vencida';
     const isPaid=x._st==='pagada';
+    const isParcial=x._st==='parcial';
     // Estado cell
     let estadoCell='';
     if(isPaid){
@@ -3131,16 +3278,20 @@ function renderCXC(){
         <div style="16px;color:#9ca3af;margin-top:4px;">${fmtDate(x.paidDate)} · ${mBadge} · ${bankName}${retInfo}${paidInfo}</div>
       </div>`;
     } else {
-      estadoCell=`<button onclick="openPayModal(${x.id})" style="
-        background:${isOverdue?'rgba(239,68,68,.12)':'rgba(129,140,248,.1)'};
-        border:1px solid ${isOverdue?'#ef4444':'#818cf8'};
-        color:${isOverdue?'#ef4444':'#818cf8'};
-        border-radius:6px;padding:5px 14px;16px;font-weight:700;
-        cursor:pointer;font-family:var(--font-body);transition:all .2s;
-        display:flex;align-items:center;gap:6px;"
-        title="Registrar pago de esta factura">
-        ${isOverdue?'⚠':'⏳'} ${isOverdue?'VENCIDA · COBRAR':'POR COBRAR'}
-      </button>`;
+      const abonado=cxcPaidSoFar(x), pendiente=cxcPending(x);
+      estadoCell=`<div>
+        <button onclick="openPayModal(${x.id})" style="
+          background:${isOverdue?'rgba(239,68,68,.12)':isParcial?'rgba(79,70,229,.12)':'rgba(129,140,248,.1)'};
+          border:1px solid ${isOverdue?'#ef4444':isParcial?'#4f46e5':'#818cf8'};
+          color:${isOverdue?'#ef4444':'#818cf8'};
+          border-radius:6px;padding:5px 14px;16px;font-weight:700;
+          cursor:pointer;font-family:var(--font-body);transition:all .2s;
+          display:flex;align-items:center;gap:6px;"
+          title="Registrar pago de esta factura">
+          ${isOverdue?'⚠':isParcial?'◐':'⏳'} ${isOverdue?'VENCIDA · COBRAR':isParcial?'PARCIAL · ABONAR':'POR COBRAR'}
+        </button>
+        ${isParcial?`<div style="font-size:12px;color:#8899bb;margin-top:3px;">Abonado: <span style="color:#818cf8">${fmt(abonado)}</span> · Pendiente: <strong style="color:#ef4444">${fmt(pendiente)}</strong></div>`:''}
+      </div>`;
     }
     return `<tr>
       <td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.invoice)}</td>
@@ -3540,7 +3691,7 @@ function renderFlujoCaja(){
 
   // Cobros esperados de CxC — pendientes con vencimiento dentro de los próximos 30 días (incluye ya vencidas)
   const cxcEsperado = S.cuentasCobrar.filter(x=>x.estado!=='pagada' && x.due<=limite).sort((a,b)=>a.due.localeCompare(b.due));
-  const totalCxC = cxcEsperado.reduce((s,x)=>s+x.amount,0);
+  const totalCxC = cxcEsperado.reduce((s,x)=>s+cxcPending(x),0);
 
   // Pagos comprometidos de CxP — todas las secciones, pendiente real (ya descontando abonos), vencimiento dentro de 30 días
   const seccionLabels = {proveedores:'Proveedor',serviciosFijos:'Servicio Fijo',prestamos:'Préstamo',otros:'Otro'};
@@ -3582,7 +3733,7 @@ function renderFlujoCaja(){
     </div>`;
 
   document.getElementById('flujo-cxc-tbody').innerHTML = cxcEsperado.length ? cxcEsperado.map(x=>
-    `<tr><td class="td-mono">${fmtDate(x.due)}</td><td>${esc(x.client)}</td><td class="td-mono">${esc(x.invoice)}</td><td class="td-mono positive">${fmt(x.amount)}</td><td>${x.due<hoy?'<span style="color:#ef4444;">Vencida</span>':'Por cobrar'}</td></tr>`
+    `<tr><td class="td-mono">${fmtDate(x.due)}</td><td>${esc(x.client)}</td><td class="td-mono">${esc(x.invoice)}</td><td class="td-mono positive">${fmt(cxcPending(x))}</td><td>${x.due<hoy?'<span style="color:#ef4444;">Vencida</span>':x.estado==='parcial'?'Parcial':'Por cobrar'}</td></tr>`
   ).join('') : `<tr><td colspan="5"><div class="empty-state">Sin cobros pendientes en este rango.</div></td></tr>`;
 
   document.getElementById('flujo-cxp-tbody').innerHTML = cxpComprometido.length ? cxpComprometido.map(x=>
@@ -3617,7 +3768,7 @@ function renderBalanceGeneral(){
     (acc.transactions||[]).forEach(t=>{ bal += t.type==='ingreso' ? t.amount : -t.amount; });
     saldoBancos+=bal;
   });
-  const cxcPendiente = S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+x.amount,0);
+  const cxcPendiente = S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+cxcPending(x),0);
   const inventario = 0; // no se lleva inventario formal — confirmado con el usuario
   const totalActivosFijos = S.activosFijos.reduce((s,x)=>s+x.monto,0);
   const totalActivos = saldoBancos + cxcPendiente + inventario + totalActivosFijos;
@@ -4271,6 +4422,17 @@ function refreshIngresoSelects(){
     ingCatSel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
     if(curVal && ingCatSel.querySelector(`option[value="${curVal}"]`)) ingCatSel.value=curVal;
   }
+  // Recibos de Ingreso usa los mismos clientes/cuentas/categorías
+  const recSel=document.getElementById('rec-cliente');
+  if(recSel) recSel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+[...S.clientes].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
+  const recCs=document.getElementById('rec-cuenta');
+  if(recCs) recCs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
+  const recCatSel=document.getElementById('rec-categoria');
+  if(recCatSel){
+    const curVal=recCatSel.value;
+    recCatSel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    if(curVal && recCatSel.querySelector(`option[value="${curVal}"]`)) recCatSel.value=curVal;
+  }
 }
 function addIngreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('ing-fecha').value;
@@ -4298,6 +4460,83 @@ function addIngreso(auto=false,data={}){
     document.getElementById('ing-monto').value='';
     document.getElementById('ing-desc').value='';
   }
+}
+
+// ══════════════════ RECIBOS DE INGRESO ══════════════════
+// Para cobros donde todavía no existe (o no habrá nunca) una factura formal con NCF.
+// Cada recibo acredita la cuenta correspondiente Y se registra como Ingreso real —
+// se conecta automáticamente con Estado de Resultados, Balance General y Flujo de Caja,
+// exactamente igual que un Ingreso manual, pero con su propia numeración de recibo.
+function onRecMetodoChange(sel){
+  const isEfectivo = sel.value === 'efectivo';
+  const wrap = document.getElementById('rec-cuenta-wrap');
+  const note = document.getElementById('rec-efectivo-note');
+  if(wrap) wrap.style.display = isEfectivo ? 'none' : '';
+  if(note) note.style.display = isEfectivo ? '' : 'none';
+}
+
+function addRecibo(){
+  const fecha=document.getElementById('rec-fecha').value;
+  const clienteId=parseInt(document.getElementById('rec-cliente').value)||null;
+  const cat=document.getElementById('rec-categoria').value;
+  const monto=parseFloat(document.getElementById('rec-monto').value)||0;
+  const concepto=document.getElementById('rec-concepto').value.trim();
+  const metodo=document.getElementById('rec-metodo').value;
+  const cuentaSelVal=document.getElementById('rec-cuenta').value;
+  const esHistorico=cuentaSelVal==='none';
+  const isEfectivo=metodo==='efectivo';
+  const cuentaIdx=isEfectivo?null:(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const ref=document.getElementById('rec-ref').value.trim();
+  if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
+  const cliente=S.clientes.find(x=>x.id===clienteId);
+
+  S.recibosCounter=(S.recibosCounter||0)+1;
+  const numero=`REC-${String(S.recibosCounter).padStart(4,'0')}`;
+  const recId=Date.now()+Math.random();
+  S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
+
+  // Igual que un Ingreso manual: acredita la cuenta (salvo efectivo/histórico) y cuenta en el Estado de Resultados.
+  if(!isEfectivo && !esHistorico){
+    const txMethod = metodo==='cheque'?'cheque':'transferencia';
+    pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
+      desc:`Recibo ${numero}: ${cliente?.nombre||''}${concepto?' – '+concepto:''}`});
+    renderTx(cuentaIdx);
+  }
+  addIngreso(true,{fecha,clienteId,clienteNombre:cliente?.nombre||'',categoria:cat,monto,itbis:0,
+    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,metodo,cuentaIdx,esHistorico,fuente:'recibo',fuenteId:recId});
+
+  save(); renderRecibos();
+  document.getElementById('rec-monto').value='';
+  document.getElementById('rec-concepto').value='';
+  document.getElementById('rec-ref').value='';
+  notify('success','Recibo Registrado',`${numero} · ${fmt(monto)}`);
+}
+
+function delRecibo(id){
+  icgConfirm('¿Eliminar este recibo? El ingreso y el movimiento bancario ya registrados no se revertirán automáticamente.','Eliminar Recibo','Eliminar').then(ok=>{
+    if(!ok)return;
+    S.recibos=S.recibos.filter(x=>x.id!==id);
+    save(); renderRecibos();
+  });
+}
+
+function renderRecibos(){
+  refreshIngresoSelects();
+  if(!document.getElementById('rec-fecha').value) document.getElementById('rec-fecha').value=today();
+  const cy=new Date().getFullYear().toString(), cm=today().slice(0,7);
+  const mes=S.recibos.filter(x=>x.fecha.startsWith(cm)).reduce((s,x)=>s+x.monto,0);
+  const anio=S.recibos.filter(x=>x.fecha.startsWith(cy)).reduce((s,x)=>s+x.monto,0);
+  const total=S.recibos.reduce((s,x)=>s+x.monto,0);
+  document.getElementById('rec-mes').textContent=fmt(mes);
+  document.getElementById('rec-anio').textContent=fmt(anio);
+  document.getElementById('rec-total').textContent=fmt(total);
+
+  const items=[...S.recibos].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  document.getElementById('rec-tbody').innerHTML=items.length?items.map(x=>{
+    const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria;
+    const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
+    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
 function delIngreso(id){icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(x=>x.id!==id);save();renderIngresos();});}
 function renderIngresos(){
@@ -4600,13 +4839,15 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
   'publicidad':'publicidad','impuestos':'impuestos','contabilidad':'contabilidad',
   'transportación':'transporte','otros':'otros'};
 
-function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false){
-  if(S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc'))return;
-  // Prorratea el ITBIS de la factura según la proporción realmente cobrada
-  // (si hubo retención, el ITBIS efectivo también se reduce proporcionalmente).
+function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,montoBruto=null,pagoId=null){
+  const fId = pagoId!=null ? pagoId : x.id;
+  if(S.ingresos.find(i=>i.fuenteId===fId&&i.fuente==='cxc'))return;
+  // Prorratea el ITBIS de la factura según la proporción de ESTE abono (no de toda la factura)
+  // — si hubo retención, el ITBIS efectivo también se reduce proporcionalmente.
+  const base = montoBruto!=null ? montoBruto : netAmount;
   const itbisFactura = parseFloat(x.itbis)||0;
-  const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(netAmount/x.amount) : 0;
-  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:x.id,esHistorico});save();
+  const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(base/x.amount) : 0;
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico});save();
 }
 function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null){
   if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
@@ -4650,9 +4891,9 @@ const REP_CONFIGS={
       else items=items.filter(x=>cxcSt(x)!=='pagada'); // default: exclude pagadas
       items.sort((a,b)=>(a.invoice||'').localeCompare(b.invoice||''));
       return items.map(x=>{
-        const st=cxcSt(x),stC=st==='pagada'?'#818cf8':st==='vencida'?'#ef4444':'#b0bbcf';
-        const paid=x.amountPaid||x.amount,pend=st==='pagada'?0:x.amount;
-        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,st==='pagada'?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:st==='pagada'?paid:0,pendiente:pend}};
+        const st=cxcSt(x),stC=st==='pagada'?'#818cf8':st==='vencida'?'#ef4444':st==='parcial'?'#4f46e5':'#b0bbcf';
+        const paid=cxcPaidSoFar(x), pend=cxcPending(x);
+        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,paid>0?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:paid,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),cob=rows.reduce((s,r)=>s+r.totals.cobrado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Facturado',val:fmt(tot),color:'#818cf8'},{label:'Total Cobrado',val:fmt(cob),color:'#818cf8'},{label:'Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Documentos',val:rows.length,color:'#b0bbcf'}];}
@@ -5367,6 +5608,8 @@ function applyFirebaseData(data){
   if(S.securityPin===undefined) S.securityPin=null;
   if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
   if(!S.activosFijos) S.activosFijos=[];
+  if(!S.recibos) S.recibos=[];
+  if(S.recibosCounter===undefined) S.recibosCounter=0;
   if(!S.activosFijos.length && !S._activosFijosSembrados){
     [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
      {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
