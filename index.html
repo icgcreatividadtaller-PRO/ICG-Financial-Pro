@@ -4544,9 +4544,112 @@ function renderRecibos(){
   document.getElementById('rec-tbody').innerHTML=items.length?items.map(x=>{
     const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria;
     const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
-    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
+    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
+const ICG_LOGO_DATAURI='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDEyNS4wOSAxNzkuNjYiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICM0MTE0NWY7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZkYzMwMDsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjMzZhOWUxOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMTIpOwogICAgICB9CiAgICA8L3N0eWxlPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJEZWdyYWRhZG9fc2luX25vbWJyZV8xMiIgZGF0YS1uYW1lPSJEZWdyYWRhZG8gc2luIG5vbWJyZSAxMiIgeDE9IjY4LjM0IiB5MT0iMTQwLjA0IiB4Mj0iNjcuNTIiIHkyPSIxOTguNDciIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIuMjgiIHN0b3AtY29sb3I9IiNlNjJjNjUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDkiIHN0b3AtY29sb3I9IiNjMzE5NDkiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNjgiIHN0b3AtY29sb3I9IiNlMzA3MzIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy45Niw4Mi4xMWMtMi43Ny00LjExLTcuMi02LjY2LTEyLjE0LTYuOTktNC45Ni0uMzMtOS42OSwxLjYxLTEyLjk4LDUuMzMtMi44MSwzLjE2LTYuODksNC45OC0xMS4xOSw0Ljk4LTguMTMsMC0xNC43NC02LjQtMTQuNzQtMTQuMjZzNi42MS0xNC4yNywxNC43NC0xNC4yN2MzLjE3LDAsNi4xNy45NSw4LjcxLDIuNzZsMS40NSwxLjIuMjUuMjdjMy4yLDMuMzUsNy42OSw1LjE1LDEyLjMyLDQuOTYsNC42My0uMiw4Ljk1LTIuMzgsMTEuODUtNS45OGw4LjEzLTEwLjA5YzEuMDEtMS4yNSwxLjgtMi42LDIuMzgtNC4wMSwxLjI2LS44NiwyLjM5LTEuOTEsMy4zNi0zLjEybDEuNDktMS44NWM1LjE1LTYuMzksNC41My0xNS44My0xLjQyLTIxLjQ4LS4yNy0uMjUtLjU0LS41MS0uODEtLjc1bC0yLjE1LTEuODktLjU1LS40OGMtLjE0LS4xMi0uMzEtLjI2LS41LS40MUM5OS4zNSwyLjI4LDc3LjMzLTIuOTcsNTUuNzEsMS42MiwzMS4zNyw2Ljc5LDcuOCwyOS43MywyLjA0LDUzLjg1Yy01LjIsMjEuNzgtLjM4LDQ0LjE2LDEzLjIzLDYxLjM5LDYuMTUsNy44LDEzLjcsMTQuMDgsMjIuMTUsMTguNjMtMi4yMSwyLjQ1LTMuNDMsNS41Ny0zLjQzLDguODcsMCwyLjE4LjU0LDQuMjQsMS40Nyw2LjA1LS45NCwxLjgyLTEuNDcsMy44Ny0xLjQ3LDYuMDUsMCw2LjU0LDQuNzYsMTEuOTgsMTEsMTMuMDYuNzYsNi42LDYuMzgsMTEuNzQsMTMuMTgsMTEuNzRoMTguODdjMy41NCwwLDYuODctMS4zOCw5LjM4LTMuODkuOTItLjkxLDEuNjktMS45NSwyLjMxLTMuMDlsLjA1LS4wOWMuNzctMS40NiwxLjI1LTMuMDUsMS40NS00LjY3LDYuMjQtMS4wOCwxMS02LjUyLDExLTEzLjA2LDAtMi4xOC0uNTQtNC4yMy0xLjQ3LTYuMDUuOTYtMS44NywxLjQ3LTMuOTQsMS40Ny02LjA2LDAtMi4yOS0uNTgtNC40NC0xLjYxLTYuMzIsNy4xLTMuMSwxMy43MS03LjM2LDE5LjU0LTEyLjY5LDUuOTQtNS40Miw3LjAzLTE0LjU0LDIuNTMtMjEuMjJsLTEzLjczLTIwLjRaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTA0LjcsMTAyLjAzbC0zLjEtNC42aDBzLTUuMTgtNy43LTUuMTgtNy43Yy0uNjQtLjk1LTIuMDEtMS4wNC0yLjc3LS4xNy01LjI1LDUuOTItMTIuOTgsOS42Ni0yMS41OSw5LjY2LTE1LjgyLDAtMjguNjUtMTIuNjItMjguNjUtMjguMTdzMTIuODMtMjguMTgsMjguNjUtMjguMThjNi40OCwwLDEyLjQ2LDIuMTIsMTcuMjYsNS43bDIuMywxLjkxcy4xMi4xMi4xNy4xNmwuNzMuNzdjLjguODQsMi4xNy43OCwyLjktLjEybDEuOTctMi40NCwzLjc3LTQuNjhzMCwwLDAsMGwyLjMzLTIuODljLjYzLS43OC41Ni0xLjktLjE2LTIuNi0xLjE4LTEuMTYtMi40My0yLjI1LTMuNzMtMy4yOGgwczAsMCwwLDBjLTguMTItNi4zOS0xOC40Ny0xMC4wNi0yOS42OC05LjY2LTI0LjE2Ljg3LTQzLjU5LDIwLjk4LTQzLjY5LDQ1LjE1LS4wOSwyNS4xMiwyMC4yNSw0NS41Miw0NS4zNiw0NS41Miw4LjQ2LDAsMTYuMzctMi4zMiwyMy4xNC02LjM1LjUzLS4zMi43LTEuMDIuMzgtMS41NWwtMS42My0yLjY3Yy0uMzItLjUyLTEtLjY5LTEuNTMtLjM4LTYuNTksMy45MS0xNC40LDUuOTktMjIuNzIsNS41MS0yMC40My0xLjE4LTM2Ljg1LTE3Ljk3LTM3LjYtMzguNDItLjgzLTIyLjc2LDE3LjM4LTQxLjQ3LDM5Ljk2LTQxLjQ3LDksMCwxNy4yOSwyLjk4LDIzLjk2LDcuOTkuMzkuMjkuNDYuODUuMTYsMS4yNGwtMi42LDMuMjhjLS4yOS4zNy0uODIuNDQtMS4yLjE2LTcuOC01LjgyLTE4LjE4LTguMzktMjkuMTEtNS42NC0xMS45OCwzLjAxLTIxLjM0LDEyLjQ2LTI0LjI1LDI0LjQ2LTUuNDQsMjIuNDgsMTEuNDUsNDIuNTUsMzMuMDMsNDIuNTUsNy44NSwwLDE1LjA3LTIuNjYsMjAuODMtNy4xMy43OS0uNjIsMS45LS40NSwyLjQ3LjM5bDEuMzQsMS45Nyw1LjA1LDcuNDMuOCwxLjE3Yy42OC45OS40NSwyLjM1LS41MiwzLjA2LTguNCw2LjE2LTE4Ljc1LDkuODEtMjkuOTYsOS44MS0yNy43NywwLTUwLjMzLTIyLjI5LTUwLjc2LTQ5Ljk1LS40My0yNy43NiwyMS44OS01MC45Nyw0OS42NS01MS41NiwxMi41OC0uMjcsMjQuMTUsNC4wNCwzMy4xNCwxMS4zOCwxLjA1Ljg1LDIuMDYsMS43NSwzLjA0LDIuNjguNzMuNywxLjg5LjYzLDIuNTItLjE2bDEuNDgtMS44NGMuNTYtLjcuNS0xLjcxLS4xNS0yLjMyLS4yMS0uMTktLjQxLS4zOS0uNjItLjU4bC0uMDQtLjAzLTEuODgtMS42NS0uMTQtLjEyLS4yMS0uMTdjLS4wNi0uMDUtLjEyLS4xLS4xOC0uMTUtMTIuNjYtMTAuNC0yOS45MS0xNS40LTQ4LjI2LTExLjUxLTE4LjgyLDQtMzguMDEsMjIuNi00Mi40OCw0MS4zMi04Ljg5LDM3LjI1LDE5LjEyLDcwLjQ1LDU0Ljg5LDcwLjQ1LDE0LjY4LDAsMjguMDYtNS42LDM4LjExLTE0Ljc4LjgtLjczLjk0LTEuOTQuMzMtMi44NGwtNS4zMy03LjkyczAsMCwwLDBoMFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik05My44LDE0Mi4zNWMwLC44OC0uMjQsMS43LS42NSwyLjQxLS4xOC4zMy0uNDEuNjQtLjY3LjkxLS44Mi44NS0xLjk0LDEuMzctMy4xOCwxLjM3aC00Mi4zOGMtMi40NywwLTQuNS0yLjExLTQuNS00LjY4LDAtMS4yOC41MS0yLjQ1LDEuMzItMy4zLjgyLS44NSwxLjk0LTEuMzcsMy4xOC0xLjM3aDQyLjM4YzIuNDgsMCw0LjUsMi4xMSw0LjUsNC42OCIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTQ2LjkzLDE1MS4wMWMtMi40OCwwLTQuNSwyLjExLTQuNSw0LjY4czIuMDMsNC42OCw0LjUsNC42OGg0Mi4zOGMyLjQ4LDAsNC41LTIuMTEsNC41LTQuNjhzLTIuMDMtNC42OC00LjUtNC42OGgtNDIuMzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNODIuMjcsMTY4LjI4YzAsLjgxLS4xOCwxLjUzLS41MiwyLjIyLS4yMi4zOC0uNDguNzctLjgxLDEuMDctLjgxLjg0LTEuOTIsMS4zOC0zLjE4LDEuMzhoLTE5LjU1Yy0yLjQ4LDAtNC41NS0yLjExLTQuNTUtNC42OCwwLS4zMS4wNC0uNjEuMTEtLjkyLjE1LS45Mi42My0xLjczLDEuMjYtMi4zOC40OC0uNTQsMS4xNS0uOTYsMS44NS0xLjE5LjQxLS4xMi44OS0uMTksMS4zMy0uMTloMTkuNTVjMi4xOCwwLDMuOTksMS42MSw0LjQ0LDMuNzYuMDQuMjcuMDcuNjEuMDcuOTJaIi8+Cjwvc3ZnPg==';
+
+function montoEnLetras(n){
+  n=Math.round((n||0)*100)/100;
+  const entero=Math.floor(n), centavos=Math.round((n-entero)*100);
+  const UNI=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte'];
+  const DEC=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const CEN=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  function tresDig(x){
+    if(x===0) return '';
+    if(x===100) return 'cien';
+    let s='';
+    const c=Math.floor(x/100), r=x%100;
+    if(c) s+=CEN[c]+' ';
+    if(r<=20) s+=UNI[r];
+    else{
+      const d=Math.floor(r/10), u=r%10;
+      s+=DEC[d]+(u?' y '+UNI[u]:'');
+    }
+    return s.trim();
+  }
+  function grupo(x){
+    if(x===0) return '';
+    if(x===1) return 'uno';
+    return tresDig(x);
+  }
+  if(entero===0) return `CERO PESOS DOMINICANOS CON ${String(centavos).padStart(2,'0')}/100`;
+  let partes=[];
+  const millones=Math.floor(entero/1000000);
+  const miles=Math.floor((entero%1000000)/1000);
+  const cientos=entero%1000;
+  if(millones) partes.push(tresDig(millones)+(millones===1?' millón':' millones'));
+  if(miles) partes.push((miles===1?'mil':tresDig(miles)+' mil'));
+  if(cientos) partes.push(tresDig(cientos));
+  const texto=partes.join(' ').trim();
+  return `${texto.toUpperCase()} PESOS DOMINICANOS CON ${String(centavos).padStart(2,'0')}/100`;
+}
+
+function imprimirRecibo(id){
+  const x=S.recibos.find(r=>r.id===id);
+  if(!x){notify('error','No Encontrado','Este recibo ya no existe.');return;}
+  const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria||'—';
+  const metodoLbl={transferencia:'Transferencia',cheque:'Cheque',efectivo:'Efectivo',tarjeta:'Tarjeta'}[x.metodo]||x.metodo;
+  const acct=x.esHistorico?'Histórico (sin cuenta)':x.metodo==='efectivo'?'Efectivo':(S.accounts[x.cuentaIdx]?.name||'—');
+  const w=window.open('','_blank');
+  if(!w){notify('error','Bloqueado','El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio.');return;}
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recibo ${esc(x.numero)}</title>
+  <style>
+    @media print{ @page{ margin:14mm; } }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;padding:36px;font-size:13px;}
+    .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #3F2364;padding-bottom:16px;margin-bottom:24px;}
+    .head-left{display:flex;gap:14px;align-items:center;}
+    .head-left img{width:44px;height:auto;}
+    .biz-name{font-size:18px;font-weight:800;color:#3F2364;letter-spacing:.02em;}
+    .biz-sub{font-size:11px;color:#555;margin-top:2px;line-height:1.5;}
+    .doc-title{text-align:right;}
+    .doc-title .t{font-size:20px;font-weight:800;color:#3F2364;letter-spacing:.06em;}
+    .doc-title .n{font-size:15px;font-weight:700;color:#c31949;font-family:'Courier New',monospace;margin-top:4px;}
+    .doc-title .d{font-size:11px;color:#666;margin-top:4px;}
+    .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #eee;}
+    .row .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;}
+    .row .val{font-size:13px;font-weight:600;text-align:right;}
+    .amount-box{margin:26px 0;padding:18px 20px;background:#faf8ff;border:1.5px solid #3F2364;border-radius:6px;display:flex;justify-content:space-between;align-items:center;}
+    .amount-box .lbl{font-size:11px;color:#3F2364;text-transform:uppercase;letter-spacing:.1em;font-weight:700;}
+    .amount-box .val{font-size:26px;font-weight:800;color:#3F2364;font-family:'Courier New',monospace;}
+    .letras{font-size:11px;color:#444;font-style:italic;margin-bottom:24px;padding:0 2px;}
+    .sign{margin-top:64px;display:flex;justify-content:space-between;gap:40px;}
+    .sign div{flex:1;text-align:center;border-top:1px solid #999;padding-top:6px;font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.06em;}
+    .ft{margin-top:36px;font-size:9px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:10px;}
+  </style>
+  </head><body>
+  <div class="head">
+    <div class="head-left">
+      <img src="${ICG_LOGO_DATAURI}" alt="ICG">
+      <div>
+        <div class="biz-name">ICG Creatividad</div>
+        <div class="biz-sub">Av. 25 de Febrero 255, Villa Olímpica · Santo Domingo Este, RD<br>WhatsApp/Tel: 809-933-8888 &nbsp;·&nbsp; IG: @icg_creatividad</div>
+      </div>
+    </div>
+    <div class="doc-title">
+      <div class="t">RECIBO DE INGRESO</div>
+      <div class="n">${esc(x.numero)}</div>
+      <div class="d">${fmtDate(x.fecha)}</div>
+    </div>
+  </div>
+  <div class="row"><span class="lbl">Recibido de</span><span class="val">${esc(x.clienteNombre)||'Cliente al contado'}</span></div>
+  <div class="row"><span class="lbl">Concepto</span><span class="val">${esc(x.concepto)||'—'}</span></div>
+  <div class="row"><span class="lbl">Categoría</span><span class="val">${esc(catLbl)}</span></div>
+  <div class="row"><span class="lbl">Forma de Cobro</span><span class="val">${esc(metodoLbl)}</span></div>
+  <div class="row"><span class="lbl">Cuenta / Destino</span><span class="val">${esc(acct)}</span></div>
+  <div class="amount-box"><span class="lbl">Monto Recibido</span><span class="val">${fmt(x.monto)}</span></div>
+  <div class="letras">${esc(montoEnLetras(x.monto))}</div>
+  <div class="sign">
+    <div>Entregado por</div>
+    <div>Recibido por</div>
+  </div>
+  <div class="ft">Este recibo no constituye un comprobante fiscal (NCF) &nbsp;·&nbsp; ICG Creatividad · Sistema Financiero Integral</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},600);
+}
+
 function delIngreso(id){icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(x=>x.id!==id);save();renderIngresos();});}
 let _ingresosView='manual';
 function switchIngresosView(view){
