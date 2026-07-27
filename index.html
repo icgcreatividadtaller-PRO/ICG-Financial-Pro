@@ -910,79 +910,6 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ══ RECIBOS DE INGRESO ══ -->
-<div class="panel" id="panel-recibos">
-  <div class="account-top">
-    <div class="account-name-area"><h2 style="color:#818cf8;">Recibos de Ingreso</h2><p>Cobros sin factura formal todavía · ICG Creatividad</p></div>
-    <div class="balance-cards">
-      <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value positive" id="rec-mes">RD$0.00</div></div>
-      <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value positive" id="rec-anio">RD$0.00</div></div>
-      <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value positive" id="rec-total">RD$0.00</div></div>
-    </div>
-  </div>
-  <div class="add-form">
-    <h3>Nuevo Recibo de Ingreso</h3>
-    <p style="14px;color:#9ca3af;margin:6px 0 12px;">Para cobros donde todavía no existe (o no habrá) una factura formal con NCF — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
-      <div class="form-group" style="width:140px;flex-shrink:0;">
-        <label>Fecha</label>
-        <input autocomplete="off" type="date" id="rec-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
-      </div>
-      <div class="form-group" style="width:220px;flex-shrink:0;">
-        <label>Cliente</label>
-        <div style="display:flex;gap:6px;height:44px;">
-          <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
-          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
-        </div>
-      </div>
-      <div class="form-group" style="width:190px;flex-shrink:0;">
-        <label>Categoría</label>
-        <select id="rec-categoria" style="font-size:14px;height:44px;box-sizing:border-box;width:100%;"></select>
-      </div>
-      <div class="form-group" style="width:150px;flex-shrink:0;">
-        <label>Monto (RD$)</label>
-        <input autocomplete="off" type="number" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
-      <div class="form-group" style="flex:1;min-width:200px;">
-        <label>Concepto / Proyecto</label>
-        <input autocomplete="off" type="text" id="rec-concepto" placeholder="Ej: Anticipo Proyecto Rotulación Local X..." style="height:44px;box-sizing:border-box;">
-      </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
-        <label>Forma de Cobro</label>
-        <select id="rec-metodo" onchange="onRecMetodoChange(this)" style="height:44px;box-sizing:border-box;">
-          <option value="transferencia">Transferencia</option>
-          <option value="efectivo">Efectivo</option>
-          <option value="cheque">Cheque</option>
-          <option value="debito">Tarjeta de Débito</option>
-        </select>
-      </div>
-      <div class="form-group" style="width:200px;flex-shrink:0;" id="rec-cuenta-wrap">
-        <label>Cuenta</label>
-        <select id="rec-cuenta" style="height:44px;box-sizing:border-box;"></select>
-      </div>
-      <div class="form-group" id="rec-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
-        <label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
-          Efectivo — sin acreditar
-        </div>
-      </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
-        <label>Referencia (opcional)</label>
-        <input autocomplete="off" type="text" id="rec-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
-      </div>
-    </div>
-    <div class="form-actions"><button class="btn btn-primary" onclick="addRecibo()">Registrar Recibo</button></div>
-  </div>
-  <div class="transactions-section">
-    <h3>Historial de Recibos</h3>
-    <div class="table-wrap"><table>
-      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
-      <tbody id="rec-tbody"></tbody>
-    </table></div>
-  </div>
-</div>
-
 <!-- ══ CUENTAS POR PAGAR ══ -->
 <div class="panel" id="panel-cxp">
   <div class="account-top">
@@ -1138,6 +1065,16 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="panel" id="panel-ingresos">
   <div class="account-top">
     <div class="account-name-area"><h2 style="color:#818cf8;">Ingresos</h2><p>Ventas y servicios · ICG Creatividad</p></div>
+  </div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;" id="ingSubTabs">
+    <button class="acct-tab active" id="ing-tab-manual"  onclick="switchIngresosView('manual')">Ingresos Manuales</button>
+    <button class="acct-tab"        id="ing-tab-recibos" onclick="switchIngresosView('recibos')">Recibos de Ingreso</button>
+  </div>
+
+  <!-- INGRESOS MANUALES VIEW -->
+  <div id="ingView-manual">
+  <div class="account-top">
     <div class="balance-cards">
       <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value positive" id="ing-mes">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value positive" id="ing-anio">RD$0.00</div></div>
@@ -1236,6 +1173,80 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th>Fuente</th><th></th></tr></thead>
       <tbody id="ing-tbody"></tbody>
     </table></div>
+  </div>
+  </div>
+
+  <!-- RECIBOS DE INGRESO VIEW -->
+  <div id="ingView-recibos" style="display:none;">
+  <div class="account-top">
+    <div class="balance-cards">
+      <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value positive" id="rec-mes">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value positive" id="rec-anio">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value positive" id="rec-total">RD$0.00</div></div>
+    </div>
+  </div>
+  <div class="add-form">
+    <h3>Nuevo Recibo de Ingreso</h3>
+    <p style="14px;color:#9ca3af;margin:6px 0 12px;">Para cobros donde todavía no existe (o no habrá) una factura formal con NCF — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input autocomplete="off" type="date" id="rec-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Cliente</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
+        </div>
+      </div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Categoría</label>
+        <select id="rec-categoria" style="font-size:14px;height:44px;box-sizing:border-box;width:100%;"></select>
+      </div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input autocomplete="off" type="number" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Concepto / Proyecto</label>
+        <input autocomplete="off" type="text" id="rec-concepto" placeholder="Ej: Anticipo Proyecto Rotulación Local X..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Forma de Cobro</label>
+        <select id="rec-metodo" onchange="onRecMetodoChange(this)" style="height:44px;box-sizing:border-box;">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="cheque">Cheque</option>
+          <option value="debito">Tarjeta de Débito</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:200px;flex-shrink:0;" id="rec-cuenta-wrap">
+        <label>Cuenta</label>
+        <select id="rec-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" id="rec-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
+        <label>&nbsp;</label>
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+          Efectivo — sin acreditar
+        </div>
+      </div>
+      <div class="form-group" style="width:180px;flex-shrink:0;">
+        <label>Referencia (opcional)</label>
+        <input autocomplete="off" type="text" id="rec-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div class="form-actions"><button class="btn btn-primary" onclick="addRecibo()">Registrar Recibo</button></div>
+  </div>
+  <div class="transactions-section">
+    <h3>Historial de Recibos</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
+      <tbody id="rec-tbody"></tbody>
+    </table></div>
+  </div>
   </div>
 </div>
 
@@ -2227,7 +2238,6 @@ const NAV_BLOCKS={
     {id:'tab-ing',cls:'',label:'Ingresos',t:'ingresos'},
     {id:'tab-egr',cls:'nav-indigo',label:'Egresos',t:'egresos'},
     {id:'tab-cxc',cls:'nav-indigo',label:'CxC',t:'cxc'},
-    {id:'tab-recibos',cls:'nav-indigo',label:'Recibos',t:'recibos'},
     {id:'tab-cxp',cls:'nav-indigo',label:'CxP',t:'cxp'},
     {id:'tab-cli',cls:'',label:'Clientes',t:'clientes'},
     {id:'tab-sup',cls:'nav-indigo',label:'Suplidores',t:'suplidores'},
@@ -2391,7 +2401,7 @@ function _activateTabReal(idx){
   const map={cuentas:'tab-cuentas',cc:'tab-cc',cxc:'tab-cxc',cxp:'tab-cxp',
              ingresos:'tab-ing',egresos:'tab-egr',clientes:'tab-cli',
              suplidores:'tab-sup',rentabilidad:'tab-rent',reportes:'tab-rep',consolidated:'tab-con',
-             contabilidad:'tab-contab',flujocaja:'tab-flujo',balancegeneral:'tab-balance',recibos:'tab-recibos'};
+             contabilidad:'tab-contab',flujocaja:'tab-flujo',balancegeneral:'tab-balance'};
   // Defensa contra valores residuales (restauración del navegador u otra causa) en campos de
   // texto libre que NUNCA deben traer contenido por defecto — deben abrir siempre vacíos.
   const limpiarCampo=id=>{const el=document.getElementById(id);if(el)el.value='';};
@@ -2407,9 +2417,8 @@ function _activateTabReal(idx){
     if(idx==='cuentas'){renderAccountSubNav();switchAccount(_activeAccount);}
     if(idx==='cc') renderCCPanel();
     if(idx==='cxc') renderCXC();
-    if(idx==='recibos') renderRecibos();
     if(idx==='cxp') renderCXP();
-    if(idx==='ingresos') renderIngresos();
+    if(idx==='ingresos') switchIngresosView(_ingresosView);
     if(idx==='egresos') renderEgresos();
     if(idx==='clientes') renderClientes();
     if(idx==='suplidores') renderSuplidores();
@@ -4539,6 +4548,15 @@ function renderRecibos(){
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
 function delIngreso(id){icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(x=>x.id!==id);save();renderIngresos();});}
+let _ingresosView='manual';
+function switchIngresosView(view){
+  _ingresosView=view;
+  document.getElementById('ing-tab-manual').classList.toggle('active',view==='manual');
+  document.getElementById('ing-tab-recibos').classList.toggle('active',view==='recibos');
+  document.getElementById('ingView-manual').style.display=view==='manual'?'':'none';
+  document.getElementById('ingView-recibos').style.display=view==='recibos'?'':'none';
+  if(view==='recibos') renderRecibos(); else renderIngresos();
+}
 function renderIngresos(){
   refreshIngresoSelects();
   const mSel=document.getElementById('ing-metodo');
