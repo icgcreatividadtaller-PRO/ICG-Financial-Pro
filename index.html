@@ -4795,6 +4795,66 @@ function parseComprobanteTexto(text){
   return out;
 }
 
+// ── Detección de posibles duplicados ──
+function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
+  const tol = 0.01;
+  const refNorm = (referencia||'').trim().toLowerCase();
+  const montoMatch = x => Math.abs((x||0)-monto) < tol;
+
+  if(tipo==='interno'){
+    for(const acc of S.accounts){
+      for(const tx of (acc.transactions||[])){
+        if(refNorm && tx.desc && tx.desc.toLowerCase().includes(refNorm))
+          return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
+        if(tx.date===fecha && montoMatch(tx.amount))
+          return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
+      }
+    }
+  }
+  if(tipo==='suplidor'){
+    for(const section of Object.keys(S.cuentasPagar)){
+      for(const item of (S.cuentasPagar[section]||[])){
+        for(const p of (item.pagos||[])){
+          if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm)
+            return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)} (Ref: ${esc(p.ref)})`};
+          if(p.date===fecha && montoMatch(p.amount))
+            return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)}`};
+        }
+      }
+    }
+    for(const e of (S.egresos||[])){
+      if(e.fecha===fecha && montoMatch(e.monto))
+        return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')}`};
+    }
+  }
+  if(tipo==='cliente'){
+    for(const x of (S.cuentasCobrar||[])){
+      for(const p of (x.pagos||[])){
+        if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm)
+          return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)} (Ref: ${esc(p.ref)})`};
+        if(p.date===fecha && montoMatch(p.montoBruto))
+          return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)}`};
+      }
+    }
+    for(const i of (S.ingresos||[])){
+      if(i.fecha===fecha && montoMatch(i.monto))
+        return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')}`};
+    }
+    for(const r of (S.recibos||[])){
+      if(r.fecha===fecha && montoMatch(r.monto))
+        return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)})`};
+    }
+  }
+  return null;
+}
+function renderAvisoDuplicado(tipo, monto, fecha, referencia){
+  const dup = buscarPosibleDuplicado(tipo, monto, fecha, referencia);
+  if(!dup) return '';
+  return `<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#f0a8a8;">
+    ⚠️ <strong>Ya existe un movimiento parecido:</strong> ${dup.detalle}. Revisa si esto ya se registró antes de confirmar.
+  </div>`;
+}
+
 function seleccionarTipoComprobante(tipo){
   _comp.tipo=tipo;
   document.getElementById('comp-step-classify').style.display='none';
@@ -4808,7 +4868,9 @@ function seleccionarTipoComprobante(tipo){
 // ── Movimiento entre mis cuentas ──
 function renderRevisionInterno(wrap){
   const p=_comp.parsed||{};
+  const fecha=p.fecha||today();
   wrap.innerHTML=`
+    ${renderAvisoDuplicado('interno', p.monto||0, fecha, p.referencia)}
     <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">Revisa y completa antes de registrar el movimiento en <strong>${esc(S.accounts[_comp.accountIdx]?.name)}</strong>.</p>
     <div class="form-grid">
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-int-date" value="${esc(p.fecha||today())}"></div>
@@ -4870,6 +4932,7 @@ function renderRevisionSuplidor(wrap){
     if(best&&bestDiff<=Math.max(5,best.monto*0.02)) mejorFacturaId=best.id;
   }
   wrap.innerHTML=`
+    ${renderAvisoDuplicado('suplidor', p.monto||0, p.fecha||today(), p.referencia)}
     <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${supMatch?`Suplidor detectado: <strong style="color:#818cf8;">${esc(supMatch.nombre)}</strong>`:'No se detectó un suplidor conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Suplidor</label>
@@ -4930,6 +4993,7 @@ function renderRevisionCliente(wrap){
     if(best&&bestDiff<=Math.max(5,best.amount*0.02)) mejorFacturaId=best.id;
   }
   wrap.innerHTML=`
+    ${renderAvisoDuplicado('cliente', p.monto||0, p.fecha||today(), p.referencia)}
     <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${cliMatch?`Cliente detectado: <strong style="color:#818cf8;">${esc(cliMatch.nombre)}</strong>`:'No se detectó un cliente conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Cliente</label>
