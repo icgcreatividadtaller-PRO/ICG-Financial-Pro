@@ -4774,10 +4774,23 @@ function onComprobanteOCRListo(text){
 
 function parseComprobanteTexto(text){
   const t=text||'';
-  const out={monto:null,fecha:null,referencia:null,beneficiario:null};
-  let m;
-  m=t.match(/(?:Monto|Importe|Total)\s*:?\s*RD?\$?\s*([\d.,]+)/i);
-  if(m) out.monto=parseFloat(m[1].replace(/,/g,''))||null;
+  const out={monto:null,fecha:null,referencia:null,beneficiario:null,banco:null};
+
+  // Monto: el texto OCR de estos comprobantes suele mezclar columnas (el label
+  // "Monto:" no queda pegado al valor), así que buscamos CUALQUIER "RD$ X,XXX.XX"
+  // en el texto entero y, si hay varios, tomamos el más grande (comisiones/ITBIS
+  // casi siempre son montos mucho menores al de la transacción).
+  const EXCLUIR_CERCA = /comisi[oó]n|impuesto|itbis|retenci[oó]n|dgii/i;
+  const montoRegex = /RD\$\s*([\d]{1,3}(?:,\d{3})*\.\d{2})/gi;
+  let m, candidatos=[];
+  while((m=montoRegex.exec(t))){
+    const contexto = t.slice(Math.max(0,m.index-25), m.index);
+    if(EXCLUIR_CERCA.test(contexto)) continue;
+    const val = parseFloat(m[1].replace(/,/g,''));
+    if(val>0) candidatos.push(val);
+  }
+  if(candidatos.length) out.monto = Math.max(...candidatos);
+
   m=t.match(/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\b/);
   if(m){
     let f=m[1].replace(/-/g,'/');
@@ -4788,11 +4801,62 @@ function parseComprobanteTexto(text){
       out.fecha=`${y}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`;
     }
   }
-  m=t.match(/(?:N[°º]?\s*de\s*referencia|Referencia|Confirmaci[oó]n)\s*:?\s*([A-Za-z0-9\-]{4,})/i);
+
+  // Referencia: cubre variantes reales de OCR como "NO. DE REFERENCIA:", "N° de referencia",
+  // "Referencia", "Confirmación".
+  m=t.match(/(?:n[o°º]\.?\s*de\s*referencia|referencia|confirmaci[oó]n)\s*:?\s*(\d{4,})/i);
   if(m) out.referencia=m[1];
+
+  // Beneficiario: se deja como intento best-effort (los recibos con 3 columnas
+  // (Desde/Monto/Beneficiario) suelen desordenar el texto y esto casi nunca acierta).
+  // El match real de suplidor/cliente se hace después buscando su nombre en TODO
+  // el texto, no dependiendo de esta extracción.
   m=t.match(/(?:Pago a|Beneficiario|Destinatario|Para)\s*:?\s*\n?\s*([A-Za-zÀ-ÿ0-9 .,&]{3,60})/i);
   if(m) out.beneficiario=m[1].trim().split('\n')[0].trim();
+
+  out.banco = detectarBanco(t);
   return out;
+}
+
+// Bancos dominicanos más comunes, para detectar de qué banco es el comprobante
+const BANCOS_DR = [
+  'BANCO POPULAR','POPULAR DOMINICANO','BANRESERVAS','BHD LEON','BHD',
+  'SCOTIABANK','BANCO SANTA CRUZ','ASOCIACION POPULAR','APAP','BANESCO',
+  'BANCO VIMENCA','BANCO LOPEZ DE HARO','BANCO ADEMI','BANFONDESA','CARIBE BANK'
+];
+function detectarBanco(texto){
+  const t = normalizarTexto(texto);
+  for(const b of BANCOS_DR){ if(t.includes(normalizarTexto(b))) return b; }
+  return null;
+}
+
+// Busca si el nombre de algún suplidor/cliente conocido aparece en CUALQUIER
+// parte del texto OCR completo — mucho más confiable que extraer un campo
+// "beneficiario" con regex cuando el layout de 3 columnas desordena el texto.
+function buscarEntidadEnTextoCompleto(texto, lista, campoNombre){
+  const textoNorm = normalizarTexto(texto);
+  if(!textoNorm) return null;
+  let best=null, bestLen=0;
+  lista.forEach(item=>{
+    const nombreNorm = normalizarTexto(item[campoNombre]);
+    if(!nombreNorm || nombreNorm.length<4) return;
+    if(textoNorm.includes(nombreNorm) && nombreNorm.length>bestLen){
+      best=item; bestLen=nombreNorm.length;
+    }
+  });
+  return best;
+}
+
+// Intenta ubicar cuál de tus cuentas propias corresponde al banco detectado
+// (ej. "BANCO POPULAR" detectado → cuenta cuyo nombre contenga "Popular")
+function encontrarCuentaPorBanco(bancoDetectado){
+  if(!bancoDetectado) return null;
+  const bNorm = normalizarTexto(bancoDetectado);
+  for(let idx=0; idx<S.accounts.length; idx++){
+    const aNorm = normalizarTexto(S.accounts[idx].name);
+    if(aNorm && (aNorm.includes(bNorm) || bNorm.includes(aNorm))) return idx;
+  }
+  return null;
 }
 
 // ── Detección de posibles duplicados ──
@@ -4865,41 +4929,83 @@ function seleccionarTipoComprobante(tipo){
   else if(tipo==='cliente') renderRevisionCliente(wrap);
 }
 
+function bancoInfoHTML(p){
+  return p.banco ? `<div style="font-size:12px;color:#6b7a99;margin-bottom:12px;">🏦 Banco detectado: <strong style="color:#8899bb;">${esc(p.banco)}</strong></div>` : '';
+}
+
 // ── Movimiento entre mis cuentas ──
 function renderRevisionInterno(wrap){
   const p=_comp.parsed||{};
-  const fecha=p.fecha||today();
+  if(!_comp.direccionInterno) _comp.direccionInterno='egreso';
+  const d=_comp.draftInterno||{};
+  const dir=_comp.direccionInterno;
+  const cuentaActual=esc(S.accounts[_comp.accountIdx]?.name||'');
+  const otrasOpciones=S.accounts.map((a,idx)=>idx===_comp.accountIdx?'':`<option value="${idx}">${esc(a.name)}</option>`).join('');
+  const relatedVal = d.related!==undefined ? d.related : '';
+  const fecha = d.fecha!==undefined ? d.fecha : (p.fecha||today());
+  const monto = d.monto!==undefined ? d.monto : (p.monto||'');
+  const desc  = d.desc!==undefined  ? d.desc  : (p.referencia?'Ref: '+p.referencia:'');
   wrap.innerHTML=`
-    ${renderAvisoDuplicado('interno', p.monto||0, fecha, p.referencia)}
-    <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">Revisa y completa antes de registrar el movimiento en <strong>${esc(S.accounts[_comp.accountIdx]?.name)}</strong>.</p>
+    ${renderAvisoDuplicado('interno', parseFloat(monto)||0, fecha, p.referencia)}
+    ${bancoInfoHTML(p)}
+    <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">Indica hacia dónde se movió el dinero, con respecto a <strong>${cuentaActual}</strong>.</p>
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <button class="btn ${dir==='egreso'?'btn-primary':'btn-secondary'}" onclick="setDireccionInterno('egreso')">Sale de esta cuenta →</button>
+      <button class="btn ${dir==='ingreso'?'btn-primary':'btn-secondary'}" onclick="setDireccionInterno('ingreso')">← Entra a esta cuenta</button>
+    </div>
     <div class="form-grid">
-      <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-int-date" value="${esc(p.fecha||today())}"></div>
-      <div class="form-group"><label>Tipo</label><select id="comp-int-type"><option value="ingreso">Ingreso / Depósito</option><option value="egreso">Egreso / Retiro / Pago</option></select></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="comp-int-amount" step="0.01" value="${p.monto||''}"></div>
-      <div class="form-group"><label>Cuenta Relacionada</label><select id="comp-int-related"><option value="">— Transferencia externa (sin cuenta relacionada) —</option>${S.accounts.map((a,idx)=>idx===_comp.accountIdx?'':`<option value="${idx}">${esc(a.name)}</option>`).join('')}</select></div>
-      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="comp-int-desc" value="${p.referencia?'Ref: '+esc(p.referencia):''}"></div>
+      <div class="form-group"><label>Desde Cuenta</label>
+        ${dir==='ingreso'
+          ? `<select id="comp-int-related"><option value="">— Cuenta externa / tercero —</option>${otrasOpciones}</select>`
+          : `<input autocomplete="off" disabled value="${cuentaActual}" style="opacity:.7;">`}
+      </div>
+      <div class="form-group"><label>Hacia Cuenta</label>
+        ${dir==='ingreso'
+          ? `<input autocomplete="off" disabled value="${cuentaActual}" style="opacity:.7;">`
+          : `<select id="comp-int-related"><option value="">— Cuenta externa / tercero —</option>${otrasOpciones}</select>`}
+      </div>
+      <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-int-date" value="${esc(fecha)}"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="comp-int-amount" step="0.01" value="${monto}"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="comp-int-desc" value="${esc(desc)}"></div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
       <button class="btn btn-primary" onclick="confirmarComprobanteInterno()">Confirmar y Registrar</button>
     </div>`;
+  if(relatedVal){
+    const sel=document.getElementById('comp-int-related');
+    if(sel) sel.value=relatedVal;
+  }
+}
+
+function setDireccionInterno(dir){
+  const wrap=document.getElementById('comp-step-review');
+  _comp.draftInterno = {
+    fecha: document.getElementById('comp-int-date')?.value,
+    monto: document.getElementById('comp-int-amount')?.value,
+    desc:  document.getElementById('comp-int-desc')?.value,
+    related: document.getElementById('comp-int-related')?.value
+  };
+  _comp.direccionInterno = dir;
+  renderRevisionInterno(wrap);
 }
 
 function confirmarComprobanteInterno(){
   const i=_comp.accountIdx;
+  const dir=_comp.direccionInterno||'egreso';
   document.getElementById(`f-date-${i}`).value=document.getElementById('comp-int-date').value;
-  document.getElementById(`f-type-${i}`).value=document.getElementById('comp-int-type').value;
+  document.getElementById(`f-type-${i}`).value=dir;
   document.getElementById(`f-method-${i}`).value='transferencia';
   onFMethodChange(i);
   document.getElementById(`f-amount-${i}`).value=document.getElementById('comp-int-amount').value;
   document.getElementById(`f-desc-${i}`).value=document.getElementById('comp-int-desc').value;
-  const related=document.getElementById('comp-int-related').value;
+  const related=document.getElementById('comp-int-related')?.value||'';
   const relSel=document.getElementById(`f-related-${i}`);
   if(relSel) relSel.value=related;
   closeComprobanteModal();
   addTx(i);
 }
 
-// ── Matching genérico por nombre ──
+// ── Matching genérico por nombre (se conserva por si se reutiliza en otro flujo) ──
 function mejorCoincidenciaPorNombre(nombreDetectado, lista, campoNombre){
   const target=normalizarTexto(nombreDetectado);
   if(!target) return null;
@@ -4923,7 +5029,7 @@ function mejorCoincidenciaPorNombre(nombreDetectado, lista, campoNombre){
 // ── Pago a Suplidor ──
 function renderRevisionSuplidor(wrap){
   const p=_comp.parsed||{};
-  const supMatch=mejorCoincidenciaPorNombre(p.beneficiario,S.suplidores,'nombre');
+  const supMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.suplidores, 'nombre');
   const pendientes=(S.cuentasPagar.proveedores||[]).filter(x=>x.estado!=='pagada'&&(!supMatch||normalizarTexto(x.nombre)===normalizarTexto(supMatch.nombre)));
   let mejorFacturaId='';
   if(p.monto&&pendientes.length){
@@ -4933,6 +5039,7 @@ function renderRevisionSuplidor(wrap){
   }
   wrap.innerHTML=`
     ${renderAvisoDuplicado('suplidor', p.monto||0, p.fecha||today(), p.referencia)}
+    ${bancoInfoHTML(p)}
     <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${supMatch?`Suplidor detectado: <strong style="color:#818cf8;">${esc(supMatch.nombre)}</strong>`:'No se detectó un suplidor conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Suplidor</label>
@@ -4963,6 +5070,7 @@ function confirmarComprobanteSuplidor(){
   const monto=parseFloat(document.getElementById('comp-sup-amount').value)||0;
   const fecha=document.getElementById('comp-sup-date').value;
   const ref=document.getElementById('comp-sup-ref').value.trim();
+  const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
   closeComprobanteModal();
   if(invoiceId){
     const item=S.cuentasPagar.proveedores.find(x=>String(x.id)===String(invoiceId));
@@ -4973,18 +5081,19 @@ function confirmarComprobanteSuplidor(){
     document.getElementById('cxp-pay-date').value=fecha;
     document.getElementById('cxp-pay-ref').value=ref;
     document.getElementById('cxp-pay-method').value='transferencia';
+    if(bancoIdx!==null) document.getElementById('cxp-pay-account').value=bancoIdx;
   } else {
     activateTab('egresos');
     if(document.getElementById('egr-fecha')) document.getElementById('egr-fecha').value=fecha;
     if(document.getElementById('egr-monto')) document.getElementById('egr-monto').value=monto.toFixed(2);
-    notify('info','Revisa el Egreso',`Completa la categoría y confirma antes de registrar.${ref?' Referencia: '+ref:''}`);
+    icgAlert(`Completa la categoría y confirma antes de registrar.${ref?' Referencia: '+ref:''}`,'Revisa el Egreso');
   }
 }
 
 // ── Cobro de Cliente ──
 function renderRevisionCliente(wrap){
   const p=_comp.parsed||{};
-  const cliMatch=mejorCoincidenciaPorNombre(p.beneficiario,S.clientes,'nombre');
+  const cliMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.clientes, 'nombre');
   const pendientes=(S.cuentasCobrar||[]).filter(x=>x.estado!=='pagada'&&(!cliMatch||normalizarTexto(x.client)===normalizarTexto(cliMatch.nombre)));
   let mejorFacturaId='';
   if(p.monto&&pendientes.length){
@@ -4994,6 +5103,7 @@ function renderRevisionCliente(wrap){
   }
   wrap.innerHTML=`
     ${renderAvisoDuplicado('cliente', p.monto||0, p.fecha||today(), p.referencia)}
+    ${bancoInfoHTML(p)}
     <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${cliMatch?`Cliente detectado: <strong style="color:#818cf8;">${esc(cliMatch.nombre)}</strong>`:'No se detectó un cliente conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Cliente</label>
@@ -5022,6 +5132,7 @@ function confirmarComprobanteCliente(){
   const monto=parseFloat(document.getElementById('comp-cli-amount').value)||0;
   const fecha=document.getElementById('comp-cli-date').value;
   const ref=document.getElementById('comp-cli-ref').value.trim();
+  const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
   closeComprobanteModal();
   if(invoiceId){
     const item=S.cuentasCobrar.find(x=>String(x.id)===String(invoiceId));
@@ -5033,13 +5144,14 @@ function confirmarComprobanteCliente(){
     document.getElementById('pay-method').value='transferencia';
     onPayMethodChange(document.getElementById('pay-method'));
     calcPayNet();
+    if(bancoIdx!==null) document.getElementById('pay-bank').value=bancoIdx;
   } else {
     activateTab('ingresos');
     switchIngresosView('recibos');
     if(document.getElementById('rec-fecha')) document.getElementById('rec-fecha').value=fecha;
     if(document.getElementById('rec-monto')) document.getElementById('rec-monto').value=monto.toFixed(2);
     if(document.getElementById('rec-ref')) document.getElementById('rec-ref').value=ref;
-    notify('info','Revisa el Recibo','Completa el cliente y la categoría antes de registrar.');
+    icgAlert('Completa el cliente y la categoría antes de registrar.','Revisa el Recibo');
   }
 }
 let _ingresosView='manual';
@@ -5981,6 +6093,30 @@ function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true){
     }
     okBtn.addEventListener('click',ok);
     cnBtn.addEventListener('click',cancel);
+  });
+}
+
+
+function icgAlert(msg, title='Aviso'){
+  return new Promise(resolve=>{
+    document.getElementById('confirm-title').textContent=title;
+    document.getElementById('confirm-msg').textContent=msg;
+    const okBtn=document.getElementById('confirm-ok');
+    const cnBtn=document.getElementById('confirm-cancel');
+    okBtn.textContent='Entendido';
+    okBtn.style.background='#4f46e5';
+    okBtn.style.borderColor='#4f46e5';
+    document.getElementById('confirm-icon').style.background='rgba(79,70,229,.12)';
+    document.getElementById('confirm-icon').style.color='#818cf8';
+    cnBtn.style.display='none';
+    document.getElementById('confirmModal').classList.add('open');
+    const ok=()=>{cleanup();resolve(true);};
+    function cleanup(){
+      document.getElementById('confirmModal').classList.remove('open');
+      cnBtn.style.display='';
+      okBtn.removeEventListener('click',ok);
+    }
+    okBtn.addEventListener('click',ok);
   });
 }
 
