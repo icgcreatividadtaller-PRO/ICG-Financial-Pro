@@ -1144,7 +1144,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" id="ing-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
         <label>&nbsp;</label>
         <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
-          Efectivo — sin acreditar
+          Efectivo — se acredita a Caja General
         </div>
       </div>
     </div>
@@ -1233,7 +1233,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" id="rec-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
         <label>&nbsp;</label>
         <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
-          Efectivo — sin acreditar
+          Efectivo — se acredita a Caja General
         </div>
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
@@ -4488,6 +4488,14 @@ function refreshIngresoSelects(){
     if(curVal && recCatSel.querySelector(`option[value="${curVal}"]`)) recCatSel.value=curVal;
   }
 }
+// Ubica el índice de la cuenta "Caja General" (garantizada al arrancar el sistema),
+// buscando por nombre en vez de asumir que siempre está en la posición 0 —
+// así sigue funcionando aunque el usuario reordene sus cuentas.
+function cajaGeneralIdx(){
+  const idx = S.accounts.findIndex(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'));
+  return idx>=0 ? idx : 0;
+}
+
 function addIngreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('ing-fecha').value;
   const clienteId=auto?data.clienteId:parseInt(document.getElementById('ing-cliente').value)||null;
@@ -4495,9 +4503,10 @@ function addIngreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('ing-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
+  const isEfectivo=!auto&&metodo==='efectivo';
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
-  const esHistorico=!auto&&cuentaSelVal==='none';
-  const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const esHistorico=!auto&&!isEfectivo&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0)));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const cliente=S.clientes.find(x=>x.id===clienteId);
   S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
@@ -4537,9 +4546,9 @@ function addRecibo(){
   const concepto=document.getElementById('rec-concepto').value.trim();
   const metodo=document.getElementById('rec-metodo').value;
   const cuentaSelVal=document.getElementById('rec-cuenta').value;
-  const esHistorico=cuentaSelVal==='none';
   const isEfectivo=metodo==='efectivo';
-  const cuentaIdx=isEfectivo?null:(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const esHistorico=!isEfectivo&&cuentaSelVal==='none';
+  const cuentaIdx=isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0));
   const ref=document.getElementById('rec-ref').value.trim();
   if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
   const cliente=S.clientes.find(x=>x.id===clienteId);
@@ -4549,9 +4558,10 @@ function addRecibo(){
   const recId=Date.now()+Math.random();
   S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
 
-  // Igual que un Ingreso manual: acredita la cuenta (salvo efectivo/histórico) y cuenta en el Estado de Resultados.
-  if(!isEfectivo && !esHistorico){
-    const txMethod = metodo==='cheque'?'cheque':'transferencia';
+  // Igual que un Ingreso manual: acredita la cuenta (Caja General si es efectivo, o la
+  // cuenta bancaria elegida — salvo que sea Histórico) y cuenta en el Estado de Resultados.
+  if(!esHistorico){
+    const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
     pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
       desc:`Recibo ${numero}: ${cliente?.nombre||''}${concepto?' – '+concepto:''}`});
     renderTx(cuentaIdx);
@@ -5205,7 +5215,7 @@ function onEgrMetodoChange(sel){
     tarjetaNote.style.display = hideBank ? '' : 'none';
     tarjetaNote.querySelector('div').textContent = val === 'tarjeta'
       ? 'Se cargará a la tarjeta de crédito'
-      : 'Pago en efectivo — sin crédito bancario';
+      : 'Efectivo — se descuenta de Caja General';
   }
 }
 
@@ -5228,9 +5238,10 @@ function addEgreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('egr-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
+  const isEfectivo=!auto&&metodo==='efectivo';
   const cuentaSelVal=auto?null:document.getElementById('egr-cuenta').value;
-  const esHistorico=!auto&&cuentaSelVal==='none';
-  const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const esHistorico=!auto&&!isEfectivo&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0)));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const suplidor=S.suplidores.find(x=>x.id===suplidorId);
   S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
