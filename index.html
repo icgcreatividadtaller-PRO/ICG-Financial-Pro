@@ -13,7 +13,6 @@
   
   
   
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 :root{
@@ -23,7 +22,7 @@
   --indigo:#4f46e5; --indigo2:#818cf8; --indigo-dim:rgba(79,70,229,.1);
   --red:#ef4444; --red-dim:rgba(239,68,68,.1);
   --text:#e8eeff; --text2:#b0bbcf; --text3:#6b7a99;
-  --font:'Space Grotesk',sans-serif; --mono:Arial,Helvetica,sans-serif;
+  --font:Arial,Helvetica,sans-serif; --mono:Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{22px;}
@@ -48,8 +47,8 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .brand-mark{width:36px;height:36px;border:1px solid rgba(129,140,248,.4);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .brand-mark::after{content:'';position:absolute;top:-100%;left:-100%;width:300%;height:300%;background:conic-gradient(transparent 60%,rgba(129,140,248,.15) 70%,transparent 80%);animation:orbit 4s linear infinite;}
 @keyframes orbit{to{transform:rotate(360deg);}}
-.brand-name{24px;font-weight:700;color:var(--cyan);letter-spacing:.05em;text-transform:uppercase;}
-.brand-sub{12px;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;margin-top:2px;}
+.brand-name{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--cyan);letter-spacing:.05em;text-transform:uppercase;}
+.brand-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;margin-top:2px;}
 .hdr-actions{margin-left:auto;display:flex;align-items:center;gap:8px;padding-left:24px;border-left:1px solid var(--border);}
 .hdr-tag{14px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
 
@@ -64,7 +63,7 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .nav-bar::-webkit-scrollbar{height:0;}
 .nav-btn{
   position:relative;padding:16px 20px;
-  font-family:var(--font);14px;font-weight:600;
+  font-family:var(--font);font-size:15px;font-weight:600;
   color:#6b7a99;background:none;border:none;
   cursor:pointer;white-space:nowrap;letter-spacing:.12em;
   transition:color .2s;
@@ -81,19 +80,19 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .nav-btn.active::after{left:0;right:0;}
 .nav-btn.nav-indigo.active{color:var(--indigo2);}
 .nav-btn.nav-indigo.active::after{background:var(--indigo2);box-shadow:0 0 8px var(--indigo2);}
-.rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;15px;padding:2px 5px;opacity:0;transition:opacity .2s;}
+.rename-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:2px 5px;opacity:0;transition:opacity .2s;}
 .nav-btn:hover .rename-btn{opacity:1;}
 .block-nav-btn{font-size:15px;font-weight:700;padding:18px 28px;letter-spacing:.16em;}
 #subTabsBar{background:var(--s1);border-bottom:1px solid var(--border2);padding:0 32px;display:flex;align-items:center;gap:2px;overflow-x:auto;}
 #subTabsBar::-webkit-scrollbar{height:0;}
-#subTabsBar .nav-btn{padding:12px 16px;font-size:12px;}
+#subTabsBar .nav-btn{padding:12px 16px;font-size:15px;}
 @keyframes asSpin{to{transform:rotate(360deg);}}
 
 /* ── BUTTONS ── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   padding:11px 24px;border-radius:6px;border:2px solid rgba(129,140,248,.35);
-  font-family:var(--font);font-size:13px;font-weight:600;
+  font-family:var(--font);font-size:15px;font-weight:600;
   cursor:pointer;letter-spacing:.1em;text-transform:uppercase;
   transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,background .15s;
   position:relative;white-space:nowrap;box-sizing:border-box;
@@ -122,7 +121,7 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .btn-red{background:var(--red-dim);border:2px solid #ef4444;color:#ef4444;
   box-shadow:0 0 10px rgba(239,68,68,.2),0 0 0 1px rgba(239,68,68,.15);}
 .btn-red:hover{box-shadow:0 12px 28px rgba(239,68,68,.5),0 0 20px rgba(239,68,68,.35),0 4px 12px rgba(0,0,0,.45);}
-.btn-sm{padding:7px 16px;font-size:12px;height:36px;}
+.btn-sm{padding:7px 16px;font-size:15px;height:36px;}
 button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.cdp-nav):not(.cdp-foot-btn):not(.cdp-day):not(.acct-tab){
   transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
 }
@@ -146,7 +145,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
   border-bottom:1px solid var(--border);
 }
 .acct-tab{
-  padding:9px 18px;border-radius:5px;font-size:13px;font-weight:600;
+  padding:9px 18px;border-radius:5px;font-size:15px;font-weight:600;
   letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
   border:2px solid rgba(129,140,248,.25);background:transparent;
   color:#8899bb;transition:all .18s ease;
@@ -158,7 +157,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
   color:var(--indigo2);
   box-shadow:0 4px 20px rgba(79,70,229,.15);
 }
-.acct-rename{background:none;border:none;color:var(--text3);cursor:pointer;14px;padding:1px 4px;opacity:0;transition:opacity .2s;}
+.acct-rename{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:1px 4px;opacity:0;transition:opacity .2s;}
 .acct-tab:hover .acct-rename{opacity:1;}
 
 /* ── STAT CARDS ── */
@@ -183,7 +182,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 }
 .bcard:hover::after{left:125%;}
 .bcard-label{12px;color:var(--text3);letter-spacing:.14em;margin-bottom:8px;font-weight:600;}
-.bcard-value{font-family:var(--mono);30px;font-weight:600;}
+.bcard-value{font-family:var(--mono);font-size:30px;font-weight:600;}
 .bcard-value.positive{color:var(--cyan);}
 .bcard-value.negative{color:var(--red);}
 .bcard-value.neutral{color:var(--indigo2);}
@@ -207,7 +206,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 .form-group label{12px;color:var(--text3);letter-spacing:.14em;display:block;margin-bottom:6px;font-weight:600;}
 .form-group input,.form-group select,.form-group textarea{
   width:100%;background:var(--s2);border:1px solid var(--border2);
-  border-radius:4px;color:var(--text);font-family:var(--font);19px;
+  border-radius:4px;color:var(--text);font-family:var(--font);font-size:19px;
   padding:10px 13px;outline:none;transition:border-color .2s,box-shadow .2s;
 }
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
@@ -226,14 +225,14 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 table{width:100%;border-collapse:collapse;}
 thead th{
   background:rgba(79,70,229,.08);color:var(--indigo2);
-  font-weight:700;12px;letter-spacing:.14em;
+  font-weight:700;font-size:15px;letter-spacing:.14em;
   padding:13px 16px;text-align:left;border-bottom:1px solid var(--border2);
 }
 tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:rgba(129,140,248,.03);}
-tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
-.td-mono{font-family:var(--mono);18px;}
+tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text);}
+.td-mono{font-family:var(--mono);font-size:18px;}
 .td-pos{color:var(--cyan);font-family:var(--mono);font-weight:600;}
 .td-neg{color:var(--red);font-family:var(--mono);}
 .td-num{font-family:var(--mono);}
@@ -241,7 +240,7 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 /* ── BADGES ── */
 .badge{
   display:inline-flex;align-items:center;padding:3px 10px;
-  border-radius:3px;12px;font-weight:700;letter-spacing:.1em;
+  border-radius:3px;font-size:15px;font-weight:700;letter-spacing:.1em;
 }
 .badge-cyan{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(129,140,248,.15);}
 .badge-indigo{background:var(--indigo-dim);color:var(--indigo2);border:1px solid rgba(79,70,229,.2);}
@@ -290,16 +289,16 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 @keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 .modal h2{24px;font-weight:700;margin-bottom:6px;letter-spacing:.03em;}
 .modal p{16px;color:var(--text2);margin-bottom:18px;}
-.modal-close{float:right;background:none;border:none;color:var(--text3);cursor:pointer;22px;padding:2px 6px;letter-spacing:0;}
+.modal-close{float:right;background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;padding:2px 6px;letter-spacing:0;}
 .modal-close:hover{color:var(--red);}
 .modal-foot{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
 
 /* ── REPORT BLOCKS ── */
 .report-block{background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:16px 20px;margin-bottom:12px;}
 .report-block h4{12px;color:var(--indigo2);font-weight:700;margin-bottom:12px;letter-spacing:.15em;}
-.report-row{display:flex;justify-content:space-between;18px;padding:5px 0;border-bottom:1px solid var(--border);}
+.report-row{display:flex;justify-content:space-between;font-size:18px;padding:5px 0;border-bottom:1px solid var(--border);}
 .report-row:last-child{border-bottom:none;}
-.report-total{display:flex;justify-content:space-between;20px;font-weight:700;padding:10px 0;border-top:2px solid var(--border2);margin-top:8px;}
+.report-total{display:flex;justify-content:space-between;font-size:20px;font-weight:700;padding:10px 0;border-top:2px solid var(--border2);margin-top:8px;}
 
 /* ── CONSOLIDATED ── */
 .totals-bar{
@@ -309,7 +308,7 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 }
 .total-item{flex:1;min-width:110px;}
 .total-label{12px;color:var(--text3);letter-spacing:.14em;margin-bottom:4px;font-weight:700;}
-.total-value{font-family:var(--mono);28px;font-weight:600;}
+.total-value{font-family:var(--mono);font-size:28px;font-weight:600;}
 .consolidated-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:26px;}
 .consolidated-card{
   background:var(--s1);border:1px solid var(--border2);
@@ -322,7 +321,7 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
   transform:translateY(-2px);
 }
 .consolidated-card h3{15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:.08em;}
-.cc-row-c{display:flex;justify-content:space-between;18px;padding:3px 0;}
+.cc-row-c{display:flex;justify-content:space-between;font-size:18px;padding:3px 0;}
 .cc-sep{border-top:1px solid var(--border);margin:8px 0;}
 .cc-total{20px;font-weight:700;font-family:var(--mono);}
 
@@ -331,15 +330,15 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 .rename-dialog.open{display:flex;}
 .rename-box{background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:24px;width:360px;animation:modalIn .2s ease;}
 .rename-box h3{18px;font-weight:700;margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase;}
-.rename-box input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--font);20px;padding:10px 13px;outline:none;margin-bottom:14px;}
+.rename-box input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--font);font-size:20px;padding:10px 13px;outline:none;margin-bottom:14px;}
 .rename-box input:focus{border-color:var(--cyan);}
 .rename-box .actions{display:flex;gap:10px;}
 
 /* ── EMPTY STATE ── */
-.empty-state{text-align:center;padding:42px;color:var(--text3);18px;}
+.empty-state{text-align:center;padding:42px;color:var(--text3);font-size:18px;}
 
 /* ── DEL BTN ── */
-.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;16px;padding:4px 7px;border-radius:3px;transition:all .2s;letter-spacing:0;}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px 7px;border-radius:3px;transition:all .2s;letter-spacing:0;}
 .del-btn:hover{color:var(--red);background:var(--red-dim);}
 
 /* ── SCROLLBAR ── */
@@ -365,9 +364,9 @@ tbody td{padding:13px 16px;vertical-align:middle;19px;color:var(--text);}
 .notif.warning::before{background:#f59e0b;}
 .notif-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
 .notif-body{flex:1;}
-.notif-title{font-size:13px;font-weight:600;color:#e8eeff;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;}
-.notif-msg{font-size:12px;color:#8899bb;line-height:1.6;font-weight:400;text-transform:none;letter-spacing:normal;}
-.notif-close{background:none;border:none;color:#4a5578;cursor:pointer;font-size:14px;padding:0 0 0 8px;flex-shrink:0;line-height:1;letter-spacing:0;}
+.notif-title{font-size:15px;font-weight:600;color:#e8eeff;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;}
+.notif-msg{font-size:15px;color:#8899bb;line-height:1.6;font-weight:400;text-transform:none;letter-spacing:normal;}
+.notif-close{background:none;border:none;color:#4a5578;cursor:pointer;font-size:15px;padding:0 0 0 8px;flex-shrink:0;line-height:1;letter-spacing:0;}
 .notif-close:hover{color:#b0bbcf;}
 .notif-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--border2);animation:notifBar 4s linear forwards;}
 @keyframes notifIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
@@ -382,7 +381,7 @@ input[type="date"], input[type="month"]{
   border-radius: 5px !important;
   color: #c8d0e0 !important;
   font-family: var(--font) !important;
-  font-size: 13px !important;
+  font-size:15px !important;
   padding: 10px 13px !important;
   outline: none !important;
   cursor: pointer !important;
@@ -470,13 +469,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   100%{filter:drop-shadow(0 0 45px rgba(129,140,248,.75)) drop-shadow(0 0 85px rgba(79,70,229,.45)) brightness(1);}
 }
 .splash-title{font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:700;letter-spacing:.2em;color:#e8eeff;text-transform:uppercase;position:relative;z-index:1;margin-top:28px;opacity:0;animation:textIn .7s ease forwards;animation-delay:.9s;text-shadow:0 0 60px rgba(129,140,248,.5),0 0 120px rgba(79,70,229,.3);}
-.splash-sub{font-family:'Space Grotesk',sans-serif;font-size:13px;letter-spacing:.35em;color:#818cf8;text-transform:uppercase;position:relative;z-index:1;margin-top:10px;opacity:0;animation:textIn .6s ease forwards;animation-delay:1.2s;}
-.splash-brand{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.25em;color:#4a5578;text-transform:uppercase;position:relative;z-index:1;margin-top:6px;opacity:0;animation:textIn .6s ease forwards;animation-delay:1.5s;}
+.splash-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.35em;color:#818cf8;text-transform:uppercase;position:relative;z-index:1;margin-top:10px;opacity:0;animation:textIn .6s ease forwards;animation-delay:1.2s;}
+.splash-brand{font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.25em;color:#4a5578;text-transform:uppercase;position:relative;z-index:1;margin-top:6px;opacity:0;animation:textIn .6s ease forwards;animation-delay:1.5s;}
 @keyframes textIn{0%{opacity:0;transform:translateY(18px);}100%{opacity:1;transform:translateY(0);}}
 .splash-bar-wrap{width:300px;height:2px;background:rgba(129,140,248,.1);border-radius:2px;margin-top:52px;position:relative;z-index:1;overflow:hidden;opacity:0;animation:textIn .4s ease forwards;animation-delay:1.7s;}
 .splash-bar{height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#4f46e5,#818cf8,#c4b5fd);box-shadow:0 0 14px rgba(129,140,248,.9);animation:barFill 2.4s cubic-bezier(.4,0,.2,1) forwards;animation-delay:1.8s;}
 @keyframes barFill{0%{width:0;}40%{width:55%;}70%{width:80%;}90%{width:95%;}100%{width:100%;}}
-.splash-loading-text{font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.22em;color:#4a5578;text-transform:uppercase;margin-top:14px;position:relative;z-index:1;opacity:0;animation:textIn .4s ease forwards;animation-delay:1.9s;}
+.splash-loading-text{font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.22em;color:#4a5578;text-transform:uppercase;margin-top:14px;position:relative;z-index:1;opacity:0;animation:textIn .4s ease forwards;animation-delay:1.9s;}
 .splash-corner{position:absolute;width:56px;height:56px;border-color:rgba(129,140,248,.2);border-style:solid;opacity:0;animation:textIn .6s ease forwards;animation-delay:.4s;}
 .splash-corner.tl{top:36px;left:36px;border-width:2px 0 0 2px;}
 .splash-corner.tr{top:36px;right:36px;border-width:2px 2px 0 0;}
@@ -499,20 +498,20 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 #cdp.open{display:block;animation:cdpIn .15s ease;}
 @keyframes cdpIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 .cdp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.cdp-nav{background:none;border:1px solid rgba(129,140,248,.2);color:#818cf8;width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.cdp-nav{background:none;border:1px solid rgba(129,140,248,.2);color:#818cf8;width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
 .cdp-nav:hover{background:rgba(129,140,248,.15);}
-.cdp-month-label{font-size:14px;font-weight:600;color:#e8eeff;letter-spacing:.05em;cursor:pointer;}
+.cdp-month-label{font-size:15px;font-weight:600;color:#e8eeff;letter-spacing:.05em;cursor:pointer;}
 .cdp-month-label:hover{color:#818cf8;}
 .cdp-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;}
-.cdp-dow span{text-align:center;font-size:10px;color:#4a5578;letter-spacing:.08em;padding:3px 0;text-transform:uppercase;}
+.cdp-dow span{text-align:center;font-size:15px;color:#4a5578;letter-spacing:.08em;padding:3px 0;text-transform:uppercase;}
 .cdp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cdp-day{text-align:center;padding:7px 0;font-size:13px;color:#b0bbcf;border-radius:6px;cursor:pointer;transition:background .12s,color .12s;}
+.cdp-day{text-align:center;padding:7px 0;font-size:15px;color:#b0bbcf;border-radius:6px;cursor:pointer;transition:background .12s,color .12s;}
 .cdp-day:hover{background:rgba(129,140,248,.15);color:#e8eeff;}
 .cdp-day.today{color:#818cf8;font-weight:700;border:1px solid rgba(129,140,248,.3);}
 .cdp-day.selected{background:#4f46e5;color:#fff;font-weight:600;box-shadow:0 0 12px rgba(79,70,229,.5);}
 .cdp-day.empty{cursor:default;pointer-events:none;}
 .cdp-footer{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(129,140,248,.1);}
-.cdp-foot-btn{background:none;border:none;font-family:var(--font);font-size:12px;letter-spacing:.08em;cursor:pointer;padding:4px 8px;border-radius:4px;text-transform:uppercase;}
+.cdp-foot-btn{background:none;border:none;font-family:var(--font);font-size:15px;letter-spacing:.08em;cursor:pointer;padding:4px 8px;border-radius:4px;text-transform:uppercase;}
 .cdp-foot-btn.clear{color:#4a5578;}.cdp-foot-btn.clear:hover{color:#818cf8;}
 .cdp-foot-btn.today-btn{color:#818cf8;}.cdp-foot-btn.today-btn:hover{background:rgba(129,140,248,.12);}
 
@@ -563,7 +562,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="width:100%;max-width:360px;padding:32px;">
     <div style="text-align:center;margin-bottom:36px;">
       <div style="font-size:38px;font-weight:700;color:#818cf8;letter-spacing:.06em;text-transform:uppercase;line-height:1.15;">ICG Financial <span class="pro-wrap">PRO<span class="pro-flash" aria-hidden="true">PRO</span></span></div>
-      <div style="font-size:12px;color:#6b7a99;margin-top:10px;letter-spacing:.15em;text-transform:uppercase;">Acceso Restringido</div>
+      <div style="font-size:15px;color:#6b7a99;margin-top:10px;letter-spacing:.15em;text-transform:uppercase;">Acceso Restringido</div>
     </div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Correo</label><input type="email" id="login-email" autocomplete="off" placeholder="tu@correo.com" style="width:100%;height:44px;box-sizing:border-box;"></div>
     <div class="form-group" style="margin-bottom:14px;display:block;"><label style="display:block;margin-bottom:6px;">Contraseña</label>
@@ -574,11 +573,11 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </button>
       </div>
     </div>
-    <div id="login-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
-    <div id="login-info" style="color:#4ade80;font-size:13px;margin-bottom:14px;display:none;"></div>
+    <div id="login-error" style="color:#ef4444;font-size:15px;margin-bottom:14px;display:none;"></div>
+    <div id="login-info" style="color:#4ade80;font-size:15px;margin-bottom:14px;display:none;"></div>
     <button class="btn btn-primary" style="width:100%;" onclick="loginSubmit()">Entrar</button>
     <div style="text-align:center;margin-top:16px;">
-      <a href="javascript:void(0)" onclick="forgotPassword()" style="color:#6b7a99;font-size:12px;text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+      <a href="javascript:void(0)" onclick="forgotPassword()" style="color:#6b7a99;font-size:15px;text-decoration:underline;">¿Olvidaste tu contraseña?</a>
     </div>
   </div>
 </div>
@@ -588,20 +587,20 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
   <div style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
     <h3 id="pinGateTitle" style="color:#818cf8;margin:0 0 8px;font-size:18px;">Acceso Protegido</h3>
-    <p id="pinGateSubtitle" style="color:#9ca3af;font-size:13px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
+    <p id="pinGateSubtitle" style="color:#9ca3af;font-size:15px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
     <div id="pinGateOldWrap" style="display:none;margin-bottom:12px;">
-      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">PIN Actual</label>
+      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN Actual</label>
       <input type="password" id="pin-input-old" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
     </div>
     <div style="margin-bottom:12px;">
-      <label id="pinGateLabel1" style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">PIN</label>
+      <label id="pinGateLabel1" style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN</label>
       <input type="password" id="pin-input-1" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
     </div>
     <div id="pinGateConfirmWrap" style="display:none;margin-bottom:12px;">
-      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:12px;">Confirmar PIN</label>
+      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">Confirmar PIN</label>
       <input type="password" id="pin-input-2" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
     </div>
-    <div id="pin-gate-error" style="color:#ef4444;font-size:13px;margin-bottom:14px;display:none;"></div>
+    <div id="pin-gate-error" style="color:#ef4444;font-size:15px;margin-bottom:14px;display:none;"></div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-secondary" style="flex:1;" onclick="cancelPinGate()">Cancelar</button>
       <button class="btn btn-primary" style="flex:1;" onclick="confirmPinGate()">Continuar</button>
@@ -619,18 +618,18 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div>
       <div style="font-size:27px;font-weight:600;color:#818cf8;letter-spacing:.14em;text-transform:uppercase;line-height:1;">ICG Financial PRO</div>
-      <div style="font-size:12px;color:#6b7a99;letter-spacing:.28em;text-transform:uppercase;margin-top:10px;font-weight:400;">Sistema Financiero Integral &nbsp;&middot;&nbsp; ICG Creatividad</div>
+      <div style="font-size:15px;color:#6b7a99;letter-spacing:.28em;text-transform:uppercase;margin-top:10px;font-weight:400;">Sistema Financiero Integral &nbsp;&middot;&nbsp; ICG Creatividad</div>
     </div>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
-    <div id="autoSaveIndicator" style="display:flex;align-items:center;gap:8px;font-size:11px;color:#818cf8;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;border:1px solid rgba(129,140,248,.25);border-radius:6px;">
+    <div id="autoSaveIndicator" style="display:flex;align-items:center;gap:8px;font-size:15px;color:#818cf8;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;border:1px solid rgba(129,140,248,.25);border-radius:6px;">
       <span id="autoSaveSpinner" style="display:none;width:11px;height:11px;border:2px solid rgba(129,140,248,.25);border-top-color:#818cf8;border-radius:50%;animation:asSpin .8s linear infinite;"></span>
       <span id="autoSaveIcon">☁</span>
       <span id="autoSaveText">Autoguardado</span>
     </div>
-    <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:12px;padding:12px 22px;" onclick="importData()">Importar</button>
-    <button class="btn btn-indigo" style="font-size:12px;padding:12px 26px;" onclick="exportData()">Exportar</button>
-    <button id="logoutBtn" class="btn" style="display:none;background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:12px;padding:12px 22px;" onclick="logoutUser()">Cerrar Sesión</button>
+    <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:15px;padding:12px 22px;" onclick="importData()">Importar</button>
+    <button class="btn btn-indigo" style="font-size:15px;padding:12px 26px;" onclick="exportData()">Exportar</button>
+    <button id="logoutBtn" class="btn" style="display:none;background:transparent;border:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:15px;padding:12px 22px;" onclick="logoutUser()">Cerrar Sesión</button>
     <input autocomplete="off" type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)">
   </div>
 </div>
@@ -657,15 +656,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <p>Cargos, pagos y balance disponible · RD$ y US$</p>
     </div>
     <div style="display:flex;align-items:flex-start;gap:16px;">
-      <button class="btn btn-ghost" onclick="openCCBalanceModal()" style="color:#818cf8;font-size:11px;padding:9px 16px;align-self:flex-start;flex-shrink:0;">
+      <button class="btn btn-ghost" onclick="openCCBalanceModal()" style="color:#818cf8;font-size:15px;padding:9px 16px;align-self:flex-start;flex-shrink:0;">
         Actualizar Balance
       </button>
       <!-- RD$ column -->
       <div>
-        <div style="font-size:11px;color:#818cf8;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;text-align:center;">RD$</div>
+        <div style="font-size:15px;color:#818cf8;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;text-align:center;">RD$</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
-            <div class="bcard-label">Límite <span style="color:#818cf8;font-size:11px;">✎</span></div>
+            <div class="bcard-label">Límite <span style="color:#818cf8;font-size:15px;">✎</span></div>
             <input autocomplete="off" type="text" inputmode="decimal" id="ccLimitInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.4);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.creditLimit||''"
@@ -677,7 +676,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <div class="bcard-value negative" id="ccOwed" style="font-size:20px;">RD$0.00</div>
           </div>
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
-            <div class="bcard-label">Disponible Real <span style="color:#818cf8;font-size:11px;">✎</span></div>
+            <div class="bcard-label">Disponible Real <span style="color:#818cf8;font-size:15px;">✎</span></div>
             <input autocomplete="off" type="text" inputmode="decimal" id="ccAvailInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.5);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.availableRD!=null?S.creditCard.availableRD:''"
@@ -689,10 +688,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <!-- US$ column -->
       <div>
-        <div style="font-size:11px;color:#818cf8;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;text-align:center;">US$</div>
+        <div style="font-size:15px;color:#818cf8;text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:10px;text-align:center;">US$</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
-            <div class="bcard-label">Límite USD <span style="color:#818cf8;font-size:11px;">✎</span></div>
+            <div class="bcard-label">Límite USD <span style="color:#818cf8;font-size:15px;">✎</span></div>
             <input autocomplete="off" type="text" inputmode="decimal" id="ccLimitUSDInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.4);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.creditLimitUSD||''"
@@ -704,7 +703,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <div class="bcard-value negative" id="ccOwedUSD" style="font-size:20px;">$0.00</div>
           </div>
           <div class="bcard cc-uniform-card" style="border-color:rgba(129,140,248,.35);background:rgba(129,140,248,.04);">
-            <div class="bcard-label">Disponible Real USD <span style="color:#818cf8;font-size:11px;">✎</span></div>
+            <div class="bcard-label">Disponible Real USD <span style="color:#818cf8;font-size:15px;">✎</span></div>
             <input autocomplete="off" type="text" inputmode="decimal" id="ccAvailUSDInput" placeholder="0.00"
               style="background:transparent;border:none;border-bottom:2px dashed rgba(129,140,248,.5);color:#818cf8;font-family:var(--mono);font-size:20px;font-weight:600;width:100%;outline:none;padding:2px 0;"
               onfocus="this.value=S.creditCard.availableUSD!=null?S.creditCard.availableUSD:''"
@@ -726,7 +725,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div class="form-actions"><button class="btn" style="background:#818cf8;color:#020510;font-weight:600;" onclick="saveCCConfig()">Guardar configuración</button></div>
     <div id="ccMeterWrap" style="margin-top:14px;display:none;">
-      <div style="display:flex;justify-content:space-between;18px;color:#9ca3af;margin-bottom:4px;"><span>Uso del crédito</span><span id="ccUsePct">0%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:18px;color:#9ca3af;margin-bottom:4px;"><span>Uso del crédito</span><span id="ccUsePct">0%</span></div>
       <div class="cc-meter"><div class="cc-meter-fill" id="ccMeterFill" style="width:0%"></div></div>
     </div>
   </div>
@@ -778,7 +777,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="cc-desc" placeholder="Descripción del cargo..."></div>
     </div>
     <div class="form-actions"><button class="btn" style="background:#818cf8;color:#020510;font-weight:600;" onclick="addCCTx()">Registrar</button></div>
-    <p style="font-size:13px;color:#6b7a99;margin-top:10px;">Al registrar un <strong>Pago</strong>, se debitará automáticamente de la cuenta bancaria enlazada.</p>
+    <p style="font-size:15px;color:#6b7a99;margin-top:10px;">Al registrar un <strong>Pago</strong>, se debitará automáticamente de la cuenta bancaria enlazada.</p>
   </div>
   <div class="transactions-section">
     <h3>Historial de Tarjeta</h3>
@@ -813,7 +812,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <input autocomplete="off" type="text" id="cxc-invoice" placeholder="NCF"
           oninput="checkDupInvoice(this)"
           style="text-transform:uppercase;height:44px;box-sizing:border-box;">
-        <div id="cxc-invoice-warn" style="display:none;margin-top:5px;font-size:12px;color:#ef4444;font-weight:600;letter-spacing:.04em;">
+        <div id="cxc-invoice-warn" style="display:none;margin-top:5px;font-size:15px;color:#ef4444;font-weight:600;letter-spacing:.04em;">
           ⚠ Este número ya existe
         </div>
       </div>
@@ -821,7 +820,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:260px;flex-shrink:0;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="cxc-client" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <select id="cxc-client" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickClienteCxC()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
@@ -834,7 +833,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:190px;flex-shrink:0;">
         <label>Categoría</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="cxc-categoria" style="flex:1;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <select id="cxc-categoria" style="flex:1;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
@@ -856,7 +855,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Vencimiento</label>
-        <div style="background:rgba(129,140,248,.07);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:0 13px;font-family:var(--mono);font-size:14px;color:#818cf8;cursor:default;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+        <div style="background:rgba(129,140,248,.07);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:0 13px;font-family:var(--mono);font-size:15px;color:#818cf8;cursor:default;height:44px;box-sizing:border-box;display:flex;align-items:center;">
           <strong id="cxc-due-display" data-raw="">—</strong>
         </div>
       </div>
@@ -873,20 +872,20 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
       </div>
       <div class="form-group" style="width:180px;flex-shrink:0;">
-        <label style="font-size:13px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
+        <label style="font-size:15px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
         <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01" readonly
           style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.1);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;cursor:not-allowed;">
       </div>
     </div>
-    <div style="font-size:11px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
+    <div style="font-size:15px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
     <div class="form-group" style="width:260px;margin-top:12px;">
       <label>Anticipos Ya Cobrados (RD$) — opcional</label>
       <input autocomplete="off" type="number" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
-      <div style="font-size:11px;color:#6b7a99;margin-top:4px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
+      <div style="font-size:15px;color:#6b7a99;margin-top:4px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
     </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
-      <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:12px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
-      <button class="btn btn-ghost" id="cxc-cancel-btn" style="display:none;font-size:12px;" onclick="cancelEditCXC()">✕ Cancelar edición</button>
+      <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:15px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
+      <button class="btn btn-ghost" id="cxc-cancel-btn" style="display:none;font-size:15px;" onclick="cancelEditCXC()">✕ Cancelar edición</button>
     </div>
   </div>
   <div class="transactions-section">
@@ -974,7 +973,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <input autocomplete="off" type="text" id="cxp-filter-search" oninput="renderCXP()" placeholder="Nombre, concepto..." style="width:200px;">
       </div>
       <div style="align-self:flex-end;">
-        <button id="cxp-saldadas-btn" onclick="toggleCxPSaldadas()" class="btn btn-ghost" style="border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 18px;font-size:11px;letter-spacing:.1em;">
+        <button id="cxp-saldadas-btn" onclick="toggleCxPSaldadas()" class="btn btn-ghost" style="border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 18px;font-size:15px;letter-spacing:.1em;">
           Saldadas ✓
         </button>
       </div>
@@ -992,33 +991,33 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="modal-overlay" id="cxpPayModal">
   <div class="modal" style="max-width:500px;border:1px solid rgba(79,70,229,.4);">
     <button class="modal-close" onclick="closeCXPPayModal()">×</button>
-    <h2 style="color:#4f46e5;26px;">Registrar Pago</h2>
-    <p id="cxpPayInfo" style="18px;color:#9ca3af;margin-bottom:14px;"></p>
+    <h2 style="color:#4f46e5;font-size:26px;">Registrar Pago</h2>
+    <p id="cxpPayInfo" style="font-size:18px;color:#9ca3af;margin-bottom:14px;"></p>
 
     <!-- Resumen de saldos -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
-        <div style="15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total</div>
-        <div id="cxp-pay-total" style="font-family:var(--font-mono);20px;font-weight:600;color:#4f46e5;"></div>
+        <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total</div>
+        <div id="cxp-pay-total" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#4f46e5;"></div>
       </div>
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
-        <div style="15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pagado</div>
-        <div id="cxp-pay-paid" style="font-family:var(--font-mono);20px;font-weight:600;color:#818cf8;"></div>
+        <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pagado</div>
+        <div id="cxp-pay-paid" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;"></div>
       </div>
       <div style="background:var(--surface2);border:1px solid rgba(79,70,229,.4);border-radius:8px;padding:10px 14px;text-align:center;">
-        <div style="15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pendiente</div>
-        <div id="cxp-pay-pending" style="font-family:var(--font-mono);20px;font-weight:700;color:#818cf8;"></div>
+        <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pendiente</div>
+        <div id="cxp-pay-pending" style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;"></div>
       </div>
     </div>
 
     <!-- Tipo de pago -->
     <div style="display:flex;gap:10px;margin-bottom:16px;">
       <button id="cxp-btn-full"    onclick="setCXPPayType('full')"
-        style="flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.15);color:#4f46e5;">
+        style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.15);color:#4f46e5;">
         Pago Total
       </button>
       <button id="cxp-btn-partial" onclick="setCXPPayType('partial')"
-        style="flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;">
+        style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;">
         Pago Parcial
       </button>
     </div>
@@ -1027,7 +1026,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="form-group" style="margin-bottom:14px;">
       <label>Monto a Pagar (RD$)</label>
       <input autocomplete="off" type="number" id="cxp-pay-amount" placeholder="0.00" min="0.01" step="0.01"
-        style="font-family:var(--font-mono);22px;font-weight:600;border-color:rgba(79,70,229,.4);">
+        style="font-family:var(--mono);font-size:22px;font-weight:600;border-color:rgba(79,70,229,.4);">
     </div>
 
     <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
@@ -1060,7 +1059,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-primary" style="flex:1;" onclick="confirmCXPPayment()">Confirmar Pago</button>
       <button class="btn btn-secondary" onclick="closeCXPPayModal()">Cancelar</button>
     </div>
-    <p style="16px;color:#9ca3af;margin-top:10px;">El monto se debitará automáticamente de la cuenta seleccionada.</p>
+    <p style="font-size:16px;color:#9ca3af;margin-top:10px;">El monto se debitará automáticamente de la cuenta seleccionada.</p>
   </div>
 </div>
 
@@ -1095,14 +1094,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:240px;flex-shrink:0;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="ing-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <select id="ing-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
       <div class="form-group" style="width:190px;flex-shrink:0;">
         <label>Categoría</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="ing-categoria" style="font-size:14px;flex:1;height:44px;box-sizing:border-box;">
+          <select id="ing-categoria" style="font-size:15px;flex:1;height:44px;box-sizing:border-box;">
             <option value="offset">Impresión Offset</option>
             <option value="rot_vehicular">Rotulación Vehicular</option>
             <option value="senaletica">Señalética</option>
@@ -1149,7 +1148,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
     <div class="form-actions"><button class="btn btn-primary" onclick="addIngreso()">Registrar Ingreso</button></div>
-    <p style="font-size:13px;color:#6b7a99;margin-top:8px;">Los ingresos de CxC pagadas se registran automáticamente aquí.</p>
+    <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los ingresos de CxC pagadas se registran automáticamente aquí.</p>
   </div>
   <div class="transactions-section">
     <h3>Historial de Ingresos</h3>
@@ -1190,7 +1189,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="add-form">
     <h3>Nuevo Recibo de Ingreso</h3>
-    <p style="14px;color:#9ca3af;margin:6px 0 12px;">Para cobros donde todavía no existe (o no habrá) una factura formal con NCF — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 12px;">Para cobros donde todavía no existe (o no habrá) una factura formal con NCF — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Fecha</label>
@@ -1199,13 +1198,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:14px;height:44px;box-sizing:border-box;"></select>
+          <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
       <div class="form-group" style="width:190px;flex-shrink:0;">
         <label>Categoría</label>
-        <select id="rec-categoria" style="font-size:14px;height:44px;box-sizing:border-box;width:100%;"></select>
+        <select id="rec-categoria" style="font-size:15px;height:44px;box-sizing:border-box;width:100%;"></select>
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Monto (RD$)</label>
@@ -1338,7 +1337,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
     <div class="form-actions"><button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addEgreso()">Registrar Egreso</button></div>
-    <p style="font-size:12px;color:#6b7a99;margin-top:8px;">Los egresos de CxP pagadas se registran automáticamente aquí.</p>
+    <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los egresos de CxP pagadas se registran automáticamente aquí.</p>
   </div>
   <div class="transactions-section">
     <h3>Historial de Egresos</h3>
@@ -1375,9 +1374,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ CLIENTES ══ -->
 <div class="panel" id="panel-clientes">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-    <div><h2 style="font-family:var(--font-display);35px;color:#818cf8;">Clientes</h2><p style="18px;color:#9ca3af;">Directorio exclusivo de clientes · solo aparecen en Ingresos y CxC</p></div>
+    <div><h2 style="font-family:var(--font);font-size:35px;color:#818cf8;">Clientes</h2><p style="font-size:18px;color:#9ca3af;">Directorio exclusivo de clientes · solo aparecen en Ingresos y CxC</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input autocomplete="off" type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
       <button class="btn btn-primary" onclick="openClienteModal()">Nuevo Cliente</button>
     </div>
   </div>
@@ -1390,9 +1389,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ SUPLIDORES ══ -->
 <div class="panel" id="panel-suplidores">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-    <div><h2 style="font-family:var(--font-display);35px;color:#4f46e5;">Suplidores</h2><p style="18px;color:#9ca3af;">Directorio exclusivo de suplidores · solo aparecen en Egresos y CxP</p></div>
+    <div><h2 style="font-family:var(--font);font-size:35px;color:#4f46e5;">Suplidores</h2><p style="font-size:18px;color:#9ca3af;">Directorio exclusivo de suplidores · solo aparecen en Egresos y CxP</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input autocomplete="off" type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
       <button class="btn" style="background:#4f46e5;color:#1a0800;font-weight:600;" onclick="openSuplidorModal()">Nuevo Suplidor</button>
     </div>
   </div>
@@ -1407,14 +1406,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="account-top">
     <div class="account-name-area"><h2 style="color:#818cf8;">Rentabilidad</h2><p>P&L · ICG Creatividad · Análisis de utilidad</p></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <div class="form-group" style="margin:0;"><label style="15px;color:#9ca3af;">Período</label>
-        <select id="rent-period" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);18px;padding:8px 12px;outline:none;">
+      <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Período</label>
+        <select id="rent-period" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;">
           <option value="mensual">Mensual</option>
           <option value="trimestral">Trimestral</option>
         </select>
       </div>
-      <div class="form-group" style="margin:0;"><label style="15px;color:#9ca3af;">Año</label>
-        <select id="rent-year" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);18px;padding:8px 12px;outline:none;"></select>
+      <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Año</label>
+        <select id="rent-year" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;"></select>
       </div>
     </div>
   </div>
@@ -1461,7 +1460,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <div class="add-form" style="margin-bottom:20px;">
     <h3>¿Cuánto planeas retirar este mes?</h3>
-    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estos montos no se registran como Egreso ni Distribución real todavía — son solo para simular el impacto antes de decidir.</p>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 16px;">Estos montos no se registran como Egreso ni Distribución real todavía — son solo para simular el impacto antes de decidir.</p>
     <div class="form-grid">
       <div class="form-group"><label>Salario Planeado (RD$)</label><input autocomplete="off" type="number" id="flujo-salario" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
       <div class="form-group"><label>Distribución Planeada (RD$)</label><input autocomplete="off" type="number" id="flujo-distribucion" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
@@ -1500,7 +1499,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <div class="add-form">
     <h3>Activos Fijos — Maquinaria y Equipo (1040)</h3>
-    <p style="14px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas forman parte de tu Capital de Apertura (3010), junto con el Saldo Inicial que le pusiste a tus cuentas bancarias — ambos representan valor que ya existía antes de este sistema.</p>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas forman parte de tu Capital de Apertura (3010), junto con el Saldo Inicial que le pusiste a tus cuentas bancarias — ambos representan valor que ya existía antes de este sistema.</p>
     <div class="form-grid">
       <div class="form-group"><label>Nombre del Activo</label><input autocomplete="off" type="text" id="bg-af-nombre" placeholder="Ej: Cortadora Láser..."></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="bg-af-monto" min="0" step="0.01" placeholder="0.00"></div>
@@ -1522,7 +1521,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap;gap:14px;">
     <div>
       <h2 style="font-size:26px;font-weight:500;color:#e8eeff;letter-spacing:.04em;text-transform:uppercase;">Reportes</h2>
-      <p style="font-size:11px;color:#6b7a99;letter-spacing:.12em;margin-top:6px;text-transform:uppercase;">Genera, filtra e imprime reportes de todas las áreas</p>
+      <p style="font-size:15px;color:#6b7a99;letter-spacing:.12em;margin-top:6px;text-transform:uppercase;">Genera, filtra e imprime reportes de todas las áreas</p>
     </div>
   </div>
 
@@ -1541,10 +1540,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
         <!-- Date range -->
         <div>
-          <div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Período</div>
+          <div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Período</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <input autocomplete="off" type="date" id="rep-desde" style="min-width:160px;" onclick="cdpOpen(this,event)">
-            <span style="color:#4a5578;font-size:13px;">—</span>
+            <span style="color:#4a5578;font-size:15px;">—</span>
             <input autocomplete="off" type="date" id="rep-hasta" style="min-width:160px;" onclick="cdpOpen(this,event)">
           </div>
         </div>
@@ -1554,9 +1553,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-indigo" onclick="generateReport()" style="font-size:11px;padding:11px 22px;">Generar Reporte</button>
-        <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:11px;padding:11px 18px;" onclick="printReport()">Imprimir</button>
-        <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:11px;padding:11px 18px;" onclick="exportReportCSV()">Exportar CSV</button>
+        <button class="btn btn-indigo" onclick="generateReport()" style="font-size:15px;padding:11px 22px;">Generar Reporte</button>
+        <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:15px;padding:11px 18px;" onclick="printReport()">Imprimir</button>
+        <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:15px;padding:11px 18px;" onclick="exportReportCSV()">Exportar CSV</button>
       </div>
     </div>
   </div>
@@ -1602,7 +1601,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div id="planCuentasView">
     <div class="add-form" style="margin-bottom:20px;">
       <h3>Estructura del Plan de Cuentas</h3>
-      <p style="14px;color:#9ca3af;margin:6px 0 0;">La cuenta 2030 (Tarjeta de Crédito por Pagar) es una extensión necesaria para poder registrar en partida doble los cargos de Tarjeta — no estaba en la lista original, se agregó para que los libros cuadren.</p>
+      <p style="font-size:15px;color:#9ca3af;margin:6px 0 0;">La cuenta 2030 (Tarjeta de Crédito por Pagar) es una extensión necesaria para poder registrar en partida doble los cargos de Tarjeta — no estaba en la lista original, se agregó para que los libros cuadren.</p>
       <div id="planCuentasTree" style="margin-top:10px;"></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
@@ -1670,7 +1669,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div class="add-form">
       <h3>Registrar Distribución de Utilidades</h3>
-      <p style="14px;color:#9ca3af;margin-bottom:14px;">Retiro de capital ya generado — no se registra como gasto ni afecta el Estado de Resultados.</p>
+      <p style="font-size:15px;color:#9ca3af;margin-bottom:14px;">Retiro de capital ya generado — no se registra como gasto ni afecta el Estado de Resultados.</p>
       <div class="form-grid">
         <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="dist-fecha" onclick="cdpOpen(this,event)"></div>
         <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="dist-monto" min="0" step="0.01" placeholder="0.00"></div>
@@ -1695,7 +1694,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div id="seguridadView" style="display:none;">
     <div class="add-form" style="margin-bottom:20px;">
       <h3>PIN de Cuentas / Consolidado / Reportes / Estado de Resultados</h3>
-      <p style="14px;color:#9ca3af;margin:8px 0 20px;line-height:1.5;">Estas cuatro pestañas viven en el bloque "🔒 Finanzas" y piden un PIN una vez por sesión. Usa "Bloquear Ahora" justo antes de mostrarle el sistema a alguien — vuelve a exigir el PIN de inmediato, sin cerrar tu sesión completa.</p>
+      <p style="font-size:15px;color:#9ca3af;margin:8px 0 20px;line-height:1.5;">Estas cuatro pestañas viven en el bloque "🔒 Finanzas" y piden un PIN una vez por sesión. Usa "Bloquear Ahora" justo antes de mostrarle el sistema a alguien — vuelve a exigir el PIN de inmediato, sin cerrar tu sesión completa.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button class="btn" style="background:rgba(250,255,0,.1);color:#faff00;border:1px solid rgba(250,255,0,.3);" onclick="lockProtectedTabsNow()">🔒 Bloquear Ahora</button>
         <button class="btn" style="background:rgba(129,140,248,.12);color:#818cf8;border:1px solid rgba(129,140,248,.3);" onclick="openPinGate('change')">🔒 Cambiar PIN</button>
@@ -1728,19 +1727,19 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
     <!-- Monto factura -->
     <div style="background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.25);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;">Monto de la Factura:</span>
+      <span style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;">Monto de la Factura:</span>
       <span id="pay-invoice-amount" style="font-family:var(--mono);font-size:22px;font-weight:600;color:#818cf8;"></span>
     </div>
-    <div id="pay-abonos-info" style="display:none;background:rgba(129,140,248,.04);border:1px solid rgba(129,140,248,.15);border-radius:8px;padding:10px 16px;margin-bottom:10px;font-size:13px;color:#9ca3af;display:flex;justify-content:space-between;">
+    <div id="pay-abonos-info" style="display:none;background:rgba(129,140,248,.04);border:1px solid rgba(129,140,248,.15);border-radius:8px;padding:10px 16px;margin-bottom:10px;font-size:15px;color:#9ca3af;display:flex;justify-content:space-between;">
       <span>Ya abonado: <strong id="pay-abonado-display" style="color:#818cf8;"></strong></span>
       <span>Pendiente: <strong id="pay-pendiente-display" style="color:#ef4444;"></strong></span>
     </div>
     <div style="background:rgba(79,70,229,.06);border:2px solid rgba(79,70,229,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
-      <label style="display:block;margin-bottom:6px;font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Cobrar Ahora (antes de retención)</label>
+      <label style="display:block;margin-bottom:6px;font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Cobrar Ahora (antes de retención)</label>
       <input autocomplete="off" type="number" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
         style="width:100%;border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;height:44px;box-sizing:border-box;"
         oninput="calcPayNet()">
-      <div style="font-size:11px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
+      <div style="font-size:15px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
     </div>
 
     <!-- Método + Banco + Fecha + Referencia -->
@@ -1764,7 +1763,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" id="pay-efectivo-note" style="display:none;grid-column:span 2;">
         <label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;">
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:15px;color:#818cf8;">
           Pago en efectivo — sin crédito bancario
         </div>
       </div>
@@ -1777,7 +1776,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <!-- Retenciones — colapsable -->
     <div style="margin-bottom:14px;">
       <button type="button" onclick="togglePayRetenciones()" id="pay-ret-toggle"
-        style="width:100%;background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.2);border-radius:8px;padding:11px 16px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:var(--font);font-size:12px;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;font-weight:600;">
+        style="width:100%;background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.2);border-radius:8px;padding:11px 16px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:var(--font);font-size:15px;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;font-weight:600;">
         <span>Retenciones (opcional)</span>
         <span id="pay-ret-arrow" style="font-size:16px;transition:transform .2s;">▸</span>
       </button>
@@ -1799,11 +1798,11 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
               style="border-color:rgba(239,68,68,.4);" oninput="calcPayNet()">
           </div>
           <div>
-            <div style="font-size:12px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em;">Calculado:</div>
+            <div style="font-size:15px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em;">Calculado:</div>
             <div id="pay-ret-display" style="font-family:var(--mono);font-size:20px;color:#ef4444;font-weight:600;">RD$0.00</div>
           </div>
         </div>
-        <div style="font-size:12px;color:#6b7a99;line-height:1.6;">
+        <div style="font-size:15px;color:#6b7a99;line-height:1.6;">
           💡 ITBIS: 30% del ITBIS de este abono · ISR: 10% de este abono · O ingresa el monto manualmente.
         </div>
       </div>
@@ -1812,7 +1811,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <!-- Monto neto -->
     <div style="background:rgba(79,70,229,.07);border:2px solid rgba(79,70,229,.3);border-radius:10px;padding:14px 16px;margin-bottom:18px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <span style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Acreditar:</span>
+        <span style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Acreditar:</span>
         <span id="pay-net-display" style="font-family:var(--mono);font-size:24px;font-weight:700;color:#818cf8;"></span>
       </div>
       <div class="form-group" style="margin:0;">
@@ -1845,7 +1844,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="modal-overlay" id="clienteModal">
   <div class="modal" style="max-width:480px;border:1px solid rgba(129,140,248,.4);">
     <button class="modal-close" onclick="closeModal('clienteModal')">×</button>
-    <h2 style="color:#818cf8;26px;">Cliente</h2>
+    <h2 style="color:#818cf8;font-size:26px;">Cliente</h2>
     <div class="form-grid" style="gap:14px;">
       <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="cli-nombre" placeholder="Nombre del cliente..."></div>
       <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="cli-rnc" placeholder="000-0000000-0"></div>
@@ -1865,7 +1864,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="modal-overlay" id="suplidorModal">
   <div class="modal" style="max-width:480px;border:1px solid rgba(79,70,229,.4);">
     <button class="modal-close" onclick="closeModal('suplidorModal')">×</button>
-    <h2 style="color:#4f46e5;26px;">Suplidor</h2>
+    <h2 style="color:#4f46e5;font-size:26px;">Suplidor</h2>
     <div class="form-grid" style="gap:14px;">
       <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="sup-nombre" placeholder="Nombre del suplidor..."></div>
       <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="sup-rnc" placeholder="000-0000000-0"></div>
@@ -1894,7 +1893,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="modal" style="max-width:440px;border-color:rgba(129,140,248,.3);">
     <button class="modal-close" onclick="closeModal('ccBalanceModal')">×</button>
     <h2 style="color:#818cf8;font-size:19px;letter-spacing:.05em;text-transform:uppercase;">Actualizar Balance de Tarjeta</h2>
-    <p style="color:#8899bb;font-weight:400;font-size:13px;margin-bottom:20px;">Introduce los valores reales actuales de tu tarjeta según el estado de cuenta.</p>
+    <p style="color:#8899bb;font-weight:400;font-size:15px;margin-bottom:20px;">Introduce los valores reales actuales de tu tarjeta según el estado de cuenta.</p>
     <div class="form-grid" style="gap:14px;">
       <div class="form-group" style="grid-column:span 2;">
         <label>Límite de la Tarjeta (RD$)</label>
@@ -1904,7 +1903,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label style="color:#818cf8;">Balance Disponible Real (RD$)</label>
         <input autocomplete="off" type="number" id="ccbal-availRD" placeholder="0.00" min="0" step="0.01"
           style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);">
-        <p style="font-size:11px;color:#6b7a99;margin-top:6px;">← Este es el saldo disponible que aparece en tu estado de cuenta hoy.</p>
+        <p style="font-size:15px;color:#6b7a99;margin-top:6px;">← Este es el saldo disponible que aparece en tu estado de cuenta hoy.</p>
       </div>
       <div class="form-group">
         <label>Límite USD</label>
@@ -1917,7 +1916,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
     </div>
     <div style="background:rgba(129,140,248,.06);border:1px solid rgba(129,140,248,.2);border-radius:6px;padding:12px 16px;margin:16px 0;">
-      <div style="font-size:11px;color:#8899bb;margin-bottom:4px;text-transform:uppercase;letter-spacing:.1em;">Adeudado calculado:</div>
+      <div style="font-size:15px;color:#8899bb;margin-bottom:4px;text-transform:uppercase;letter-spacing:.1em;">Adeudado calculado:</div>
       <div id="ccbal-preview" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#ef4444;">RD$0.00</div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px;">
@@ -1937,21 +1936,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div id="corteAccountList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;"></div>
 
     <div style="background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:14px 18px;margin-bottom:18px;">
-      <label style="font-size:10px;color:var(--text3);letter-spacing:.12em;font-weight:700;text-transform:uppercase;display:block;margin-bottom:10px;">Opciones</label>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#b0bbcf;font-weight:400;">
+      <label style="font-size:15px;color:var(--text3);letter-spacing:.12em;font-weight:700;text-transform:uppercase;display:block;margin-bottom:10px;">Opciones</label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15px;color:#b0bbcf;font-weight:400;">
         <input autocomplete="off" type="checkbox" id="corte-clear" style="width:16px;height:16px;accent-color:var(--cyan);">
         Limpiar historial de transacciones anteriores (partir desde cero)
       </label>
-      <p style="font-size:11px;color:#8899bb;font-weight:400;margin-top:8px;padding-left:26px;">Si no marcas esta opción, el Balance Inicial se actualiza pero las transacciones se conservan.</p>
+      <p style="font-size:15px;color:#8899bb;font-weight:400;margin-top:8px;padding-left:26px;">Si no marcas esta opción, el Balance Inicial se actualiza pero las transacciones se conservan.</p>
     </div>
 
     <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:12px 16px;margin-bottom:18px;">
-      <p style="font-size:12px;color:#ef4444;font-weight:400;">Esta acción no se puede deshacer. Se recomienda exportar el JSON antes de aplicar el corte.</p>
+      <p style="font-size:15px;color:#ef4444;font-weight:400;">Esta acción no se puede deshacer. Se recomienda exportar el JSON antes de aplicar el corte.</p>
     </div>
 
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeModal('corteModal')">Cancelar</button>
-      <button class="btn btn-indigo" onclick="exportData()" style="font-size:10px;">Exportar Primero</button>
+      <button class="btn btn-indigo" onclick="exportData()" style="font-size:15px;">Exportar Primero</button>
       <button class="btn btn-cyan" onclick="applyCorte()">Aplicar Corte</button>
     </div>
   </div>
@@ -1962,7 +1961,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="modal" style="max-width:420px;border-color:rgba(129,140,248,.3);">
     <button class="modal-close" onclick="closeModal('quickClienteModal')">×</button>
     <h2 style="color:#818cf8;font-size:17px;letter-spacing:.05em;text-transform:uppercase;">Nuevo Cliente</h2>
-    <p style="color:#8899bb;font-weight:400;font-size:12px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
+    <p style="color:#8899bb;font-weight:400;font-size:15px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
     <div class="form-grid" style="gap:12px;">
       <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="qc-nombre" placeholder="Nombre del cliente..."></div>
       <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="qc-rnc" placeholder="000-0000000-0"></div>
@@ -1981,7 +1980,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="modal" style="max-width:420px;border-color:rgba(129,140,248,.3);">
     <button class="modal-close" onclick="closeModal('quickBeneficiarioModal')">×</button>
     <h2 style="color:#818cf8;font-size:17px;letter-spacing:.05em;text-transform:uppercase;">Nuevo Beneficiario</h2>
-    <p style="color:#8899bb;font-weight:400;font-size:12px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
+    <p style="color:#8899bb;font-weight:400;font-size:15px;margin-bottom:18px;">Se agregará al directorio y quedará seleccionado en el formulario.</p>
     <div class="form-grid" style="gap:12px;">
       <div class="form-group" style="grid-column:span 2;"><label>Nombre / Razón Social *</label><input autocomplete="off" type="text" id="qb-nombre" placeholder="Nombre del beneficiario..."></div>
       <div class="form-group"><label>RNC / Cédula</label><input autocomplete="off" type="text" id="qb-rnc" placeholder="000-0000000-0"></div>
@@ -2006,10 +2005,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div id="confirm-icon" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,.12);color:#ef4444;">!</div>
       <h2 id="confirm-title" style="font-size:17px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">Confirmar</h2>
     </div>
-    <p id="confirm-msg" style="font-size:14px;color:#8899bb;line-height:1.7;margin-bottom:22px;text-transform:none;letter-spacing:normal;font-weight:400;"></p>
+    <p id="confirm-msg" style="font-size:15px;color:#8899bb;line-height:1.7;margin-bottom:22px;text-transform:none;letter-spacing:normal;font-weight:400;"></p>
     <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:12px;">Cancelar</button>
-      <button class="btn" id="confirm-ok" style="font-size:12px;background:#ef4444;border-color:#ef4444;color:#fff;">Aceptar</button>
+      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:15px;">Cancelar</button>
+      <button class="btn" id="confirm-ok" style="font-size:15px;background:#ef4444;border-color:#ef4444;color:#fff;">Aceptar</button>
     </div>
   </div>
 </div>
@@ -2023,18 +2022,18 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
 
     <div id="comp-step-upload">
-      <p style="font-size:13px;color:#8899bb;line-height:1.6;margin-bottom:16px;">Sube una foto, captura de pantalla o PDF del comprobante bancario. El sistema intenta leer el monto, la fecha y la referencia automáticamente — tú confirmas todo antes de guardar.</p>
-      <input autocomplete="off" type="file" id="comp-file-input" accept="image/*,application/pdf" onchange="handleComprobanteFile(this)" style="width:100%;padding:10px;border:2px dashed rgba(129,140,248,.3);border-radius:8px;background:rgba(129,140,248,.04);color:#8899bb;font-size:13px;">
+      <p style="font-size:15px;color:#8899bb;line-height:1.6;margin-bottom:16px;">Sube una foto, captura de pantalla o PDF del comprobante bancario. El sistema intenta leer el monto, la fecha y la referencia automáticamente — tú confirmas todo antes de guardar.</p>
+      <input autocomplete="off" type="file" id="comp-file-input" accept="image/*,application/pdf" onchange="handleComprobanteFile(this)" style="width:100%;padding:10px;border:2px dashed rgba(129,140,248,.3);border-radius:8px;background:rgba(129,140,248,.04);color:#8899bb;font-size:15px;">
     </div>
 
     <div id="comp-step-processing" style="display:none;text-align:center;padding:36px 0;">
       <div style="width:36px;height:36px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;margin:0 auto;animation:compSpin 0.8s linear infinite;"></div>
-      <p id="comp-processing-msg" style="margin-top:16px;font-size:13px;color:#8899bb;">Leyendo comprobante...</p>
+      <p id="comp-processing-msg" style="margin-top:16px;font-size:15px;color:#8899bb;">Leyendo comprobante...</p>
     </div>
     <style>@keyframes compSpin{to{transform:rotate(360deg);}}</style>
 
     <div id="comp-step-classify" style="display:none;">
-      <p style="font-size:13px;color:#8899bb;margin-bottom:16px;">¿Qué tipo de transacción es esta?</p>
+      <p style="font-size:15px;color:#8899bb;margin-bottom:16px;">¿Qué tipo de transacción es esta?</p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-secondary" style="text-align:left;padding:14px 16px;" onclick="seleccionarTipoComprobante('suplidor')">💸 &nbsp;Pago a Suplidor</button>
         <button class="btn btn-secondary" style="text-align:left;padding:14px 16px;" onclick="seleccionarTipoComprobante('cliente')">💰 &nbsp;Cobro de Cliente</button>
@@ -2121,10 +2120,7 @@ function defaultState() {
 // S starts with local cache (instant load), then Firebase overrides
 let S = JSON.parse(localStorage.getItem(STORE_KEY)||'null') || defaultState();
 S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
-// Ensure "Caja General" exists as the first account
-if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
-  S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
-}
+ensureCajaGeneral();
 if(!S.creditCard) S.creditCard=defaultState().creditCard;
 if(!S.cuentasCobrar) S.cuentasCobrar=[];
 if(!S.cuentasPagar) S.cuentasPagar={proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
@@ -2495,12 +2491,12 @@ function accountHTML(i){
     </div>
   </div>
   <div class="init-bar">
-    <span style="18px;color:#818cf8;font-weight:600;">Balance Inicial</span>
+    <span style="font-size:18px;color:#818cf8;font-weight:600;">Balance Inicial</span>
     <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:200px;">
       <input autocomplete="off" type="number" id="initBal-${i}" value="${acc.initialBalance}" min="0" step="0.01" placeholder="0.00">
       <button class="btn" style="background:#4f46e5;color:#fff;font-weight:600;padding:7px 14px;" onclick="saveIB(${i})">Guardar</button>
     </div>
-    <span style="18px;color:#9ca3af;">Punto de partida para el cálculo del balance.</span>
+    <span style="font-size:18px;color:#9ca3af;">Punto de partida para el cálculo del balance.</span>
   </div>
   <div class="add-form">
     <h3>Registrar Movimiento</h3>
@@ -2521,7 +2517,7 @@ function accountHTML(i){
         <select id="f-related-${i}">
           <option value="">— Transferencia externa (sin cuenta relacionada) —</option>
         </select>
-        <p style="font-size:12px;color:#6b7a99;margin-top:6px;">Si seleccionas una cuenta, el sistema registrará automáticamente el movimiento correspondiente en esa cuenta también.</p>
+        <p style="font-size:15px;color:#6b7a99;margin-top:6px;">Si seleccionas una cuenta, el sistema registrará automáticamente el movimiento correspondiente en esa cuenta también.</p>
       </div>
     </div>
     <div class="form-actions">
@@ -2819,8 +2815,8 @@ function renderCCTx(){
     const lowBalance = runRD < startRD * 0.2;
     const catLabel = EGR_CAT_LABELS[t.cat]||t.cat||'—';
     const catBadge = t.cat
-      ? `<span class="badge" style="background:rgba(129,140,248,.1);color:#818cf8;font-size:11px;">${catLabel}</span>`
-      : '<span style="color:#4a5578;font-size:12px;">—</span>';
+      ? `<span class="badge" style="background:rgba(129,140,248,.1);color:#818cf8;font-size:15px;">${catLabel}</span>`
+      : '<span style="color:#4a5578;font-size:15px;">—</span>';
     return `<tr>
       <td class="td-mono">${fmtDate(t.date)}</td>
       <td>${esc(t.desc)}</td>
@@ -3324,12 +3320,12 @@ function renderCXC(){
       const bankName=x.payBankIdx!=null?S.accounts[x.payBankIdx]?.name:'';
       const mBadge=x.payMethod==='cheque'?`<span class="badge badge-check">📄 Ck</span>`:x.payMethod==='efectivo'?`<span class="badge badge-cash">💵 Ef.</span>`:`<span class="badge badge-transfer">⇄ Tr.</span>`;
       const retInfo=x.retType&&x.retType!=='ninguna'
-        ?`<span style="color:#ef4444;16px;"> · Ret. ${x.retType.toUpperCase()}: -${fmt(x.retAmount||0)}</span>`:'';
+        ?`<span style="color:#ef4444;font-size:16px;"> · Ret. ${x.retType.toUpperCase()}: -${fmt(x.retAmount||0)}</span>`:'';
       const paidInfo=x.amountPaid&&x.amountPaid!==x.amount
-        ?`<span style="color:#818cf8;16px;"> · Acreditado: ${fmt(x.amountPaid)}</span>`:'';
+        ?`<span style="color:#818cf8;font-size:16px;"> · Acreditado: ${fmt(x.amountPaid)}</span>`:'';
       estadoCell=`<div>
-        <span class="badge badge-paid" style="16px;padding:4px 10px;">PAGADA</span>
-        <div style="16px;color:#9ca3af;margin-top:4px;">${fmtDate(x.paidDate)} · ${mBadge} · ${bankName}${retInfo}${paidInfo}</div>
+        <span class="badge badge-paid" style="font-size:16px;padding:4px 10px;">PAGADA</span>
+        <div style="font-size:16px;color:#9ca3af;margin-top:4px;">${fmtDate(x.paidDate)} · ${mBadge} · ${bankName}${retInfo}${paidInfo}</div>
       </div>`;
     } else {
       const abonado=cxcPaidSoFar(x), pendiente=cxcPending(x);
@@ -3338,22 +3334,22 @@ function renderCXC(){
           background:${isOverdue?'rgba(239,68,68,.12)':isParcial?'rgba(79,70,229,.12)':'rgba(129,140,248,.1)'};
           border:1px solid ${isOverdue?'#ef4444':isParcial?'#4f46e5':'#818cf8'};
           color:${isOverdue?'#ef4444':'#818cf8'};
-          border-radius:6px;padding:5px 14px;16px;font-weight:700;
-          cursor:pointer;font-family:var(--font-body);transition:all .2s;
+          border-radius:6px;padding:5px 14px;font-size:16px;font-weight:700;
+          cursor:pointer;font-family:var(--font);transition:all .2s;
           display:flex;align-items:center;gap:6px;"
           title="Registrar pago de esta factura">
           ${isOverdue?'⚠':isParcial?'◐':'⏳'} ${isOverdue?'VENCIDA · COBRAR':isParcial?'PARCIAL · ABONAR':'POR COBRAR'}
         </button>
-        ${isParcial?`<div style="font-size:12px;color:#8899bb;margin-top:3px;">Abonado: <span style="color:#818cf8">${fmt(abonado)}</span> · Pendiente: <strong style="color:#ef4444">${fmt(pendiente)}</strong></div>`:''}
+        ${isParcial?`<div style="font-size:15px;color:#8899bb;margin-top:3px;">Abonado: <span style="color:#818cf8">${fmt(abonado)}</span> · Pendiente: <strong style="color:#ef4444">${fmt(pendiente)}</strong></div>`:''}
       </div>`;
     }
     return `<tr>
       <td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.invoice)}</td>
       <td><strong>${esc(x.client)}</strong></td>
-      <td style="color:#9ca3af;16px;max-width:180px;">${esc(x.desc)||'—'}</td>
-      <td class="td-mono">${fmtDate(x.issued)}<br><span style="18px;color:#9ca3af;">${x.creditDays||30} días</span></td>
+      <td style="color:#9ca3af;font-size:16px;max-width:180px;">${esc(x.desc)||'—'}</td>
+      <td class="td-mono">${fmtDate(x.issued)}<br><span style="font-size:18px;color:#9ca3af;">${x.creditDays||30} días</span></td>
       <td class="td-mono" style="color:${isOverdue?'#ef4444':isPaid?'#818cf8':'#818cf8'}">${fmtDate(x.due)}</td>
-      <td class="td-mono" style="color:#818cf8;font-weight:700;19px;">${fmt(x.amount)}</td>
+      <td class="td-mono" style="color:#818cf8;font-weight:700;font-size:19px;">${fmt(x.amount)}</td>
       <td>${estadoCell}</td>
       <td style="display:flex;gap:4px;align-items:center;">
         ${!isPaid?`<button class="del-btn" onclick="editCXC(${x.id})" title="Editar" style="color:#818cf8;">✎</button>`:''}
@@ -3593,7 +3589,7 @@ function renderCXP(){
             <td class="td-mono" style="color:#818cf8;">${fmt(x.monto)}</td>
             <td class="td-mono">${fmtDate(x.paidDate)}</td>
             <td>${methodBadge(x.payMethod)}</td>
-            <td style="color:#8899bb;font-size:13px;">${acct}</td>
+            <td style="color:#8899bb;font-size:15px;">${acct}</td>
             <td><button class="del-btn" title="Reabrir como pendiente" onclick="reopenCXP('${getCxPSection(x.id)}',${x.id})">↩</button></td>
           </tr>`;
         }).join('')
@@ -3630,15 +3626,15 @@ function renderCXP(){
         background:${isV?'rgba(239,68,68,.12)':isP?'rgba(79,70,229,.12)':'rgba(129,140,248,.1)'};
         border:1px solid ${isV?'#ef4444':isP?'#4f46e5':'#818cf8'};
         color:${isV?'#ef4444':isP?'#818cf8':'#818cf8'};
-        border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;
+        border-radius:6px;padding:5px 14px;font-size:15px;font-weight:600;
         cursor:pointer;font-family:var(--font);">
         ${isV?'! VENCIDA':isP?'PARCIAL':'PENDIENTE'} · ${isP?'ABONAR':'PAGAR'}
       </button>
-      ${isP?`<div style="font-size:12px;color:#8899bb;margin-top:3px;">Abonado: <span style="color:#818cf8">${fmt(paid)}</span> · Pendiente: <strong style="color:#818cf8">${fmt(pend)}</strong></div>`:''}
+      ${isP?`<div style="font-size:15px;color:#8899bb;margin-top:3px;">Abonado: <span style="color:#818cf8">${fmt(paid)}</span> · Pendiente: <strong style="color:#818cf8">${fmt(pend)}</strong></div>`:''}
     </div>`;
   };
 
-  const acctName = x => `<span style="color:#8899bb;font-size:12px;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
+  const acctName = x => `<span style="color:#8899bb;font-size:15px;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
   const catLabel = x => {
     if(!x.categoriaEgreso) return '<span style="color:#6b7a99;">—</span>';
     const key = CXP_CAT_LABEL_TO_KEY[x.categoriaEgreso] || 'otros';
@@ -3782,8 +3778,8 @@ function renderFlujoCaja(){
     <div style="border:2px solid ${color};border-radius:12px;padding:24px;text-align:center;">
       <div style="font-size:36px;">${icono}</div>
       <div style="font-size:26px;font-weight:700;color:${color};margin:10px 0 4px;">${fmt(proyectado)}</div>
-      <div style="font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Saldo Proyectado a 30 días (después de salario + distribución planeados)</div>
-      <div style="font-size:14px;color:${color};margin-top:14px;font-weight:600;max-width:520px;margin-left:auto;margin-right:auto;">${veredicto}</div>
+      <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Saldo Proyectado a 30 días (después de salario + distribución planeados)</div>
+      <div style="font-size:15px;color:${color};margin-top:14px;font-weight:600;max-width:520px;margin-left:auto;margin-right:auto;">${veredicto}</div>
     </div>`;
 
   document.getElementById('flujo-cxc-tbody').innerHTML = cxcEsperado.length ? cxcEsperado.map(x=>
@@ -3871,7 +3867,7 @@ function renderBalanceGeneral(){
     <div class="add-form" style="margin-bottom:0;">
       <h3 style="color:#818cf8;">CAPITAL</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3010 Capital del Titular</span><span class="td-mono">${fmt(capitalTitular)}</span></div>
-      <div style="padding:0 0 8px 12px;font-size:11px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)} − Préstamos de Apertura: ${fmt(prestamosAperturaBHD)}</div>
+      <div style="padding:0 0 8px 12px;font-size:15px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)} − Préstamos de Apertura: ${fmt(prestamosAperturaBHD)}</div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3020 Utilidades Retenidas</span><span class="td-mono">${fmt(utilidadesRetenidas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3030 Distribuciones (−)</span><span class="td-mono negative">−${fmt(distribucionesHistoricas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
@@ -3920,16 +3916,16 @@ function setCXPPayType(type){
   const amountInput = document.getElementById('cxp-pay-amount');
 
   if(type === 'full'){
-    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.2);color:#4f46e5;';
-    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
+    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.2);color:#4f46e5;';
+    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
     // Set amount to pending balance
     const item = S.cuentasPagar[_cxpPaySection].find(x=>x.id===_cxpPayId);
     if(item) amountInput.value = cxpPending(item).toFixed(2);
     amountInput.readOnly = true;
     amountInput.style.opacity = '0.7';
   } else {
-    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
-    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.15);color:#818cf8;';
+    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
+    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.15);color:#818cf8;';
     amountInput.readOnly = false;
     amountInput.style.opacity = '1';
     amountInput.value = '';
@@ -4038,7 +4034,7 @@ function renderConsolidated(){
     <!-- Row 2: Balance Cuentas - centered and prominent -->
     <div style="display:flex;justify-content:center;">
       <div class="bcard" style="min-width:280px;text-align:center;border-color:rgba(129,140,248,.45);background:rgba(129,140,248,.07);padding:20px 32px;">
-        <div class="bcard-label" style="font-size:13px;letter-spacing:.15em;color:#a0b0d0;">BALANCE CUENTAS</div>
+        <div class="bcard-label" style="font-size:15px;letter-spacing:.15em;color:#a0b0d0;">BALANCE CUENTAS</div>
         <div class="bcard-value ${gBal>=0?'positive':'negative'}" style="font-size:32px;margin-top:6px;">${fmt(gBal)}</div>
       </div>
     </div>
@@ -4060,8 +4056,8 @@ function renderConsolidated(){
     const trE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
     const cE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='efectivo').reduce((s,t)=>s+t.amount,0);
     return `<div class="consolidated-card" onclick="activateTab(${i})">
-      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;"></span>${esc(acc.name)}<span style="margin-left:auto;18px;color:#9ca3af;">${acc.transactions.length} movs.</span></h3>
-      <div class="cc-row-c"><span style="color:#818cf8;">Balance Inicial</span><span style="color:#818cf8;font-family:var(--font-mono)">${fmt(init)}</span></div>
+      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;"></span>${esc(acc.name)}<span style="margin-left:auto;font-size:18px;color:#9ca3af;">${acc.transactions.length} movs.</span></h3>
+      <div class="cc-row-c"><span style="color:#818cf8;">Balance Inicial</span><span style="color:#818cf8;font-family:var(--mono)">${fmt(init)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Transf.</span><span style="color:#818cf8">${fmt(trI)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Efectivo</span><span style="color:#818cf8">${fmt(cI)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↓ Transf.</span><span style="color:#ef4444">${fmt(trE)}</span></div>
@@ -4211,10 +4207,7 @@ function handleImportFile(event){
       if(!S.ingresos)   S.ingresos=[];
       if(!S.egresos)    S.egresos=[];
       S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
-// Ensure "Caja General" exists as the first account
-if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
-  S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
-}
+      ensureCajaGeneral();
       save(); renderTabs(); renderAccountPanels(); renderCCPanel(); refreshCXCBankSelect(); renderCXC(); activateTab(0);
       notify('success','Importación Exitosa','Todos tus datos han sido cargados.');
       event.target.value='';
@@ -4309,14 +4302,14 @@ function renderClientes(){
   const ingTotal=id=>S.ingresos.filter(x=>x.clienteId===id).reduce((s,x)=>s+x.monto,0);
   const cxcTotal=n=>S.cuentasCobrar.filter(x=>(x.client||x.clienteNombre||'').toLowerCase()===n.toLowerCase()).reduce((s,x)=>s+x.amount,0);
   tbody.innerHTML=all.length?all.map(c=>`<tr>
-    <td><strong>${esc(c.nombre)}</strong>${c._cxcOnly?'<span style="font-size:10px;color:#6b7a99;margin-left:8px;letter-spacing:.08em;text-transform:uppercase;">De CxC</span>':''}</td>
+    <td><strong>${esc(c.nombre)}</strong>${c._cxcOnly?'<span style="font-size:15px;color:#6b7a99;margin-left:8px;letter-spacing:.08em;text-transform:uppercase;">De CxC</span>':''}</td>
     <td class="td-mono">${esc(c.rnc)||'—'}</td>
     <td>${esc(c.email)||'—'}</td>
     <td>${esc(c.tel)||'—'}</td>
     <td class="td-mono" style="color:#818cf8;">${c._cxcOnly?fmt(cxcTotal(c.nombre)):fmt(ingTotal(c.id))}</td>
     <td style="display:flex;gap:4px;">
       ${c._cxcOnly
-        ?`<button class="btn btn-ghost btn-sm" onclick="importCxCClient('${c.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="font-size:10px;padding:5px 10px;border-color:rgba(129,140,248,.3);color:#818cf8;">Importar al directorio</button>`
+        ?`<button class="btn btn-ghost btn-sm" onclick="importCxCClient('${c.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')" style="font-size:15px;padding:5px 10px;border-color:rgba(129,140,248,.3);color:#818cf8;">Importar al directorio</button>`
         :`<button class="del-btn" onclick="openClienteModal(${c.id})">✎</button><button class="del-btn" onclick="deleteCliente(${c.id})">×</button>`}
     </td>
   </tr>`).join(''):`<tr><td colspan="6"><div class="empty-state">Sin clientes registrados.</div></td></tr>`;
@@ -4468,7 +4461,7 @@ function addCustomCategory(type){
 function refreshIngresoSelects(){
   const sel=document.getElementById('ing-cliente');if(!sel)return;
   sel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+[...S.clientes].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
-  const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
+  const cs=document.getElementById('ing-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
   // Rebuild ingreso category dropdown with custom categories
   const ingCatSel=document.getElementById('ing-categoria');
   if(ingCatSel){
@@ -4480,7 +4473,7 @@ function refreshIngresoSelects(){
   const recSel=document.getElementById('rec-cliente');
   if(recSel) recSel.innerHTML=`<option value="">— Seleccionar cliente —</option>`+[...S.clientes].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('');
   const recCs=document.getElementById('rec-cuenta');
-  if(recCs) recCs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
+  if(recCs) recCs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
   const recCatSel=document.getElementById('rec-categoria');
   if(recCatSel){
     const curVal=recCatSel.value;
@@ -4599,7 +4592,7 @@ function renderRecibos(){
   document.getElementById('rec-tbody').innerHTML=items.length?items.map(x=>{
     const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria;
     const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
-    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
+    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
 const ICG_LOGO_DATAURI='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDEyNS4wOSAxNzkuNjYiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICM0MTE0NWY7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZkYzMwMDsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjMzZhOWUxOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMTIpOwogICAgICB9CiAgICA8L3N0eWxlPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJEZWdyYWRhZG9fc2luX25vbWJyZV8xMiIgZGF0YS1uYW1lPSJEZWdyYWRhZG8gc2luIG5vbWJyZSAxMiIgeDE9IjY4LjM0IiB5MT0iMTQwLjA0IiB4Mj0iNjcuNTIiIHkyPSIxOTguNDciIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIuMjgiIHN0b3AtY29sb3I9IiNlNjJjNjUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDkiIHN0b3AtY29sb3I9IiNjMzE5NDkiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNjgiIHN0b3AtY29sb3I9IiNlMzA3MzIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy45Niw4Mi4xMWMtMi43Ny00LjExLTcuMi02LjY2LTEyLjE0LTYuOTktNC45Ni0uMzMtOS42OSwxLjYxLTEyLjk4LDUuMzMtMi44MSwzLjE2LTYuODksNC45OC0xMS4xOSw0Ljk4LTguMTMsMC0xNC43NC02LjQtMTQuNzQtMTQuMjZzNi42MS0xNC4yNywxNC43NC0xNC4yN2MzLjE3LDAsNi4xNy45NSw4LjcxLDIuNzZsMS40NSwxLjIuMjUuMjdjMy4yLDMuMzUsNy42OSw1LjE1LDEyLjMyLDQuOTYsNC42My0uMiw4Ljk1LTIuMzgsMTEuODUtNS45OGw4LjEzLTEwLjA5YzEuMDEtMS4yNSwxLjgtMi42LDIuMzgtNC4wMSwxLjI2LS44NiwyLjM5LTEuOTEsMy4zNi0zLjEybDEuNDktMS44NWM1LjE1LTYuMzksNC41My0xNS44My0xLjQyLTIxLjQ4LS4yNy0uMjUtLjU0LS41MS0uODEtLjc1bC0yLjE1LTEuODktLjU1LS40OGMtLjE0LS4xMi0uMzEtLjI2LS41LS40MUM5OS4zNSwyLjI4LDc3LjMzLTIuOTcsNTUuNzEsMS42MiwzMS4zNyw2Ljc5LDcuOCwyOS43MywyLjA0LDUzLjg1Yy01LjIsMjEuNzgtLjM4LDQ0LjE2LDEzLjIzLDYxLjM5LDYuMTUsNy44LDEzLjcsMTQuMDgsMjIuMTUsMTguNjMtMi4yMSwyLjQ1LTMuNDMsNS41Ny0zLjQzLDguODcsMCwyLjE4LjU0LDQuMjQsMS40Nyw2LjA1LS45NCwxLjgyLTEuNDcsMy44Ny0xLjQ3LDYuMDUsMCw2LjU0LDQuNzYsMTEuOTgsMTEsMTMuMDYuNzYsNi42LDYuMzgsMTEuNzQsMTMuMTgsMTEuNzRoMTguODdjMy41NCwwLDYuODctMS4zOCw5LjM4LTMuODkuOTItLjkxLDEuNjktMS45NSwyLjMxLTMuMDlsLjA1LS4wOWMuNzctMS40NiwxLjI1LTMuMDUsMS40NS00LjY3LDYuMjQtMS4wOCwxMS02LjUyLDExLTEzLjA2LDAtMi4xOC0uNTQtNC4yMy0xLjQ3LTYuMDUuOTYtMS44NywxLjQ3LTMuOTQsMS40Ny02LjA2LDAtMi4yOS0uNTgtNC40NC0xLjYxLTYuMzIsNy4xLTMuMSwxMy43MS03LjM2LDE5LjU0LTEyLjY5LDUuOTQtNS40Miw3LjAzLTE0LjU0LDIuNTMtMjEuMjJsLTEzLjczLTIwLjRaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTA0LjcsMTAyLjAzbC0zLjEtNC42aDBzLTUuMTgtNy43LTUuMTgtNy43Yy0uNjQtLjk1LTIuMDEtMS4wNC0yLjc3LS4xNy01LjI1LDUuOTItMTIuOTgsOS42Ni0yMS41OSw5LjY2LTE1LjgyLDAtMjguNjUtMTIuNjItMjguNjUtMjguMTdzMTIuODMtMjguMTgsMjguNjUtMjguMThjNi40OCwwLDEyLjQ2LDIuMTIsMTcuMjYsNS43bDIuMywxLjkxcy4xMi4xMi4xNy4xNmwuNzMuNzdjLjguODQsMi4xNy43OCwyLjktLjEybDEuOTctMi40NCwzLjc3LTQuNjhzMCwwLDAsMGwyLjMzLTIuODljLjYzLS43OC41Ni0xLjktLjE2LTIuNi0xLjE4LTEuMTYtMi40My0yLjI1LTMuNzMtMy4yOGgwczAsMCwwLDBjLTguMTItNi4zOS0xOC40Ny0xMC4wNi0yOS42OC05LjY2LTI0LjE2Ljg3LTQzLjU5LDIwLjk4LTQzLjY5LDQ1LjE1LS4wOSwyNS4xMiwyMC4yNSw0NS41Miw0NS4zNiw0NS41Miw4LjQ2LDAsMTYuMzctMi4zMiwyMy4xNC02LjM1LjUzLS4zMi43LTEuMDIuMzgtMS41NWwtMS42My0yLjY3Yy0uMzItLjUyLTEtLjY5LTEuNTMtLjM4LTYuNTksMy45MS0xNC40LDUuOTktMjIuNzIsNS41MS0yMC40My0xLjE4LTM2Ljg1LTE3Ljk3LTM3LjYtMzguNDItLjgzLTIyLjc2LDE3LjM4LTQxLjQ3LDM5Ljk2LTQxLjQ3LDksMCwxNy4yOSwyLjk4LDIzLjk2LDcuOTkuMzkuMjkuNDYuODUuMTYsMS4yNGwtMi42LDMuMjhjLS4yOS4zNy0uODIuNDQtMS4yLjE2LTcuOC01LjgyLTE4LjE4LTguMzktMjkuMTEtNS42NC0xMS45OCwzLjAxLTIxLjM0LDEyLjQ2LTI0LjI1LDI0LjQ2LTUuNDQsMjIuNDgsMTEuNDUsNDIuNTUsMzMuMDMsNDIuNTUsNy44NSwwLDE1LjA3LTIuNjYsMjAuODMtNy4xMy43OS0uNjIsMS45LS40NSwyLjQ3LjM5bDEuMzQsMS45Nyw1LjA1LDcuNDMuOCwxLjE3Yy42OC45OS40NSwyLjM1LS41MiwzLjA2LTguNCw2LjE2LTE4Ljc1LDkuODEtMjkuOTYsOS44MS0yNy43NywwLTUwLjMzLTIyLjI5LTUwLjc2LTQ5Ljk1LS40My0yNy43NiwyMS44OS01MC45Nyw0OS42NS01MS41NiwxMi41OC0uMjcsMjQuMTUsNC4wNCwzMy4xNCwxMS4zOCwxLjA1Ljg1LDIuMDYsMS43NSwzLjA0LDIuNjguNzMuNywxLjg5LjYzLDIuNTItLjE2bDEuNDgtMS44NGMuNTYtLjcuNS0xLjcxLS4xNS0yLjMyLS4yMS0uMTktLjQxLS4zOS0uNjItLjU4bC0uMDQtLjAzLTEuODgtMS42NS0uMTQtLjEyLS4yMS0uMTdjLS4wNi0uMDUtLjEyLS4xLS4xOC0uMTUtMTIuNjYtMTAuNC0yOS45MS0xNS40LTQ4LjI2LTExLjUxLTE4LjgyLDQtMzguMDEsMjIuNi00Mi40OCw0MS4zMi04Ljg5LDM3LjI1LDE5LjEyLDcwLjQ1LDU0Ljg5LDcwLjQ1LDE0LjY4LDAsMjguMDYtNS42LDM4LjExLTE0Ljc4LjgtLjczLjk0LTEuOTQuMzMtMi44NGwtNS4zMy03LjkyczAsMCwwLDBoMFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik05My44LDE0Mi4zNWMwLC44OC0uMjQsMS43LS42NSwyLjQxLS4xOC4zMy0uNDEuNjQtLjY3LjkxLS44Mi44NS0xLjk0LDEuMzctMy4xOCwxLjM3aC00Mi4zOGMtMi40NywwLTQuNS0yLjExLTQuNS00LjY4LDAtMS4yOC41MS0yLjQ1LDEuMzItMy4zLjgyLS44NSwxLjk0LTEuMzcsMy4xOC0xLjM3aDQyLjM4YzIuNDgsMCw0LjUsMi4xMSw0LjUsNC42OCIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTQ2LjkzLDE1MS4wMWMtMi40OCwwLTQuNSwyLjExLTQuNSw0LjY4czIuMDMsNC42OCw0LjUsNC42OGg0Mi4zOGMyLjQ4LDAsNC41LTIuMTEsNC41LTQuNjhzLTIuMDMtNC42OC00LjUtNC42OGgtNDIuMzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNODIuMjcsMTY4LjI4YzAsLjgxLS4xOCwxLjUzLS41MiwyLjIyLS4yMi4zOC0uNDguNzctLjgxLDEuMDctLjgxLjg0LTEuOTIsMS4zOC0zLjE4LDEuMzhoLTE5LjU1Yy0yLjQ4LDAtNC41NS0yLjExLTQuNTUtNC42OCwwLS4zMS4wNC0uNjEuMTEtLjkyLjE1LS45Mi42My0xLjczLDEuMjYtMi4zOC40OC0uNTQsMS4xNS0uOTYsMS44NS0xLjE5LjQxLS4xMi44OS0uMTksMS4zMy0uMTloMTkuNTVjMi4xOCwwLDMuOTksMS42MSw0LjQ0LDMuNzYuMDQuMjcuMDcuNjEuMDcuOTJaIi8+Cjwvc3ZnPg==';
@@ -4924,7 +4917,7 @@ function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
 function renderAvisoDuplicado(tipo, monto, fecha, referencia){
   const dup = buscarPosibleDuplicado(tipo, monto, fecha, referencia);
   if(!dup) return '';
-  return `<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#f0a8a8;">
+  return `<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:15px;color:#f0a8a8;">
     ⚠️ <strong>Ya existe un movimiento parecido:</strong> ${dup.detalle}. Revisa si esto ya se registró antes de confirmar.
   </div>`;
 }
@@ -4940,7 +4933,7 @@ function seleccionarTipoComprobante(tipo){
 }
 
 function bancoInfoHTML(p){
-  return p.banco ? `<div style="font-size:12px;color:#6b7a99;margin-bottom:12px;">🏦 Banco detectado: <strong style="color:#8899bb;">${esc(p.banco)}</strong></div>` : '';
+  return p.banco ? `<div style="font-size:15px;color:#6b7a99;margin-bottom:12px;">🏦 Banco detectado: <strong style="color:#8899bb;">${esc(p.banco)}</strong></div>` : '';
 }
 
 // ── Movimiento entre mis cuentas ──
@@ -4958,7 +4951,7 @@ function renderRevisionInterno(wrap){
   wrap.innerHTML=`
     ${renderAvisoDuplicado('interno', parseFloat(monto)||0, fecha, p.referencia)}
     ${bancoInfoHTML(p)}
-    <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">Indica hacia dónde se movió el dinero, con respecto a <strong>${cuentaActual}</strong>.</p>
+    <p style="font-size:15px;color:#8899bb;margin-bottom:14px;">Indica hacia dónde se movió el dinero, con respecto a <strong>${cuentaActual}</strong>.</p>
     <div style="display:flex;gap:10px;margin-bottom:16px;">
       <button class="btn ${dir==='egreso'?'btn-primary':'btn-secondary'}" onclick="setDireccionInterno('egreso')">Sale de esta cuenta →</button>
       <button class="btn ${dir==='ingreso'?'btn-primary':'btn-secondary'}" onclick="setDireccionInterno('ingreso')">← Entra a esta cuenta</button>
@@ -5050,7 +5043,7 @@ function renderRevisionSuplidor(wrap){
   wrap.innerHTML=`
     ${renderAvisoDuplicado('suplidor', p.monto||0, p.fecha||today(), p.referencia)}
     ${bancoInfoHTML(p)}
-    <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${supMatch?`Suplidor detectado: <strong style="color:#818cf8;">${esc(supMatch.nombre)}</strong>`:'No se detectó un suplidor conocido — puedes elegirlo abajo.'}</p>
+    <p style="font-size:15px;color:#8899bb;margin-bottom:14px;">${supMatch?`Suplidor detectado: <strong style="color:#818cf8;">${esc(supMatch.nombre)}</strong>`:'No se detectó un suplidor conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Suplidor</label>
         <select id="comp-sup-select">
@@ -5114,7 +5107,7 @@ function renderRevisionCliente(wrap){
   wrap.innerHTML=`
     ${renderAvisoDuplicado('cliente', p.monto||0, p.fecha||today(), p.referencia)}
     ${bancoInfoHTML(p)}
-    <p style="font-size:13px;color:#8899bb;margin-bottom:14px;">${cliMatch?`Cliente detectado: <strong style="color:#818cf8;">${esc(cliMatch.nombre)}</strong>`:'No se detectó un cliente conocido — puedes elegirlo abajo.'}</p>
+    <p style="font-size:15px;color:#8899bb;margin-bottom:14px;">${cliMatch?`Cliente detectado: <strong style="color:#818cf8;">${esc(cliMatch.nombre)}</strong>`:'No se detectó un cliente conocido — puedes elegirlo abajo.'}</p>
     <div class="form-grid">
       <div class="form-group" style="grid-column:span 2;"><label>Cliente</label>
         <select id="comp-cli-select">
@@ -5192,7 +5185,7 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -5222,7 +5215,7 @@ function onEgrMetodoChange(sel){
 function refreshEgresoSelects(){
   const sel=document.getElementById('egr-suplidor');if(!sel)return;
   sel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
-  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=`<option value="none">— Histórico (no afecta ninguna cuenta) —</option>`+S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('');
+  const cs=document.getElementById('egr-cuenta');if(cs)cs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
   // Rebuild egreso category dropdown with custom categories
   const egrCatSel=document.getElementById('egr-categoria');
   if(egrCatSel){
@@ -5290,7 +5283,7 @@ function renderEgresos(){
     const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:12px;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -5342,7 +5335,7 @@ function renderRentabilidad(){
   document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos (sin ITBIS)</th><th>ITBIS Cobrado</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
   document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono" style="color:#fdc901;">${fmt(p.itbis)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono" style="color:#fdc901;font-weight:700;">${fmt(totItbis)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
   // Category bars
-  const catBar=(items,labels,col)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--font-mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;18px;text-align:center;padding:16px;">Sin datos</p>`;};
+  const catBar=(items,labels,col)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
   const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString()));
   const egrY=S.egresos.filter(x=>x.fecha.startsWith(year.toString()));
   const ingLabelsAll={...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))};
@@ -5417,11 +5410,11 @@ function openCorteModal(){
     const currentBal=(acc.initialBalance||0)+acc.transactions.filter(t=>t.type==='ingreso').reduce((s,t)=>s+t.amount,0)-acc.transactions.filter(t=>(t.type==='egreso'||t.type==='impuesto')).reduce((s,t)=>s+t.amount,0);
     return `<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:5px;padding:12px 16px;">
       <div>
-        <div style="font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#e8eeff;">${acc.name}</div>
-        <div style="font-size:11px;color:#8899bb;font-weight:400;margin-top:2px;">Balance actual calculado: <span style="color:var(--cyan);font-family:var(--mono);">${fmt(currentBal)}</span></div>
+        <div style="font-size:15px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#e8eeff;">${acc.name}</div>
+        <div style="font-size:15px;color:#8899bb;font-weight:400;margin-top:2px;">Balance actual calculado: <span style="color:var(--cyan);font-family:var(--mono);">${fmt(currentBal)}</span></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;min-width:180px;">
-        <label style="font-size:10px;color:#8899bb;font-weight:400;letter-spacing:.1em;text-transform:uppercase;">Saldo real al ${fmtDate(today())}</label>
+        <label style="font-size:15px;color:#8899bb;font-weight:400;letter-spacing:.1em;text-transform:uppercase;">Saldo real al ${fmtDate(today())}</label>
         <input autocomplete="off" type="number" id="corte-bal-${i}" value="${currentBal.toFixed(2)}" step="0.01"
           style="background:var(--s1);border:1px solid rgba(129,140,248,.3);border-radius:4px;color:var(--cyan);font-family:var(--mono);font-size:15px;font-weight:600;padding:8px 12px;outline:none;text-align:right;width:180px;">
       </div>
@@ -5513,7 +5506,7 @@ let _repSection='cxc', _repData=[];
 const REP_CONFIGS={
   cxc:{
     label:'Cuentas por Cobrar',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div>`,
     headers:['N° Factura','Cliente','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
     generate(d,h,f1,f2){
       let items=[...S.cuentasCobrar];
@@ -5535,7 +5528,7 @@ const REP_CONFIGS={
   },
   cxp:{
     label:'Cuentas por Pagar',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="proveedores">Proveedores</option><option value="serviciosFijos">Servicios Fijos</option><option value="prestamos">Préstamos</option><option value="otros">Otros</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="parcial">Parcial</option><option value="vencida">Vencida</option><option value="pagada">Pagada</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="proveedores">Proveedores</option><option value="serviciosFijos">Servicios Fijos</option><option value="prestamos">Préstamos</option><option value="otros">Otros</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="pendiente">Pendiente</option><option value="parcial">Parcial</option><option value="vencida">Vencida</option><option value="pagada">Pagada</option></select></div>`,
     headers:['Nombre','Categoría','Concepto','Fecha','Vencimiento','Total','Abonado','Pendiente','Estado'],
     generate(d,h,f1,f2){
       const cats=f1?[f1]:['proveedores','serviciosFijos','prestamos','otros'];
@@ -5559,7 +5552,7 @@ const REP_CONFIGS={
   },
   ingresos:{
     label:'Ingresos',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div>`,
     headers:['Fecha','Cliente','Categoría','Descripción','Método','Monto RD$'],
     generate(d,h,f1,f2){
       let items=[...S.ingresos];
@@ -5574,7 +5567,7 @@ const REP_CONFIGS={
   },
   egresos:{
     label:'Egresos',
-    dynFilter:`<div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="materiales">Materiales</option><option value="nomina">Nómina</option><option value="alquiler">Alquiler</option><option value="servicios">Servicios Básicos</option><option value="equipos">Equipos</option><option value="subcontratacion">Subcontratación</option><option value="publicidad">Publicidad</option><option value="impuestos">Impuestos</option><option value="transporte">Transportación</option><option value="otros">Otros</option></select></div><div><div style="font-size:10px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Suplidor</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:13px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="materiales">Materiales</option><option value="nomina">Nómina</option><option value="alquiler">Alquiler</option><option value="servicios">Servicios Básicos</option><option value="equipos">Equipos</option><option value="subcontratacion">Subcontratación</option><option value="publicidad">Publicidad</option><option value="impuestos">Impuestos</option><option value="transporte">Transportación</option><option value="otros">Otros</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Suplidor</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div>`,
     headers:['Fecha','Suplidor','Categoría','Descripción','Método','Monto RD$'],
     generate(d,h,f1,f2){
       let items=[...S.egresos];
@@ -5641,7 +5634,7 @@ function generateReport(){
   document.getElementById('rep-results').innerHTML=`
     <div class="table-wrap" id="rep-print-area">
       <div style="padding:14px 18px;background:rgba(79,70,229,.06);border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-        <span style="font-size:11px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;">${cfg.label} &nbsp;·&nbsp; ${_repData.length} registros &nbsp;·&nbsp; ${fmtDate(d)||'Inicio'} – ${fmtDate(h)||'Hoy'}</span>
+        <span style="font-size:15px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;">${cfg.label} &nbsp;·&nbsp; ${_repData.length} registros &nbsp;·&nbsp; ${fmtDate(d)||'Inicio'} – ${fmtDate(h)||'Hoy'}</span>
         <span style="font-family:var(--mono);font-size:16px;font-weight:500;color:#818cf8;">Total: ${fmt(colTotal)}</span>
       </div>
       <table>
@@ -5692,8 +5685,8 @@ function renderPlanCuentas(){
     const head=cuentaByCode(String(g));
     const hijos=PLAN_CUENTAS.filter(c=>c.parent===String(g));
     return `<div style="margin-bottom:14px;">
-      <div style="font-weight:700;color:#818cf8;letter-spacing:.05em;font-size:14px;margin-bottom:4px;">${head.code} - ${head.nombre}</div>
-      ${hijos.map(h=>`<div style="padding-left:18px;color:#c8d0e0;font-size:13px;line-height:1.9;">${h.code} - ${h.nombre}${h.tipo==='capital_contra'?' <span style="color:#ef4444;font-size:11px;">(cuenta contra-capital, no pasa por Estado de Resultados)</span>':''}</div>`).join('')}
+      <div style="font-weight:700;color:#818cf8;letter-spacing:.05em;font-size:15px;margin-bottom:4px;">${head.code} - ${head.nombre}</div>
+      ${hijos.map(h=>`<div style="padding-left:18px;color:#c8d0e0;font-size:15px;line-height:1.9;">${h.code} - ${h.nombre}${h.tipo==='capital_contra'?' <span style="color:#ef4444;font-size:15px;">(cuenta contra-capital, no pasa por Estado de Resultados)</span>':''}</div>`).join('')}
     </div>`;
   }).join('');
   document.getElementById('planCuentasTree').innerHTML=treeHtml;
@@ -5710,7 +5703,7 @@ function renderPlanCuentas(){
     const code=getCuentaCodigo('egresos',c.key);
     const fija=!!CUENTAS_FIJAS[c.key];
     const opts=leafAccounts('gasto').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
-    return `<tr><td>${c.label}${fija?' <span style="color:#818cf8;font-size:11px;">(fija)</span>':''}</td><td><select ${fija?'disabled':''} onchange="setCuentaCodigo('egresos','${c.key}',this.value)">${opts}</select></td></tr>`;
+    return `<tr><td>${c.label}${fija?' <span style="color:#818cf8;font-size:15px;">(fija)</span>':''}</td><td><select ${fija?'disabled':''} onchange="setCuentaCodigo('egresos','${c.key}',this.value)">${opts}</select></td></tr>`;
   }).join('');
 
   // Mapeo de categorías de Tarjeta
@@ -5835,7 +5828,7 @@ function generarLibroDiario(){
     `<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Asientos (líneas)</div><div class="bcard-value" style="color:#818cf8;">${_diarioData.length}</div></div>
      <div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Total Movido</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalDebe)}</div></div>`;
   document.getElementById('diario-tbody').innerHTML=_diarioData.length?_diarioData.map(l=>
-    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:12px;">${esc(l.ref)}</td></tr>`
+    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:15px;">${esc(l.ref)}</td></tr>`
   ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin movimientos en el período seleccionado.</div></td></tr>`;
 }
 // Protección contra "inyección de fórmulas CSV": si un texto empieza con = + - @
@@ -5902,10 +5895,10 @@ function generarLibroMayor(){
   _mayorData=buildLibroMayor(desde,hasta);
   document.getElementById('mayor-content').innerHTML=_mayorData.length?_mayorData.map(c=>`
     <div class="add-form" style="margin-bottom:16px;">
-      <h3>${c.label} <span style="font-size:12px;color:#8899bb;font-weight:400;">(${c.deudora?'naturaleza deudora':'naturaleza acreedora'})</span></h3>
+      <h3>${c.label} <span style="font-size:15px;color:#8899bb;font-weight:400;">(${c.deudora?'naturaleza deudora':'naturaleza acreedora'})</span></h3>
       <div class="table-wrap"><table>
         <thead><tr><th>Fecha</th><th>Concepto</th><th>Referencia</th><th>Debe</th><th>Haber</th><th>Saldo</th></tr></thead>
-        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${esc(f.concepto)}</td><td style="color:#8899bb;font-size:12px;">${esc(f.ref)}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
+        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${esc(f.concepto)}</td><td style="color:#8899bb;font-size:15px;">${esc(f.ref)}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;background:rgba(79,70,229,.06);">Saldo Final</td><td class="td-mono" style="font-weight:700;color:#818cf8;background:rgba(79,70,229,.06);">${fmt(c.saldoFinal)}</td></tr></tfoot>
       </table></div>
     </div>`).join(''):'<div class="empty-state">Sin movimientos en el período seleccionado.</div>';
@@ -6245,9 +6238,20 @@ document.addEventListener('click',function(e){
 let _lastLocalSaveTs = 0;  // timestamp of last local save, to avoid re-render loop
 let _appInitialized   = false;
 
+// Garantiza que "Caja General" exista en S.accounts — se llama en TODO punto
+// donde S se reasigna por completo (carga inicial, sync de Firebase, o
+// respaldo a localStorage), para que nunca quede ausente en los datos reales.
+function ensureCajaGeneral(){
+  if(!S.accounts) S.accounts=[];
+  if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
+    S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
+  }
+}
+
 function applyFirebaseData(data){
   S = data;
   if(!S.accounts||!S.accounts.length) S.accounts = defaultState().accounts;
+  ensureCajaGeneral();
   if(!S.creditCard)  S.creditCard  = defaultState().creditCard;
   if(!S.cuentasCobrar) S.cuentasCobrar = [];
   if(!S.cuentasPagar)  S.cuentasPagar  = {proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
@@ -6329,6 +6333,7 @@ function loadFromFirebase(){
       _appInitialized = true;
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
+      ensureCajaGeneral();
       init();
       showConnectionError();
     }
@@ -6344,6 +6349,7 @@ function loadFromFirebase(){
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local){
         S = local;
+        ensureCajaGeneral();
         window.ICG_DOC.set(JSON.parse(JSON.stringify({...S, _ts: Date.now()})))
           .then(()=>notify('success','Datos Migrados','Tus datos locales fueron subidos a la nube ☁'));
       } else {
@@ -6365,6 +6371,7 @@ function loadFromFirebase(){
       } else {
         const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local) S = local;
+        ensureCajaGeneral();
       }
       showLoadingOverlay(false);
       _appInitialized = true;
@@ -6375,6 +6382,7 @@ function loadFromFirebase(){
       showLoadingOverlay(false);
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
+      ensureCajaGeneral();
       _appInitialized = true;
       init();
       showConnectionError();
@@ -6401,7 +6409,7 @@ function showConnectionError(){
   if(el) return; // already shown
   el = document.createElement('div');
   el.id = 'fb-conn-error';
-  el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999996;background:#7f1d1d;color:#fff;padding:12px 20px;font-family:Space Grotesk,sans-serif;font-size:13px;text-align:center;letter-spacing:.02em;box-shadow:0 4px 20px rgba(0,0,0,.4);';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999996;background:#7f1d1d;color:#fff;padding:12px 20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;text-align:center;letter-spacing:.02em;box-shadow:0 4px 20px rgba(0,0,0,.4);';
   el.innerHTML = '⚠ No se pudo conectar con la nube. Mostrando datos locales (pueden no estar actualizados). <button onclick="location.reload()" style="margin-left:12px;background:#fff;color:#7f1d1d;border:none;padding:6px 14px;border-radius:4px;font-weight:600;cursor:pointer;">Reintentar</button> <button onclick="this.parentElement.remove()" style="margin-left:6px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:4px;cursor:pointer;">Cerrar</button>';
   document.body.insertBefore(el, document.body.firstChild);
 }
@@ -6412,7 +6420,7 @@ function showLoadingOverlay(show){
     el = document.createElement('div');
     el.id = 'fb-loading';
     el.style.cssText = 'position:fixed;inset:0;z-index:999998;background:#020510;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    el.innerHTML = '<div style="width:48px;height:48px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite;"></div><div style="font-family:Space Grotesk,sans-serif;font-size:14px;color:#818cf8;letter-spacing:.15em;text-transform:uppercase;">Sincronizando con la nube...</div>';
+    el.innerHTML = '<div style="width:48px;height:48px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;animation:spin .8s linear infinite;"></div><div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#818cf8;letter-spacing:.15em;text-transform:uppercase;">Sincronizando con la nube...</div>';
     document.body.appendChild(el);
     if(!document.getElementById('spin-style')){
       const st=document.createElement('style');st.id='spin-style';
@@ -6428,7 +6436,7 @@ function showSyncIndicator(state){
   if(!el){
     el = document.createElement('div');
     el.id = 'sync-indicator';
-    el.style.cssText = 'position:fixed;bottom:18px;right:18px;z-index:9999;font-family:Space Grotesk,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:20px;transition:opacity .4s;pointer-events:none;';
+    el.style.cssText = 'position:fixed;bottom:18px;right:18px;z-index:9999;font-family:Arial,Helvetica,sans-serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:20px;transition:opacity .4s;pointer-events:none;';
     document.body.appendChild(el);
   }
   if(state==='saved'){
