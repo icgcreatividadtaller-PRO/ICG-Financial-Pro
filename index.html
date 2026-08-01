@@ -25,7 +25,7 @@
   --font:Arial,Helvetica,sans-serif; --mono:Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{22px;}
+html{font-size:22px;}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 /* ── GLOBAL UPPERCASE ── */
@@ -50,7 +50,7 @@ input,textarea,select,td,.mono,.bcard-value,.kpi-value{text-transform:none;lette
 .brand-name{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--cyan);letter-spacing:.05em;text-transform:uppercase;}
 .brand-sub{font-family:'Space Grotesk',sans-serif;font-size:15px;color:var(--text3);letter-spacing:.18em;text-transform:uppercase;margin-top:2px;}
 .hdr-actions{margin-left:auto;display:flex;align-items:center;gap:8px;padding-left:24px;border-left:1px solid var(--border);}
-.hdr-tag{14px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
+.hdr-tag{font-size:15px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;}
 
 /* ── NAVIGATION BAR ── */
 .nav-bar{
@@ -181,15 +181,15 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
   transform:skewX(-20deg);transition:left .6s;
 }
 .bcard:hover::after{left:125%;}
-.bcard-label{12px;color:var(--text3);letter-spacing:.14em;margin-bottom:8px;font-weight:600;}
+.bcard-label{font-size:15px;color:var(--text3);letter-spacing:.14em;margin-bottom:8px;font-weight:600;}
 .bcard-value{font-family:var(--mono);font-size:30px;font-weight:600;}
 .bcard-value.positive{color:var(--cyan);}
 .bcard-value.negative{color:var(--red);}
 .bcard-value.neutral{color:var(--indigo2);}
 .balance-cards{display:flex;gap:12px;flex-wrap:wrap;}
 .account-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:16px;}
-.account-name-area h2{38px;font-weight:700;color:var(--text);letter-spacing:.02em;}
-.account-name-area p{15px;color:var(--text3);margin-top:4px;letter-spacing:.1em;}
+.account-name-area h2{font-size:38px;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.account-name-area p{font-size:15px;color:var(--text3);margin-top:4px;letter-spacing:.1em;}
 
 /* ── FORMS ── */
 .add-form{
@@ -201,9 +201,9 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(79,70,229,.3),transparent);
 }
-.add-form h3{14px;color:var(--indigo2);font-weight:700;margin-bottom:18px;letter-spacing:.15em;}
+.add-form h3{font-size:15px;color:var(--indigo2);font-weight:700;margin-bottom:18px;letter-spacing:.15em;}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;align-items:end;}
-.form-group label{12px;color:var(--text3);letter-spacing:.14em;display:block;margin-bottom:6px;font-weight:600;}
+.form-group label{font-size:15px;color:var(--text3);letter-spacing:.14em;display:block;margin-bottom:6px;font-weight:600;}
 .form-group input,.form-group select,.form-group textarea{
   width:100%;background:var(--s2);border:1px solid var(--border2);
   border-radius:4px;color:var(--text);font-family:var(--font);font-size:19px;
@@ -218,7 +218,7 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 .form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
 
 /* ── TABLES ── */
-.transactions-section h3{14px;color:var(--indigo2);font-weight:700;margin-bottom:14px;letter-spacing:.15em;}
+.transactions-section h3{font-size:15px;color:var(--indigo2);font-weight:700;margin-bottom:14px;letter-spacing:.15em;}
 .filter-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
 .filter-bar .form-group{margin:0;}
 .table-wrap{overflow-x:auto;border-radius:5px;border:2px solid var(--border2);}
@@ -272,7 +272,7 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
   background:rgba(129,140,248,.04);border:1px solid rgba(129,140,248,.15);
   border-radius:6px;padding:20px 24px;margin-bottom:20px;
 }
-.cc-config h3{14px;color:var(--cyan);font-weight:700;margin-bottom:16px;letter-spacing:.15em;}
+.cc-config h3{font-size:15px;color:var(--cyan);font-weight:700;margin-bottom:16px;letter-spacing:.15em;}
 .cc-meter{height:6px;background:var(--s3);border-radius:3px;margin-top:8px;overflow:hidden;}
 .cc-meter-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--indigo2),var(--red));transition:width .5s;}
 
@@ -287,15 +287,15 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
   animation:modalIn .2s ease;
 }
 @keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
-.modal h2{24px;font-weight:700;margin-bottom:6px;letter-spacing:.03em;}
-.modal p{16px;color:var(--text2);margin-bottom:18px;}
+.modal h2{font-size:24px;font-weight:700;margin-bottom:6px;letter-spacing:.03em;}
+.modal p{font-size:16px;color:var(--text2);margin-bottom:18px;}
 .modal-close{float:right;background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;padding:2px 6px;letter-spacing:0;}
 .modal-close:hover{color:var(--red);}
 .modal-foot{display:flex;gap:10px;margin-top:22px;justify-content:flex-end;}
 
 /* ── REPORT BLOCKS ── */
 .report-block{background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:16px 20px;margin-bottom:12px;}
-.report-block h4{12px;color:var(--indigo2);font-weight:700;margin-bottom:12px;letter-spacing:.15em;}
+.report-block h4{font-size:15px;color:var(--indigo2);font-weight:700;margin-bottom:12px;letter-spacing:.15em;}
 .report-row{display:flex;justify-content:space-between;font-size:18px;padding:5px 0;border-bottom:1px solid var(--border);}
 .report-row:last-child{border-bottom:none;}
 .report-total{display:flex;justify-content:space-between;font-size:20px;font-weight:700;padding:10px 0;border-top:2px solid var(--border2);margin-top:8px;}
@@ -307,7 +307,7 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
   border:1px solid var(--border2);border-radius:6px;padding:20px 24px;
 }
 .total-item{flex:1;min-width:110px;}
-.total-label{12px;color:var(--text3);letter-spacing:.14em;margin-bottom:4px;font-weight:700;}
+.total-label{font-size:15px;color:var(--text3);letter-spacing:.14em;margin-bottom:4px;font-weight:700;}
 .total-value{font-family:var(--mono);font-size:28px;font-weight:600;}
 .consolidated-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:26px;}
 .consolidated-card{
@@ -320,16 +320,16 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
   box-shadow:0 0 30px rgba(129,140,248,.07);
   transform:translateY(-2px);
 }
-.consolidated-card h3{15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:.08em;}
+.consolidated-card h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:.08em;}
 .cc-row-c{display:flex;justify-content:space-between;font-size:18px;padding:3px 0;}
 .cc-sep{border-top:1px solid var(--border);margin:8px 0;}
-.cc-total{20px;font-weight:700;font-family:var(--mono);}
+.cc-total{font-size:20px;font-weight:700;font-family:var(--mono);}
 
 /* ── RENAME DIALOG ── */
 .rename-dialog{display:none;position:fixed;inset:0;background:rgba(2,5,16,.8);z-index:200;align-items:center;justify-content:center;}
 .rename-dialog.open{display:flex;}
 .rename-box{background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:24px;width:360px;animation:modalIn .2s ease;}
-.rename-box h3{18px;font-weight:700;margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase;}
+.rename-box h3{font-size:18px;font-weight:700;margin-bottom:14px;letter-spacing:.08em;text-transform:uppercase;}
 .rename-box input{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--font);font-size:20px;padding:10px 13px;outline:none;margin-bottom:14px;}
 .rename-box input:focus{border-color:var(--cyan);}
 .rename-box .actions{display:flex;gap:10px;}
@@ -844,7 +844,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Fecha de Creación</label>
         <input autocomplete="off" type="date" id="cxc-issued" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Condiciones de Pago</label>
         <select id="cxc-days" onchange="calcDue()" style="height:44px;box-sizing:border-box;">
           <option value="0">Contado (mismo día)</option>
@@ -871,7 +871,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           oninput="calcCxCTotales(true)"
           style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label style="font-size:15px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
         <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01" readonly
           style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.1);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;cursor:not-allowed;">
@@ -1127,7 +1127,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Descripción</label>
         <input autocomplete="off" type="text" id="ing-desc" placeholder="Descripción del servicio o venta..." style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Forma de Cobro</label>
         <select id="ing-metodo" onchange="onIngMetodoChange(this)" style="height:44px;box-sizing:border-box;">
           <option value="transferencia">Transferencia</option>
@@ -1136,15 +1136,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="debito">Tarjeta de Débito</option>
         </select>
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;" id="ing-cuenta-wrap">
+      <div class="form-group" style="width:220px;flex-shrink:0;" id="ing-cuenta-wrap">
         <label>Cuenta Bancaria</label>
         <select id="ing-cuenta" style="height:44px;box-sizing:border-box;"></select>
-      </div>
-      <div class="form-group" id="ing-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
-        <label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
-          Efectivo — se acredita a Caja General
-        </div>
       </div>
     </div>
     <div class="form-actions"><button class="btn btn-primary" onclick="addIngreso()">Registrar Ingreso</button></div>
@@ -1216,7 +1210,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Concepto / Proyecto</label>
         <input autocomplete="off" type="text" id="rec-concepto" placeholder="Ej: Anticipo Proyecto Rotulación Local X..." style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Forma de Cobro</label>
         <select id="rec-metodo" onchange="onRecMetodoChange(this)" style="height:44px;box-sizing:border-box;">
           <option value="transferencia">Transferencia</option>
@@ -1229,13 +1223,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Cuenta</label>
         <select id="rec-cuenta" style="height:44px;box-sizing:border-box;"></select>
       </div>
-      <div class="form-group" id="rec-efectivo-note" style="display:none;width:180px;flex-shrink:0;">
-        <label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:11px 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
-          Efectivo — se acredita a Caja General
-        </div>
-      </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Referencia (opcional)</label>
         <input autocomplete="off" type="text" id="rec-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
       </div>
@@ -1315,7 +1303,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Descripción</label>
         <input autocomplete="off" type="text" id="egr-desc" placeholder="Descripción del gasto..." style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:180px;flex-shrink:0;">
+      <div class="form-group" style="width:220px;flex-shrink:0;">
         <label>Forma de Pago</label>
         <select id="egr-metodo" onchange="onEgrMetodoChange(this)" style="height:44px;box-sizing:border-box;">
           <option value="transferencia">Transferencia</option>
@@ -1325,13 +1313,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="debito">Tarjeta de Débito</option>
         </select>
       </div>
-      <div class="form-group" id="egr-cuenta-wrap" style="width:180px;flex-shrink:0;">
+      <div class="form-group" id="egr-cuenta-wrap" style="width:220px;flex-shrink:0;">
         <label>Cuenta Bancaria</label>
         <select id="egr-cuenta" style="height:44px;box-sizing:border-box;"></select>
       </div>
-      <div class="form-group" id="egr-tarjeta-note" style="display:none;width:180px;flex-shrink:0;">
+      <div class="form-group" id="egr-tarjeta-note" style="display:none;width:220px;flex-shrink:0;">
         <label>&nbsp;</label>
-        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:0 14px;font-size:13px;color:#818cf8;height:44px;box-sizing:border-box;display:flex;align-items:center;">
+        <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:8px 14px;font-size:13px;color:#818cf8;min-height:44px;box-sizing:border-box;display:flex;align-items:center;line-height:1.4;">
           Cargo a tarjeta de crédito
         </div>
       </div>
@@ -4496,10 +4484,9 @@ function addIngreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('ing-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
-  const isEfectivo=!auto&&metodo==='efectivo';
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
-  const esHistorico=!auto&&!isEfectivo&&cuentaSelVal==='none';
-  const cuentaIdx=auto?data.cuentaIdx:(isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0)));
+  const esHistorico=!auto&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const cliente=S.clientes.find(x=>x.id===clienteId);
   S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
@@ -4525,10 +4512,8 @@ function addIngreso(auto=false,data={}){
 // exactamente igual que un Ingreso manual, pero con su propia numeración de recibo.
 function onRecMetodoChange(sel){
   const isEfectivo = sel.value === 'efectivo';
-  const wrap = document.getElementById('rec-cuenta-wrap');
-  const note = document.getElementById('rec-efectivo-note');
-  if(wrap) wrap.style.display = isEfectivo ? 'none' : '';
-  if(note) note.style.display = isEfectivo ? '' : 'none';
+  const cs = document.getElementById('rec-cuenta');
+  if(isEfectivo && cs) cs.value = String(cajaGeneralIdx());
 }
 
 function addRecibo(){
@@ -4539,9 +4524,8 @@ function addRecibo(){
   const concepto=document.getElementById('rec-concepto').value.trim();
   const metodo=document.getElementById('rec-metodo').value;
   const cuentaSelVal=document.getElementById('rec-cuenta').value;
-  const isEfectivo=metodo==='efectivo';
-  const esHistorico=!isEfectivo&&cuentaSelVal==='none';
-  const cuentaIdx=isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const esHistorico=cuentaSelVal==='none';
+  const cuentaIdx=esHistorico?null:(parseInt(cuentaSelVal)||0);
   const ref=document.getElementById('rec-ref').value.trim();
   if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
   const cliente=S.clientes.find(x=>x.id===clienteId);
@@ -5192,23 +5176,21 @@ function renderIngresos(){
 // ══════════════════ EGRESOS ══════════════════
 function onIngMetodoChange(sel){
   const isEfectivo = sel.value === 'efectivo';
-  const wrap = document.getElementById('ing-cuenta-wrap');
-  const note = document.getElementById('ing-efectivo-note');
-  if(wrap) wrap.style.display = isEfectivo ? 'none' : '';
-  if(note) note.style.display = isEfectivo ? '' : 'none';
+  const cs = document.getElementById('ing-cuenta');
+  if(isEfectivo && cs) cs.value = String(cajaGeneralIdx());
 }
 
 function onEgrMetodoChange(sel){
   const val = sel.value;
-  const hideBank = val === 'tarjeta' || val === 'efectivo';
+  const isTarjeta = val === 'tarjeta';
+  const isEfectivo = val === 'efectivo';
   const cuentaWrap = document.getElementById('egr-cuenta-wrap');
   const tarjetaNote = document.getElementById('egr-tarjeta-note');
-  if(cuentaWrap) cuentaWrap.style.display = hideBank ? 'none' : '';
-  if(tarjetaNote){
-    tarjetaNote.style.display = hideBank ? '' : 'none';
-    tarjetaNote.querySelector('div').textContent = val === 'tarjeta'
-      ? 'Se cargará a la tarjeta de crédito'
-      : 'Efectivo — se descuenta de Caja General';
+  if(cuentaWrap) cuentaWrap.style.display = isTarjeta ? 'none' : '';
+  if(tarjetaNote) tarjetaNote.style.display = isTarjeta ? '' : 'none';
+  if(isEfectivo){
+    const cs = document.getElementById('egr-cuenta');
+    if(cs) cs.value = String(cajaGeneralIdx());
   }
 }
 
@@ -5231,10 +5213,10 @@ function addEgreso(auto=false,data={}){
   const monto=auto?data.monto:parseFloat(document.getElementById('egr-monto').value)||0;
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
-  const isEfectivo=!auto&&metodo==='efectivo';
+  const isTarjeta=!auto&&metodo==='tarjeta';
   const cuentaSelVal=auto?null:document.getElementById('egr-cuenta').value;
-  const esHistorico=!auto&&!isEfectivo&&cuentaSelVal==='none';
-  const cuentaIdx=auto?data.cuentaIdx:(isEfectivo?cajaGeneralIdx():(esHistorico?null:(parseInt(cuentaSelVal)||0)));
+  const esHistorico=!auto&&!isTarjeta&&cuentaSelVal==='none';
+  const cuentaIdx=auto?data.cuentaIdx:(isTarjeta?null:(esHistorico?null:(parseInt(cuentaSelVal)||0)));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
   const suplidor=S.suplidores.find(x=>x.id===suplidorId);
   S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
