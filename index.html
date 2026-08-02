@@ -188,8 +188,8 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 .bcard-value.neutral{color:var(--indigo2);}
 .balance-cards{display:flex;gap:12px;flex-wrap:wrap;}
 .account-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:16px;}
-.account-name-area h2{font-size:38px;font-weight:700;color:var(--text);letter-spacing:.02em;}
-.account-name-area p{font-size:15px;color:var(--text3);margin-top:4px;letter-spacing:.1em;}
+.account-name-area h2{font-size:26px;font-weight:700;color:var(--text);letter-spacing:.02em;}
+.account-name-area p{font-size:15px;color:var(--text3);margin-top:6px;letter-spacing:.1em;}
 
 /* ── FORMS ── */
 .add-form{
@@ -232,7 +232,7 @@ tbody tr{border-bottom:1px solid var(--border);transition:background .15s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:rgba(129,140,248,.03);}
 tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text);}
-.td-mono{font-family:var(--mono);font-size:18px;}
+.td-mono{font-family:var(--mono);font-size:19px;}
 .td-pos{color:var(--cyan);font-family:var(--mono);font-weight:600;}
 .td-neg{color:var(--red);font-family:var(--mono);}
 .td-num{font-family:var(--mono);}
@@ -719,7 +719,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <h3>Configuración de Tarjeta</h3>
     <div class="form-grid">
       <div class="form-group"><label>Nombre / Banco emisor</label><input autocomplete="off" type="text" id="cc-name" placeholder="Ej: Visa Banreservas"></div>
-      <div class="form-group"><label>Límite de Crédito (RD$)</label><input autocomplete="off" type="number" id="cc-limit" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group"><label>Límite de Crédito (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cc-limit" placeholder="0.00" min="0" step="0.01" oninput="formatMontoInput(this)"></div>
       <div class="form-group"><label>Tasa de cambio (RD$ por US$1)</label><input autocomplete="off" type="number" id="cc-rate" placeholder="Ej: 59.50" min="1" step="0.01" oninput="updateCCCards()"></div>
       <div class="form-group"><label>Cuenta bancaria para pagos</label><select id="cc-linked-account"></select></div>
     </div>
@@ -742,7 +742,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <option value="RD$">RD$</option>
             <option value="USD">US$</option>
           </select>
-          <input autocomplete="off" type="number" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;">
+          <input autocomplete="off" type="text" inputmode="decimal" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
         </div>
       </div>
       <div class="form-group"><label>Categoría</label>
@@ -861,26 +861,26 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Subtotal RD$</label>
-        <input autocomplete="off" type="number" id="cxc-subtotal" placeholder="0.00" min="0" step="0.01"
-          oninput="calcCxCTotales()"
+        <input autocomplete="off" type="text" inputmode="decimal" id="cxc-subtotal" placeholder="0.00" min="0" step="0.01"
+          oninput="formatMontoInput(this);calcCxCTotales()"
           style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
       </div>
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>ITBIS (18%)</label>
-        <input autocomplete="off" type="number" id="cxc-itbis" placeholder="0.00" min="0" step="0.01"
-          oninput="calcCxCTotales(true)"
+        <input autocomplete="off" type="text" inputmode="decimal" id="cxc-itbis" placeholder="0.00" min="0" step="0.01"
+          oninput="formatMontoInput(this);calcCxCTotales(true)"
           style="font-family:var(--mono);font-size:15px;height:44px;box-sizing:border-box;text-align:right;padding:0 12px;">
       </div>
       <div class="form-group" style="width:220px;flex-shrink:0;">
         <label style="font-size:15px;font-weight:700;letter-spacing:.08em;color:#818cf8;">Total RD$ *</label>
-        <input autocomplete="off" type="number" id="cxc-amount" placeholder="0.00" min="0" step="0.01" readonly
-          style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.1);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;cursor:not-allowed;">
+        <input autocomplete="off" type="text" inputmode="decimal" id="cxc-amount" placeholder="0.00" min="0" step="0.01" readonly
+          style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.1);text-align:right;padding:0 14px;height:44px;box-sizing:border-box;cursor:not-allowed;" oninput="formatMontoInput(this)">
       </div>
     </div>
     <div style="font-size:15px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
     <div class="form-group" style="width:260px;margin-top:12px;">
       <label>Anticipos Ya Cobrados (RD$) — opcional</label>
-      <input autocomplete="off" type="number" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
+      <input autocomplete="off" type="text" inputmode="decimal" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       <div style="font-size:15px;color:#6b7a99;margin-top:4px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
     </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
@@ -1025,8 +1025,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <!-- Monto -->
     <div class="form-group" style="margin-bottom:14px;">
       <label>Monto a Pagar (RD$)</label>
-      <input autocomplete="off" type="number" id="cxp-pay-amount" placeholder="0.00" min="0.01" step="0.01"
-        style="font-family:var(--mono);font-size:22px;font-weight:600;border-color:rgba(79,70,229,.4);">
+      <input autocomplete="off" type="text" inputmode="decimal" id="cxp-pay-amount" placeholder="0.00" min="0.01" step="0.01"
+        style="font-family:var(--mono);font-size:22px;font-weight:600;border-color:rgba(79,70,229,.4);" oninput="formatMontoInput(this)">
     </div>
 
     <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
@@ -1118,7 +1118,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Monto (RD$)</label>
-        <input autocomplete="off" type="number" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" inputmode="decimal" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
     </div>
     <!-- Row 2: Descripción · Método · Cuenta -->
@@ -1166,7 +1166,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="document.getElementById('ing-filter-mes').value='';document.getElementById('ing-filter-cat').value='';renderIngresos()">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th>Fuente</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
       <tbody id="ing-tbody"></tbody>
     </table></div>
   </div>
@@ -1202,7 +1202,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Monto (RD$)</label>
-        <input autocomplete="off" type="number" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" inputmode="decimal" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
     </div>
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
@@ -1294,7 +1294,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Monto (RD$)</label>
-        <input autocomplete="off" type="number" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;">
+        <input autocomplete="off" type="text" inputmode="decimal" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
     </div>
     <!-- Row 2: Descripción · Método · Cuenta/Nota -->
@@ -1353,7 +1353,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="document.getElementById('egr-filter-mes').value='';document.getElementById('egr-filter-cat').value='';renderEgresos()">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Beneficiario</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th>Fuente</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Beneficiario</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
       <tbody id="egr-tbody"></tbody>
     </table></div>
   </div>
@@ -1450,8 +1450,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <h3>¿Cuánto planeas retirar este mes?</h3>
     <p style="font-size:15px;color:#9ca3af;margin:6px 0 16px;">Estos montos no se registran como Egreso ni Distribución real todavía — son solo para simular el impacto antes de decidir.</p>
     <div class="form-grid">
-      <div class="form-group"><label>Salario Planeado (RD$)</label><input autocomplete="off" type="number" id="flujo-salario" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
-      <div class="form-group"><label>Distribución Planeada (RD$)</label><input autocomplete="off" type="number" id="flujo-distribucion" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();"></div>
+      <div class="form-group"><label>Salario Planeado (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="flujo-salario" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Distribución Planeada (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="flujo-distribucion" min="0" step="0.01" placeholder="0.00" onchange="guardarFlujoPlan();renderFlujoCaja();" oninput="formatMontoInput(this)"></div>
     </div>
   </div>
 
@@ -1490,7 +1490,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <p style="font-size:15px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas forman parte de tu Capital de Apertura (3010), junto con el Saldo Inicial que le pusiste a tus cuentas bancarias — ambos representan valor que ya existía antes de este sistema.</p>
     <div class="form-grid">
       <div class="form-group"><label>Nombre del Activo</label><input autocomplete="off" type="text" id="bg-af-nombre" placeholder="Ej: Cortadora Láser..."></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="bg-af-monto" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="bg-af-monto" min="0" step="0.01" placeholder="0.00" oninput="formatMontoInput(this)"></div>
       <div class="form-group"><label>Fecha de Adquisición (opcional)</label><input autocomplete="off" type="date" id="bg-af-fecha" onclick="cdpOpen(this,event)"></div>
     </div>
     <div class="form-actions"><button class="btn btn-primary" onclick="addActivoFijo()">Agregar Activo</button></div>
@@ -1660,7 +1660,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <p style="font-size:15px;color:#9ca3af;margin-bottom:14px;">Retiro de capital ya generado — no se registra como gasto ni afecta el Estado de Resultados.</p>
       <div class="form-grid">
         <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="dist-fecha" onclick="cdpOpen(this,event)"></div>
-        <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="dist-monto" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="dist-monto" min="0" step="0.01" placeholder="0.00" oninput="formatMontoInput(this)"></div>
         <div class="form-group"><label>Cuenta de Origen</label><select id="dist-cuenta"></select></div>
         <div class="form-group"><label>Forma de Pago</label>
           <select id="dist-metodo"><option value="transferencia">Transferencia</option><option value="cheque">Cheque</option><option value="efectivo">Efectivo</option></select>
@@ -1724,9 +1724,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div style="background:rgba(79,70,229,.06);border:2px solid rgba(79,70,229,.25);border-radius:8px;padding:12px 16px;margin-bottom:16px;">
       <label style="display:block;margin-bottom:6px;font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Monto a Cobrar Ahora (antes de retención)</label>
-      <input autocomplete="off" type="number" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
+      <input autocomplete="off" type="text" inputmode="decimal" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
         style="width:100%;border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;height:44px;box-sizing:border-box;"
-        oninput="calcPayNet()">
+        oninput="formatMontoInput(this);calcPayNet()">
       <div style="font-size:15px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
     </div>
 
@@ -1782,8 +1782,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           </div>
           <div class="form-group" style="margin:0;">
             <label>Monto Retenido</label>
-            <input autocomplete="off" type="number" id="pay-ret-amount" placeholder="0.00" min="0" step="0.01"
-              style="border-color:rgba(239,68,68,.4);" oninput="calcPayNet()">
+            <input autocomplete="off" type="text" inputmode="decimal" id="pay-ret-amount" placeholder="0.00" min="0" step="0.01"
+              style="border-color:rgba(239,68,68,.4);" oninput="formatMontoInput(this);calcPayNet()">
           </div>
           <div>
             <div style="font-size:15px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em;">Calculado:</div>
@@ -1804,9 +1804,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="margin:0;">
         <label>Monto recibido (RD$) — editable si difiere</label>
-        <input autocomplete="off" type="number" id="pay-net-amount" placeholder="0.00" min="0" step="0.01"
+        <input autocomplete="off" type="text" inputmode="decimal" id="pay-net-amount" placeholder="0.00" min="0" step="0.01"
           style="border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;"
-          oninput="document.getElementById('pay-net-display').textContent=fmt(parseFloat(this.value)||0)">
+          oninput="formatMontoInput(this);document.getElementById('pay-net-display').textContent=fmt(numVal(this))">
       </div>
     </div>
 
@@ -1885,21 +1885,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="form-grid" style="gap:14px;">
       <div class="form-group" style="grid-column:span 2;">
         <label>Límite de la Tarjeta (RD$)</label>
-        <input autocomplete="off" type="number" id="ccbal-limitRD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);font-size:16px;">
+        <input autocomplete="off" type="text" inputmode="decimal" id="ccbal-limitRD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);font-size:16px;" oninput="formatMontoInput(this)">
       </div>
       <div class="form-group" style="grid-column:span 2;">
         <label style="color:#818cf8;">Balance Disponible Real (RD$)</label>
-        <input autocomplete="off" type="number" id="ccbal-availRD" placeholder="0.00" min="0" step="0.01"
-          style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);">
+        <input autocomplete="off" type="text" inputmode="decimal" id="ccbal-availRD" placeholder="0.00" min="0" step="0.01"
+          style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;border-color:rgba(129,140,248,.5);background:rgba(129,140,248,.05);" oninput="formatMontoInput(this)">
         <p style="font-size:15px;color:#6b7a99;margin-top:6px;">← Este es el saldo disponible que aparece en tu estado de cuenta hoy.</p>
       </div>
       <div class="form-group">
         <label>Límite USD</label>
-        <input autocomplete="off" type="number" id="ccbal-limitUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
+        <input autocomplete="off" type="text" inputmode="decimal" id="ccbal-limitUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);" oninput="formatMontoInput(this)">
       </div>
       <div class="form-group">
         <label>Disponible Real USD</label>
-        <input autocomplete="off" type="number" id="ccbal-availUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);">
+        <input autocomplete="off" type="text" inputmode="decimal" id="ccbal-availUSD" placeholder="0.00" min="0" step="0.01" style="font-family:var(--mono);" oninput="formatMontoInput(this)">
       </div>
 
     </div>
@@ -1994,9 +1994,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <h2 id="confirm-title" style="font-size:17px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">Confirmar</h2>
     </div>
     <p id="confirm-msg" style="font-size:15px;color:#8899bb;line-height:1.7;margin-bottom:22px;text-transform:none;letter-spacing:normal;font-weight:400;"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:15px;">Cancelar</button>
-      <button class="btn" id="confirm-ok" style="font-size:15px;background:#ef4444;border-color:#ef4444;color:#fff;">Aceptar</button>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:15px;white-space:normal;text-align:center;flex:1;min-width:130px;">Cancelar</button>
+      <button class="btn" id="confirm-ok" style="font-size:15px;background:#ef4444;border-color:#ef4444;color:#fff;white-space:normal;text-align:center;flex:1;min-width:130px;">Aceptar</button>
     </div>
   </div>
 </div>
@@ -2180,8 +2180,46 @@ function startAutoSaveTimer(){
 
 // ══════════════════ HELPERS ══════════════════
 function fmt(n){return new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP',minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);}
+// Formatea en vivo un campo de monto con separador de miles mientras el usuario escribe
+// (ej. "78450" -> "78,450"), manteniendo el punto decimal usable.
+function formatMontoInput(el){
+  const cursorFromEnd = el.value.length - (el.selectionEnd ?? el.value.length);
+  let raw = el.value.replace(/[^\d.]/g,'');
+  const firstDot = raw.indexOf('.');
+  if(firstDot!==-1){
+    raw = raw.slice(0,firstDot+1) + raw.slice(firstDot+1).replace(/\./g,'');
+  }
+  let [intPart, decPart] = raw.split('.');
+  intPart = (intPart||'').replace(/^0+(?=\d)/,'');
+  const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value = decPart!==undefined ? withCommas+'.'+decPart : withCommas;
+  const pos = Math.max(0, el.value.length - cursorFromEnd);
+  el.setSelectionRange(pos,pos);
+}
+// Lee el valor numérico real de un campo de monto formateado (quita las comas de miles)
+function numVal(idOrEl){
+  const el = typeof idOrEl==='string' ? document.getElementById(idOrEl) : idOrEl;
+  if(!el) return 0;
+  return parseFloat((el.value||'').replace(/,/g,'')) || 0;
+}
+// Coloca un número calculado en un campo de monto, ya con separador de miles
+function setMontoValue(idOrEl,num){
+  const el = typeof idOrEl==='string' ? document.getElementById(idOrEl) : idOrEl;
+  if(!el) return;
+  const n = num||0;
+  const parts = n.toFixed(2).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value = parts.join('.');
+}
 // Escapa HTML en texto libre (nombres, descripciones, referencias) antes de insertarlo
 // en pantalla, para que nunca se interprete como código — solo se muestra como texto.
+// Formatea un número con comas de miles para usarlo como value= inicial en un campo de monto
+function fmtInputNum(n){
+  if(n===null||n===undefined||n==='') return '';
+  const parts = Number(n).toFixed(2).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return parts.join('.');
+}
 function esc(v){
   if(v===null||v===undefined) return '';
   return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -2498,7 +2536,7 @@ function accountHTML(i){
           <option value="retiro">Retiro de Efectivo</option>
           <option value="debito_directo">Débito Directo</option>
         </select></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
       <div class="form-group" id="f-related-wrap-${i}" style="grid-column:span 2;display:none;">
         <label id="f-related-label-${i}">Cuenta de Origen / Destino</label>
@@ -2562,7 +2600,7 @@ function addTx(i){
   const date=document.getElementById(`f-date-${i}`).value;
   const type=document.getElementById(`f-type-${i}`).value;
   const method=document.getElementById(`f-method-${i}`).value;
-  const amount=parseFloat(document.getElementById(`f-amount-${i}`).value);
+  const amount=numVal(document.getElementById(`f-amount-${i}`));
   const desc=document.getElementById(`f-desc-${i}`).value.trim()||'(sin descripción)';
   if(!date||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa la Fecha y el Monto.');return;}
 
@@ -2575,8 +2613,9 @@ function addTx(i){
     icgConfirm(
       `¿Este ${type==='ingreso'?'ingreso':'egreso'} de ${fmt(amount)} es una VENTA, COBRO, COMPRA o GASTO real del negocio? Si es así, NO lo registres aquí — ve a la pestaña ${type==='ingreso'?'Ingresos':'Egresos'}, o no va a contar en tu Estado de Resultados ni en tus reportes por categoría. Solo continúa aquí si es una transferencia, ajuste, o un cobro del banco.`,
       '¿Es esto un movimiento de negocio?',
-      'No, es solo un ajuste/transferencia — continuar aquí',
-      true
+      'Continuar aquí — es solo ajuste/transferencia',
+      true,
+      `Cancelar — ir a ${type==='ingreso'?'Ingresos':'Egresos'}`
     ).then(ok=>{ if(ok) _addTxConfirmed(i,date,type,method,amount,desc); });
     return;
   }
@@ -2690,7 +2729,7 @@ function renderCCPanel(){
   const sel=document.getElementById('cc-linked-account');
   sel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}" ${i===cc.linkedAccountIdx?'selected':''}>${a.name}</option>`).join('');
   document.getElementById('cc-name').value=cc.name||'';
-  document.getElementById('cc-limit').value=cc.creditLimit||'';
+  if(cc.creditLimit) setMontoValue('cc-limit',cc.creditLimit); else document.getElementById('cc-limit').value='';
   // Show formatted values in card inputs
   const fmt2=v=>v!=null&&v!==''&&!isNaN(v)?fmtNum(v):'';
   document.getElementById('ccLimitInput').value=fmt2(cc.creditLimit);
@@ -2706,7 +2745,7 @@ function quickSaveCCFromInput(field, input){
   const raw=parseFloat((input.value||'').replace(/,/g,''));
   if(!isNaN(raw)&&raw>=0){
     S.creditCard[field]=raw;
-    if(field==='creditLimit') document.getElementById('cc-limit').value=raw;
+    if(field==='creditLimit') setMontoValue('cc-limit',raw);
     save(); updateCCCards();
   }
 }
@@ -2718,7 +2757,7 @@ function quickSaveCC(){ save(); updateCCCards(); }
 function saveCCConfig(){
   const cc=S.creditCard;
   cc.name=document.getElementById('cc-name').value.trim()||'Tarjeta de Crédito';
-  cc.creditLimit=parseFloat(document.getElementById('cc-limit').value)||0;
+  cc.creditLimit=numVal('cc-limit')||0;
   cc.exchangeRate=parseFloat(document.getElementById('cc-rate').value)||1;
   cc.linkedAccountIdx=parseInt(document.getElementById('cc-linked-account').value);
   // Sync inline card inputs
@@ -2731,7 +2770,7 @@ function addCCTx(){
   const cc=S.creditCard;
   const date=document.getElementById('cc-date').value;
   const type=document.getElementById('cc-type').value;
-  const amount=parseFloat(document.getElementById('cc-amount').value);
+  const amount=numVal('cc-amount');
   const currency=document.getElementById('cc-currency')?.value||'RD$';
   const desc=document.getElementById('cc-desc').value.trim()||'(sin descripción)';
   const cat=document.getElementById('cc-cat')?.value||'';
@@ -3003,9 +3042,9 @@ function editCXC(id){
   // Subtotal/ITBIS: si la factura es de antes de este cambio, se calculan hacia atrás desde el Total (18/118)
   const subtotalGuardado = x.subtotal!=null ? x.subtotal : Math.round((x.amount||0)*100/118*100)/100;
   const itbisGuardado    = x.itbis!=null    ? x.itbis    : Math.round((x.amount||0)*100)/100 - subtotalGuardado;
-  document.getElementById('cxc-subtotal').value = subtotalGuardado||'';
-  document.getElementById('cxc-itbis').value    = itbisGuardado||'';
-  document.getElementById('cxc-amount').value  = x.amount||'';
+  if(subtotalGuardado) setMontoValue('cxc-subtotal',subtotalGuardado); else document.getElementById('cxc-subtotal').value='';
+  if(itbisGuardado) setMontoValue('cxc-itbis',itbisGuardado); else document.getElementById('cxc-itbis').value='';
+  if(x.amount) setMontoValue('cxc-amount',x.amount); else document.getElementById('cxc-amount').value='';
   document.getElementById('cxc-days').value    = x.creditDays||'30';
   // Set client in select
   const sel = document.getElementById('cxc-client');
@@ -3056,9 +3095,9 @@ function addCXC(){
   const categoria = document.getElementById('cxc-categoria')?.value||'';
   const issued    = document.getElementById('cxc-issued').value;
   const days      = parseInt(document.getElementById('cxc-days').value||'30');
-  const subtotal  = parseFloat(document.getElementById('cxc-subtotal').value)||0;
-  const itbis     = parseFloat(document.getElementById('cxc-itbis').value)||0;
-  const amount    = parseFloat(document.getElementById('cxc-amount').value);
+  const subtotal  = numVal('cxc-subtotal')||0;
+  const itbis     = numVal('cxc-itbis')||0;
+  const amount    = numVal('cxc-amount');
 
   // Validación explícita campo por campo — nunca bloquear sin decir cuál falta
   if(!invoice){ notify('error','Falta el NCF','Escribe el número de comprobante fiscal (NCF) antes de registrar.'); document.getElementById('cxc-invoice').focus(); return; }
@@ -3153,14 +3192,14 @@ function openPayModal(id){
   } else {
     infoBox.style.display='none';
   }
-  document.getElementById('pay-monto-ahora').value=pend.toFixed(2);
+  setMontoValue('pay-monto-ahora',pend);
   // Reset retentions
   document.getElementById('pay-ret-type').value='ninguna';
   document.getElementById('pay-ret-amount').value='';
   document.getElementById('pay-ret-amount').readOnly=true;
   document.getElementById('pay-ret-amount').style.opacity='0.4';
   document.getElementById('pay-ret-display').textContent=fmt(0);
-  document.getElementById('pay-net-amount').value=pend.toFixed(2);
+  setMontoValue('pay-net-amount',pend);
   document.getElementById('pay-net-display').textContent=fmt(pend);
   document.getElementById('pay-ref').value='';
   const sel=document.getElementById('pay-bank');
@@ -3172,7 +3211,7 @@ function openPayModal(id){
 }
 
 function calcPayNet(){
-  const montoAhora=parseFloat(document.getElementById('pay-monto-ahora').value)||0;
+  const montoAhora=numVal('pay-monto-ahora')||0;
   const retType=document.getElementById('pay-ret-type').value;
   const retInput=document.getElementById('pay-ret-amount');
   const retDisplay=document.getElementById('pay-ret-display');
@@ -3212,10 +3251,10 @@ function confirmPayment(){
   const isEfectivo = method==='efectivo';
   const isHistorico = method==='historico';
   const ref=document.getElementById('pay-ref').value.trim();
-  const montoAhora=parseFloat(document.getElementById('pay-monto-ahora').value)||0;
-  const netAmount=parseFloat(document.getElementById('pay-net-amount').value)||0;
+  const montoAhora=numVal('pay-monto-ahora')||0;
+  const netAmount=numVal('pay-net-amount')||0;
   const retType=document.getElementById('pay-ret-type').value;
-  const retAmount=parseFloat(document.getElementById('pay-ret-amount').value)||0;
+  const retAmount=numVal('pay-ret-amount')||0;
   if(!date){notify('error','Fecha Requerida','Selecciona la fecha de cobro.');return;}
   if(montoAhora<=0){notify('error','Monto Inválido','El monto a cobrar debe ser mayor a cero.');return;}
   const pendienteActual=cxcPending(x);
@@ -3577,7 +3616,7 @@ function renderCXP(){
             <td class="td-mono" style="color:#818cf8;">${fmt(x.monto)}</td>
             <td class="td-mono">${fmtDate(x.paidDate)}</td>
             <td>${methodBadge(x.payMethod)}</td>
-            <td style="color:#8899bb;font-size:15px;">${acct}</td>
+            <td style="color:#8899bb;">${acct}</td>
             <td><button class="del-btn" title="Reabrir como pendiente" onclick="reopenCXP('${getCxPSection(x.id)}',${x.id})">↩</button></td>
           </tr>`;
         }).join('')
@@ -3622,7 +3661,7 @@ function renderCXP(){
     </div>`;
   };
 
-  const acctName = x => `<span style="color:#8899bb;font-size:15px;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
+  const acctName = x => `<span style="color:#8899bb;">${S.accounts[x.payAccountIdx]?.name||'—'}</span>`;
   const catLabel = x => {
     if(!x.categoriaEgreso) return '<span style="color:#6b7a99;">—</span>';
     const key = CXP_CAT_LABEL_TO_KEY[x.categoriaEgreso] || 'otros';
@@ -3706,14 +3745,14 @@ function cxpPending(item){ return Math.max(0, item.monto - cxpPaidSoFar(item)); 
 
 // ══════════════════ FLUJO DE CAJA (30 días, base efectivo) ══════════════════
 function guardarFlujoPlan(){
-  S.flujoCajaPlan.salario = parseFloat(document.getElementById('flujo-salario').value)||0;
-  S.flujoCajaPlan.distribucion = parseFloat(document.getElementById('flujo-distribucion').value)||0;
+  S.flujoCajaPlan.salario = numVal('flujo-salario')||0;
+  S.flujoCajaPlan.distribucion = numVal('flujo-distribucion')||0;
   save();
 }
 function renderFlujoCaja(){
   if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
-  document.getElementById('flujo-salario').value = S.flujoCajaPlan.salario||'';
-  document.getElementById('flujo-distribucion').value = S.flujoCajaPlan.distribucion||'';
+  if(S.flujoCajaPlan.salario) setMontoValue('flujo-salario',S.flujoCajaPlan.salario); else document.getElementById('flujo-salario').value='';
+  if(S.flujoCajaPlan.distribucion) setMontoValue('flujo-distribucion',S.flujoCajaPlan.distribucion); else document.getElementById('flujo-distribucion').value='';
 
   const hoy = today();
   const d30 = new Date(); d30.setDate(d30.getDate()+30);
@@ -3782,7 +3821,7 @@ function renderFlujoCaja(){
 // ══════════════════ BALANCE GENERAL ══════════════════
 function addActivoFijo(){
   const nombre=document.getElementById('bg-af-nombre').value.trim();
-  const monto=parseFloat(document.getElementById('bg-af-monto').value)||0;
+  const monto=numVal('bg-af-monto')||0;
   const fecha=document.getElementById('bg-af-fecha').value||null;
   if(!nombre||monto<=0){ notify('error','Campos Requeridos','Completa el Nombre y el Monto del activo.'); return; }
   S.activosFijos.push({id:Date.now()+Math.random(),nombre,monto,fecha});
@@ -3887,7 +3926,7 @@ function openCXPPayModal(section, id){
 
   // Default to full payment of remaining
   setCXPPayType('full');
-  document.getElementById('cxp-pay-amount').value = pending.toFixed(2);
+  setMontoValue('cxp-pay-amount',pending);
   document.getElementById('cxp-pay-date').value   = today();
   document.getElementById('cxp-pay-ref').value    = '';
   document.getElementById('cxp-pay-method').value = 'transferencia';
@@ -3932,7 +3971,7 @@ function confirmCXPPayment(){
   const method     = document.getElementById('cxp-pay-method').value;
   const accountIdx = Math.max(0, parseInt(document.getElementById('cxp-pay-account').value)||0);
   const ref        = document.getElementById('cxp-pay-ref').value.trim();
-  const amount     = parseFloat(document.getElementById('cxp-pay-amount').value)||0;
+  const amount     = numVal('cxp-pay-amount')||0;
   const pending    = cxpPending(item);
 
   if(!date)            { notify('error','Fecha Requerida','Selecciona la fecha de pago.'); return; }
@@ -4209,10 +4248,10 @@ function handleImportFile(event){
 
 function openCCBalanceModal(){
   const cc=S.creditCard;
-  document.getElementById('ccbal-limitRD').value=cc.creditLimit||'';
-  document.getElementById('ccbal-availRD').value=cc.availableRD!=null?cc.availableRD:'';
-  document.getElementById('ccbal-limitUSD').value=cc.creditLimitUSD||'';
-  document.getElementById('ccbal-availUSD').value=cc.availableUSD!=null?cc.availableUSD:'';
+  if(cc.creditLimit) setMontoValue('ccbal-limitRD',cc.creditLimit); else document.getElementById('ccbal-limitRD').value='';
+  if(cc.availableRD!=null) setMontoValue('ccbal-availRD',cc.availableRD); else document.getElementById('ccbal-availRD').value='';
+  if(cc.creditLimitUSD) setMontoValue('ccbal-limitUSD',cc.creditLimitUSD); else document.getElementById('ccbal-limitUSD').value='';
+  if(cc.availableUSD!=null) setMontoValue('ccbal-availUSD',cc.availableUSD); else document.getElementById('ccbal-availUSD').value='';
   document.getElementById('ccbal-rate').value=cc.exchangeRate||'';
   updateCCBalPreview();
   document.getElementById('ccBalanceModal').classList.add('open');
@@ -4222,18 +4261,18 @@ function openCCBalanceModal(){
   });
 }
 function updateCCBalPreview(){
-  const lim=parseFloat(document.getElementById('ccbal-limitRD').value)||0;
-  const avail=parseFloat(document.getElementById('ccbal-availRD').value)||0;
+  const lim=numVal('ccbal-limitRD')||0;
+  const avail=numVal('ccbal-availRD')||0;
   const owed=Math.max(0,lim-avail);
   document.getElementById('ccbal-preview').textContent=fmt(owed);
   document.getElementById('ccbal-preview').style.color=owed>0?'#ef4444':'#818cf8';
 }
 function applyCCBalance(){
   const cc=S.creditCard;
-  const lim=parseFloat(document.getElementById('ccbal-limitRD').value)||0;
-  const avail=parseFloat(document.getElementById('ccbal-availRD').value);
-  const limUSD=parseFloat(document.getElementById('ccbal-limitUSD').value)||0;
-  const availUSD=parseFloat(document.getElementById('ccbal-availUSD').value);
+  const lim=numVal('ccbal-limitRD')||0;
+  const avail=numVal('ccbal-availRD');
+  const limUSD=numVal('ccbal-limitUSD')||0;
+  const availUSD=numVal('ccbal-availUSD');
 
   if(lim>0) cc.creditLimit=lim;
   if(!isNaN(avail)&&avail>=0){
@@ -4481,7 +4520,7 @@ function addIngreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('ing-fecha').value;
   const clienteId=auto?data.clienteId:parseInt(document.getElementById('ing-cliente').value)||null;
   const cat=auto?data.categoria:document.getElementById('ing-categoria').value;
-  const monto=auto?data.monto:parseFloat(document.getElementById('ing-monto').value)||0;
+  const monto=auto?data.monto:numVal('ing-monto')||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
@@ -4520,7 +4559,7 @@ function addRecibo(){
   const fecha=document.getElementById('rec-fecha').value;
   const clienteId=parseInt(document.getElementById('rec-cliente').value)||null;
   const cat=document.getElementById('rec-categoria').value;
-  const monto=parseFloat(document.getElementById('rec-monto').value)||0;
+  const monto=numVal('rec-monto')||0;
   const concepto=document.getElementById('rec-concepto').value.trim();
   const metodo=document.getElementById('rec-metodo').value;
   const cuentaSelVal=document.getElementById('rec-cuenta').value;
@@ -4576,7 +4615,7 @@ function renderRecibos(){
   document.getElementById('rec-tbody').innerHTML=items.length?items.map(x=>{
     const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria;
     const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
-    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
+    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
 const ICG_LOGO_DATAURI='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDEyNS4wOSAxNzkuNjYiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICM0MTE0NWY7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZkYzMwMDsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjMzZhOWUxOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMTIpOwogICAgICB9CiAgICA8L3N0eWxlPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJEZWdyYWRhZG9fc2luX25vbWJyZV8xMiIgZGF0YS1uYW1lPSJEZWdyYWRhZG8gc2luIG5vbWJyZSAxMiIgeDE9IjY4LjM0IiB5MT0iMTQwLjA0IiB4Mj0iNjcuNTIiIHkyPSIxOTguNDciIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIuMjgiIHN0b3AtY29sb3I9IiNlNjJjNjUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDkiIHN0b3AtY29sb3I9IiNjMzE5NDkiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNjgiIHN0b3AtY29sb3I9IiNlMzA3MzIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy45Niw4Mi4xMWMtMi43Ny00LjExLTcuMi02LjY2LTEyLjE0LTYuOTktNC45Ni0uMzMtOS42OSwxLjYxLTEyLjk4LDUuMzMtMi44MSwzLjE2LTYuODksNC45OC0xMS4xOSw0Ljk4LTguMTMsMC0xNC43NC02LjQtMTQuNzQtMTQuMjZzNi42MS0xNC4yNywxNC43NC0xNC4yN2MzLjE3LDAsNi4xNy45NSw4LjcxLDIuNzZsMS40NSwxLjIuMjUuMjdjMy4yLDMuMzUsNy42OSw1LjE1LDEyLjMyLDQuOTYsNC42My0uMiw4Ljk1LTIuMzgsMTEuODUtNS45OGw4LjEzLTEwLjA5YzEuMDEtMS4yNSwxLjgtMi42LDIuMzgtNC4wMSwxLjI2LS44NiwyLjM5LTEuOTEsMy4zNi0zLjEybDEuNDktMS44NWM1LjE1LTYuMzksNC41My0xNS44My0xLjQyLTIxLjQ4LS4yNy0uMjUtLjU0LS41MS0uODEtLjc1bC0yLjE1LTEuODktLjU1LS40OGMtLjE0LS4xMi0uMzEtLjI2LS41LS40MUM5OS4zNSwyLjI4LDc3LjMzLTIuOTcsNTUuNzEsMS42MiwzMS4zNyw2Ljc5LDcuOCwyOS43MywyLjA0LDUzLjg1Yy01LjIsMjEuNzgtLjM4LDQ0LjE2LDEzLjIzLDYxLjM5LDYuMTUsNy44LDEzLjcsMTQuMDgsMjIuMTUsMTguNjMtMi4yMSwyLjQ1LTMuNDMsNS41Ny0zLjQzLDguODcsMCwyLjE4LjU0LDQuMjQsMS40Nyw2LjA1LS45NCwxLjgyLTEuNDcsMy44Ny0xLjQ3LDYuMDUsMCw2LjU0LDQuNzYsMTEuOTgsMTEsMTMuMDYuNzYsNi42LDYuMzgsMTEuNzQsMTMuMTgsMTEuNzRoMTguODdjMy41NCwwLDYuODctMS4zOCw5LjM4LTMuODkuOTItLjkxLDEuNjktMS45NSwyLjMxLTMuMDlsLjA1LS4wOWMuNzctMS40NiwxLjI1LTMuMDUsMS40NS00LjY3LDYuMjQtMS4wOCwxMS02LjUyLDExLTEzLjA2LDAtMi4xOC0uNTQtNC4yMy0xLjQ3LTYuMDUuOTYtMS44NywxLjQ3LTMuOTQsMS40Ny02LjA2LDAtMi4yOS0uNTgtNC40NC0xLjYxLTYuMzIsNy4xLTMuMSwxMy43MS03LjM2LDE5LjU0LTEyLjY5LDUuOTQtNS40Miw3LjAzLTE0LjU0LDIuNTMtMjEuMjJsLTEzLjczLTIwLjRaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTA0LjcsMTAyLjAzbC0zLjEtNC42aDBzLTUuMTgtNy43LTUuMTgtNy43Yy0uNjQtLjk1LTIuMDEtMS4wNC0yLjc3LS4xNy01LjI1LDUuOTItMTIuOTgsOS42Ni0yMS41OSw5LjY2LTE1LjgyLDAtMjguNjUtMTIuNjItMjguNjUtMjguMTdzMTIuODMtMjguMTgsMjguNjUtMjguMThjNi40OCwwLDEyLjQ2LDIuMTIsMTcuMjYsNS43bDIuMywxLjkxcy4xMi4xMi4xNy4xNmwuNzMuNzdjLjguODQsMi4xNy43OCwyLjktLjEybDEuOTctMi40NCwzLjc3LTQuNjhzMCwwLDAsMGwyLjMzLTIuODljLjYzLS43OC41Ni0xLjktLjE2LTIuNi0xLjE4LTEuMTYtMi40My0yLjI1LTMuNzMtMy4yOGgwczAsMCwwLDBjLTguMTItNi4zOS0xOC40Ny0xMC4wNi0yOS42OC05LjY2LTI0LjE2Ljg3LTQzLjU5LDIwLjk4LTQzLjY5LDQ1LjE1LS4wOSwyNS4xMiwyMC4yNSw0NS41Miw0NS4zNiw0NS41Miw4LjQ2LDAsMTYuMzctMi4zMiwyMy4xNC02LjM1LjUzLS4zMi43LTEuMDIuMzgtMS41NWwtMS42My0yLjY3Yy0uMzItLjUyLTEtLjY5LTEuNTMtLjM4LTYuNTksMy45MS0xNC40LDUuOTktMjIuNzIsNS41MS0yMC40My0xLjE4LTM2Ljg1LTE3Ljk3LTM3LjYtMzguNDItLjgzLTIyLjc2LDE3LjM4LTQxLjQ3LDM5Ljk2LTQxLjQ3LDksMCwxNy4yOSwyLjk4LDIzLjk2LDcuOTkuMzkuMjkuNDYuODUuMTYsMS4yNGwtMi42LDMuMjhjLS4yOS4zNy0uODIuNDQtMS4yLjE2LTcuOC01LjgyLTE4LjE4LTguMzktMjkuMTEtNS42NC0xMS45OCwzLjAxLTIxLjM0LDEyLjQ2LTI0LjI1LDI0LjQ2LTUuNDQsMjIuNDgsMTEuNDUsNDIuNTUsMzMuMDMsNDIuNTUsNy44NSwwLDE1LjA3LTIuNjYsMjAuODMtNy4xMy43OS0uNjIsMS45LS40NSwyLjQ3LjM5bDEuMzQsMS45Nyw1LjA1LDcuNDMuOCwxLjE3Yy42OC45OS40NSwyLjM1LS41MiwzLjA2LTguNCw2LjE2LTE4Ljc1LDkuODEtMjkuOTYsOS44MS0yNy43NywwLTUwLjMzLTIyLjI5LTUwLjc2LTQ5Ljk1LS40My0yNy43NiwyMS44OS01MC45Nyw0OS42NS01MS41NiwxMi41OC0uMjcsMjQuMTUsNC4wNCwzMy4xNCwxMS4zOCwxLjA1Ljg1LDIuMDYsMS43NSwzLjA0LDIuNjguNzMuNywxLjg5LjYzLDIuNTItLjE2bDEuNDgtMS44NGMuNTYtLjcuNS0xLjcxLS4xNS0yLjMyLS4yMS0uMTktLjQxLS4zOS0uNjItLjU4bC0uMDQtLjAzLTEuODgtMS42NS0uMTQtLjEyLS4yMS0uMTdjLS4wNi0uMDUtLjEyLS4xLS4xOC0uMTUtMTIuNjYtMTAuNC0yOS45MS0xNS40LTQ4LjI2LTExLjUxLTE4LjgyLDQtMzguMDEsMjIuNi00Mi40OCw0MS4zMi04Ljg5LDM3LjI1LDE5LjEyLDcwLjQ1LDU0Ljg5LDcwLjQ1LDE0LjY4LDAsMjguMDYtNS42LDM4LjExLTE0Ljc4LjgtLjczLjk0LTEuOTQuMzMtMi44NGwtNS4zMy03LjkyczAsMCwwLDBoMFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik05My44LDE0Mi4zNWMwLC44OC0uMjQsMS43LS42NSwyLjQxLS4xOC4zMy0uNDEuNjQtLjY3LjkxLS44Mi44NS0xLjk0LDEuMzctMy4xOCwxLjM3aC00Mi4zOGMtMi40NywwLTQuNS0yLjExLTQuNS00LjY4LDAtMS4yOC41MS0yLjQ1LDEuMzItMy4zLjgyLS44NSwxLjk0LTEuMzcsMy4xOC0xLjM3aDQyLjM4YzIuNDgsMCw0LjUsMi4xMSw0LjUsNC42OCIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTQ2LjkzLDE1MS4wMWMtMi40OCwwLTQuNSwyLjExLTQuNSw0LjY4czIuMDMsNC42OCw0LjUsNC42OGg0Mi4zOGMyLjQ4LDAsNC41LTIuMTEsNC41LTQuNjhzLTIuMDMtNC42OC00LjUtNC42OGgtNDIuMzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNODIuMjcsMTY4LjI4YzAsLjgxLS4xOCwxLjUzLS41MiwyLjIyLS4yMi4zOC0uNDguNzctLjgxLDEuMDctLjgxLjg0LTEuOTIsMS4zOC0zLjE4LDEuMzhoLTE5LjU1Yy0yLjQ4LDAtNC41NS0yLjExLTQuNTUtNC42OCwwLS4zMS4wNC0uNjEuMTEtLjkyLjE1LS45Mi42My0xLjczLDEuMjYtMi4zOC40OC0uNTQsMS4xNS0uOTYsMS44NS0xLjE5LjQxLS4xMi44OS0uMTksMS4zMy0uMTloMTkuNTVjMi4xOCwwLDMuOTksMS42MSw0LjQ0LDMuNzYuMDQuMjcuMDcuNjEuMDcuOTJaIi8+Cjwvc3ZnPg==';
@@ -4952,7 +4991,7 @@ function renderRevisionInterno(wrap){
           : `<select id="comp-int-related"><option value="">— Cuenta externa / tercero —</option>${otrasOpciones}</select>`}
       </div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-int-date" value="${esc(fecha)}"></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="comp-int-amount" step="0.01" value="${monto}"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-int-amount" step="0.01" value="${fmtInputNum(monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="comp-int-desc" value="${esc(desc)}"></div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -5042,7 +5081,7 @@ function renderRevisionSuplidor(wrap){
         </select>
       </div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-sup-date" value="${esc(p.fecha||today())}"></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="comp-sup-amount" step="0.01" value="${p.monto||''}"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-sup-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Referencia</label><input autocomplete="off" type="text" id="comp-sup-ref" value="${esc(p.referencia||'')}"></div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -5054,7 +5093,7 @@ function onCompSupInvoiceChange(){/* placeholder para futura sincronización vis
 
 function confirmarComprobanteSuplidor(){
   const invoiceId=document.getElementById('comp-sup-invoice').value;
-  const monto=parseFloat(document.getElementById('comp-sup-amount').value)||0;
+  const monto=numVal('comp-sup-amount')||0;
   const fecha=document.getElementById('comp-sup-date').value;
   const ref=document.getElementById('comp-sup-ref').value.trim();
   const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
@@ -5064,7 +5103,7 @@ function confirmarComprobanteSuplidor(){
     if(!item){notify('error','No Encontrado','Esa factura ya no existe.');return;}
     openCXPPayModal('proveedores',item.id);
     setCXPPayType('partial');
-    document.getElementById('cxp-pay-amount').value=monto.toFixed(2);
+    setMontoValue('cxp-pay-amount',monto);
     document.getElementById('cxp-pay-date').value=fecha;
     document.getElementById('cxp-pay-ref').value=ref;
     document.getElementById('cxp-pay-method').value='transferencia';
@@ -5072,7 +5111,7 @@ function confirmarComprobanteSuplidor(){
   } else {
     activateTab('egresos');
     if(document.getElementById('egr-fecha')) document.getElementById('egr-fecha').value=fecha;
-    if(document.getElementById('egr-monto')) document.getElementById('egr-monto').value=monto.toFixed(2);
+    if(document.getElementById('egr-monto')) setMontoValue('egr-monto',monto);
     icgAlert(`Completa la categoría y confirma antes de registrar.${ref?' Referencia: '+ref:''}`,'Revisa el Egreso');
   }
 }
@@ -5106,7 +5145,7 @@ function renderRevisionCliente(wrap){
         </select>
       </div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-cli-date" value="${esc(p.fecha||today())}"></div>
-      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="number" id="comp-cli-amount" step="0.01" value="${p.monto||''}"></div>
+      <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-cli-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Referencia</label><input autocomplete="off" type="text" id="comp-cli-ref" value="${esc(p.referencia||'')}"></div>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
@@ -5116,7 +5155,7 @@ function renderRevisionCliente(wrap){
 
 function confirmarComprobanteCliente(){
   const invoiceId=document.getElementById('comp-cli-invoice').value;
-  const monto=parseFloat(document.getElementById('comp-cli-amount').value)||0;
+  const monto=numVal('comp-cli-amount')||0;
   const fecha=document.getElementById('comp-cli-date').value;
   const ref=document.getElementById('comp-cli-ref').value.trim();
   const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
@@ -5125,7 +5164,7 @@ function confirmarComprobanteCliente(){
     const item=S.cuentasCobrar.find(x=>String(x.id)===String(invoiceId));
     if(!item){notify('error','No Encontrado','Esa factura ya no existe.');return;}
     openPayModal(item.id);
-    document.getElementById('pay-monto-ahora').value=monto.toFixed(2);
+    setMontoValue('pay-monto-ahora',monto);
     document.getElementById('pay-date').value=fecha;
     document.getElementById('pay-ref').value=ref;
     document.getElementById('pay-method').value='transferencia';
@@ -5136,7 +5175,7 @@ function confirmarComprobanteCliente(){
     activateTab('ingresos');
     switchIngresosView('recibos');
     if(document.getElementById('rec-fecha')) document.getElementById('rec-fecha').value=fecha;
-    if(document.getElementById('rec-monto')) document.getElementById('rec-monto').value=monto.toFixed(2);
+    if(document.getElementById('rec-monto')) setMontoValue('rec-monto',monto);
     if(document.getElementById('rec-ref')) document.getElementById('rec-ref').value=ref;
     icgAlert('Completa el cliente y la categoría antes de registrar.','Revisa el Recibo');
   }
@@ -5169,7 +5208,7 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -5210,7 +5249,7 @@ function addEgreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('egr-fecha').value;
   const suplidorId=auto?data.suplidorId:parseInt(document.getElementById('egr-suplidor').value)||null;
   const cat=auto?data.categoria:document.getElementById('egr-categoria').value;
-  const monto=auto?data.monto:parseFloat(document.getElementById('egr-monto').value)||0;
+  const monto=auto?data.monto:numVal('egr-monto')||0;
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
   const isTarjeta=!auto&&metodo==='tarjeta';
@@ -5265,7 +5304,7 @@ function renderEgresos(){
     const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;font-size:15px;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -5708,7 +5747,7 @@ function refreshDistribAccountSelect(){
 }
 function confirmDistribucion(){
   const fecha=document.getElementById('dist-fecha').value;
-  const monto=parseFloat(document.getElementById('dist-monto').value)||0;
+  const monto=numVal('dist-monto')||0;
   const cuentaIdx=parseInt(document.getElementById('dist-cuenta').value)||0;
   const metodo=document.getElementById('dist-metodo').value;
   const ref=document.getElementById('dist-ref').value.trim();
@@ -5810,7 +5849,7 @@ function generarLibroDiario(){
     `<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Asientos (líneas)</div><div class="bcard-value" style="color:#818cf8;">${_diarioData.length}</div></div>
      <div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Total Movido</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalDebe)}</div></div>`;
   document.getElementById('diario-tbody').innerHTML=_diarioData.length?_diarioData.map(l=>
-    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;font-size:15px;">${esc(l.ref)}</td></tr>`
+    `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;">${esc(l.ref)}</td></tr>`
   ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin movimientos en el período seleccionado.</div></td></tr>`;
 }
 // Protección contra "inyección de fórmulas CSV": si un texto empieza con = + - @
@@ -5880,7 +5919,7 @@ function generarLibroMayor(){
       <h3>${c.label} <span style="font-size:15px;color:#8899bb;font-weight:400;">(${c.deudora?'naturaleza deudora':'naturaleza acreedora'})</span></h3>
       <div class="table-wrap"><table>
         <thead><tr><th>Fecha</th><th>Concepto</th><th>Referencia</th><th>Debe</th><th>Haber</th><th>Saldo</th></tr></thead>
-        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${esc(f.concepto)}</td><td style="color:#8899bb;font-size:15px;">${esc(f.ref)}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
+        <tbody>${c.filas.map(f=>`<tr><td class="td-mono">${fmtDate(f.fecha)}</td><td style="max-width:220px;">${esc(f.concepto)}</td><td style="color:#8899bb;">${esc(f.ref)}</td><td class="td-mono positive">${f.debe?fmt(f.debe):'—'}</td><td class="td-mono negative">${f.haber?fmt(f.haber):'—'}</td><td class="td-mono" style="font-weight:600;color:#818cf8;">${fmt(f.saldo)}</td></tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="5" style="text-align:right;font-weight:700;background:rgba(79,70,229,.06);">Saldo Final</td><td class="td-mono" style="font-weight:700;color:#818cf8;background:rgba(79,70,229,.06);">${fmt(c.saldoFinal)}</td></tr></tfoot>
       </table></div>
     </div>`).join(''):'<div class="empty-state">Sin movimientos en el período seleccionado.</div>';
@@ -6058,13 +6097,15 @@ function logoutUser(){
 }
 
 // ══════════════════ CUSTOM CONFIRM ══════════════════
-function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true){
+function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true, cancelLabel='Cancelar'){
   return new Promise(resolve=>{
     document.getElementById('confirm-title').textContent=title;
     document.getElementById('confirm-msg').textContent=msg;
     const okBtn=document.getElementById('confirm-ok');
     const cnBtn=document.getElementById('confirm-cancel');
     okBtn.textContent=okLabel;
+    cnBtn.textContent=cancelLabel;
+    cnBtn.style.display='';
     okBtn.style.background=danger?'#ef4444':'#4f46e5';
     okBtn.style.borderColor=danger?'#ef4444':'#4f46e5';
     document.getElementById('confirm-icon').style.background=danger?'rgba(239,68,68,.12)':'rgba(79,70,229,.12)';
