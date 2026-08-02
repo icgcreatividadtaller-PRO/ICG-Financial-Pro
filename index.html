@@ -1309,8 +1309,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="transferencia">Transferencia</option>
           <option value="efectivo">Efectivo</option>
           <option value="cheque">Cheque</option>
-          <option value="tarjeta">Tarjeta de Crédito</option>
           <option value="debito">Tarjeta de Débito</option>
+          <option value="tarjeta">Tarjeta de Crédito</option>
+          <option value="retiro">Retiro</option>
+          <option value="debito_directo">Débito Directo</option>
         </select>
       </div>
       <div class="form-group" id="egr-cuenta-wrap" style="width:220px;flex-shrink:0;">
@@ -4533,7 +4535,7 @@ function addIngreso(auto=false,data={}){
   if(!auto){
     if(!esHistorico){
       // Acreditar en la cuenta bancaria seleccionada
-      const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
+      const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
       pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
         desc:`Ingreso: ${cliente?.nombre||''} – ${desc||ING_CAT_LABELS[cat]||cat}`});
       renderTx(cuentaIdx);
@@ -4577,7 +4579,7 @@ function addRecibo(){
   // Igual que un Ingreso manual: acredita la cuenta (Caja General si es efectivo, o la
   // cuenta bancaria elegida — salvo que sea Histórico) y cuenta en el Estado de Resultados.
   if(!esHistorico){
-    const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
+    const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
     pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
       desc:`Recibo ${numero}: ${cliente?.nombre||''}${concepto?' – '+concepto:''}`});
     renderTx(cuentaIdx);
@@ -5265,7 +5267,7 @@ function addEgreso(auto=false,data={}){
       // Histórico: solo cuenta para el Estado de Resultados, no toca banco ni tarjeta.
     } else if(metodo !== 'tarjeta'){
       // Debit bank account (except credit card — CC handles its own balance)
-      const txMethod = metodo==='cheque'?'cheque':metodo==='efectivo'?'efectivo':'transferencia';
+      const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
       pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:txMethod,amount:monto,
         desc:`Egreso: ${suplidor?.nombre||''} – ${desc||EGR_CAT_LABELS[cat]||cat}`});
       renderTx(cuentaIdx);
