@@ -1140,6 +1140,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Cuenta Bancaria</label>
         <select id="ing-cuenta" style="height:44px;box-sizing:border-box;"></select>
       </div>
+      <div class="form-group" style="width:160px;flex-shrink:0;">
+        <label>Referencia (opc.)</label>
+        <input autocomplete="off" type="text" id="ing-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
+      </div>
     </div>
     <div class="form-actions"><button class="btn btn-primary" onclick="addIngreso()">Registrar Ingreso</button></div>
     <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los ingresos de CxC pagadas se registran automáticamente aquí.</p>
@@ -1324,6 +1328,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <div style="background:rgba(129,140,248,.08);border:2px solid rgba(129,140,248,.3);border-radius:5px;padding:8px 14px;font-size:13px;color:#818cf8;min-height:44px;box-sizing:border-box;display:flex;align-items:center;line-height:1.4;">
           Cargo a tarjeta de crédito
         </div>
+      </div>
+      <div class="form-group" style="width:160px;flex-shrink:0;">
+        <label>Referencia (opc.)</label>
+        <input autocomplete="off" type="text" id="egr-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
       </div>
     </div>
     <div class="form-actions"><button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addEgreso()">Registrar Egreso</button></div>
@@ -2004,6 +2012,21 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ══ CARGAR COMPROBANTE (Fase 1 — OCR de transacciones bancarias) ══ -->
+<!-- ══ EDITAR REFERENCIA (registros ya existentes) ══ -->
+<div class="modal-overlay" id="editRefModal">
+  <div class="modal" style="max-width:380px;border-color:rgba(129,140,248,.4);">
+    <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;">✏️ Referencia / N° de Confirmación</h2>
+    <div class="form-group">
+      <label>Referencia</label>
+      <input autocomplete="off" type="text" id="editref-input" placeholder="N° de transferencia, confirmación...">
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" onclick="closeEditRefModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEditRef()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="comprobanteModal">
   <div class="modal" style="max-width:560px;border-color:rgba(129,140,248,.4);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -2539,6 +2562,7 @@ function accountHTML(i){
           <option value="debito_directo">Débito Directo</option>
         </select></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Referencia (opc.)</label><input autocomplete="off" type="text" id="f-ref-${i}" placeholder="N° transferencia, confirmación..."></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
       <div class="form-group" id="f-related-wrap-${i}" style="grid-column:span 2;display:none;">
         <label id="f-related-label-${i}">Cuenta de Origen / Destino</label>
@@ -2604,6 +2628,7 @@ function addTx(i){
   const method=document.getElementById(`f-method-${i}`).value;
   const amount=numVal(document.getElementById(`f-amount-${i}`));
   const desc=document.getElementById(`f-desc-${i}`).value.trim()||'(sin descripción)';
+  const ref=document.getElementById(`f-ref-${i}`).value.trim();
   if(!date||isNaN(amount)||amount<=0){notify('error','Campos Requeridos','Completa la Fecha y el Monto.');return;}
 
   const relSel=document.getElementById(`f-related-${i}`);
@@ -2611,26 +2636,41 @@ function addTx(i){
   const esTransferenciaInterna = method==='transferencia' && !isNaN(relIdx) && relIdx>=0 && relIdx<S.accounts.length;
   const esMovimientoSeguro = esTransferenciaInterna || type==='impuesto';
 
-  if(!esMovimientoSeguro){
+  const continuarConMovimientoDeNegocio=()=>{
+    if(!esMovimientoSeguro){
+      icgConfirm(
+        `¿Este ${type==='ingreso'?'ingreso':'egreso'} de ${fmt(amount)} es una VENTA, COBRO, COMPRA o GASTO real del negocio? Si es así, NO lo registres aquí — ve a la pestaña ${type==='ingreso'?'Ingresos':'Egresos'}, o no va a contar en tu Estado de Resultados ni en tus reportes por categoría. Solo continúa aquí si es una transferencia, ajuste, o un cobro del banco.`,
+        '¿Es esto un movimiento de negocio?',
+        'Continuar aquí — es solo ajuste/transferencia',
+        true,
+        `Cancelar — ir a ${type==='ingreso'?'Ingresos':'Egresos'}`
+      ).then(ok=>{ if(ok) _addTxConfirmed(i,date,type,method,amount,desc,ref); });
+      return;
+    }
+    _addTxConfirmed(i,date,type,method,amount,desc,ref);
+  };
+
+  const dup=buscarPosibleDuplicado('interno',amount,date,ref);
+  if(dup){
     icgConfirm(
-      `¿Este ${type==='ingreso'?'ingreso':'egreso'} de ${fmt(amount)} es una VENTA, COBRO, COMPRA o GASTO real del negocio? Si es así, NO lo registres aquí — ve a la pestaña ${type==='ingreso'?'Ingresos':'Egresos'}, o no va a contar en tu Estado de Resultados ni en tus reportes por categoría. Solo continúa aquí si es una transferencia, ajuste, o un cobro del banco.`,
-      '¿Es esto un movimiento de negocio?',
-      'Continuar aquí — es solo ajuste/transferencia',
+      `Ya existe un movimiento parecido: ${dup.detalle}. ¿Confirmas que quieres registrar este también?`,
+      '⚠️ Posible Duplicado',
+      'Sí, registrar de todos modos',
       true,
-      `Cancelar — ir a ${type==='ingreso'?'Ingresos':'Egresos'}`
-    ).then(ok=>{ if(ok) _addTxConfirmed(i,date,type,method,amount,desc); });
+      'Cancelar'
+    ).then(ok=>{ if(ok) continuarConMovimientoDeNegocio(); });
     return;
   }
-  _addTxConfirmed(i,date,type,method,amount,desc);
+  continuarConMovimientoDeNegocio();
 }
-function _addTxConfirmed(i,date,type,method,amount,desc){
-  pushTx(i,{id:Date.now(),date,type,method,amount,desc});
+function _addTxConfirmed(i,date,type,method,amount,desc,ref=''){
+  pushTx(i,{id:Date.now(),date,type,method,amount,desc,ref});
 
   // Un Impuesto/Comisión Bancaria también debe contar como gasto real en el
   // Estado de Resultados y Reportes — no solo restar del saldo de la cuenta.
   if(type==='impuesto'){
     addEgreso(true,{fecha:date,suplidorId:null,suplidorNombre:'',categoria:'impuestos',monto:amount,
-      desc:desc||'Impuesto/Comisión Bancaria',metodo:method,cuentaIdx:i,fuente:'manual',fuenteId:null});
+      desc:desc||'Impuesto/Comisión Bancaria',metodo:method,ref,cuentaIdx:i,fuente:'manual',fuenteId:null});
   }
 
   // ── Inter-account transfer: auto-post the matching side ──
@@ -2645,7 +2685,7 @@ function _addTxConfirmed(i,date,type,method,amount,desc){
       const linkDesc = type==='egreso'
         ? `Transferencia recibida de ${fromName}${desc!=='(sin descripción)'?' – '+desc:''}`
         : `Transferencia enviada a ${fromName}${desc!=='(sin descripción)'?' – '+desc:''}`;
-      pushTx(relIdx,{id:Date.now()+1,date,type:otherType,method:'transferencia',amount,desc:linkDesc});
+      pushTx(relIdx,{id:Date.now()+1,date,type:otherType,method:'transferencia',amount,desc:linkDesc,ref});
       renderTx(relIdx);
       transferMsg = type==='egreso'
         ? ` → Acreditado en ${toName}`
@@ -2656,6 +2696,7 @@ function _addTxConfirmed(i,date,type,method,amount,desc){
   save(); renderTx(i);
   document.getElementById(`f-amount-${i}`).value='';
   document.getElementById(`f-desc-${i}`).value='';
+  document.getElementById(`f-ref-${i}`).value='';
   const relSel=document.getElementById(`f-related-${i}`);
   if(relSel) relSel.value='';
   if(transferMsg){
@@ -2705,7 +2746,7 @@ function renderTx(i){
       <td class="td-deposit">${t.type==='ingreso'?fmt(t.amount):'—'}</td>
       <td class="td-withdrawal">${esSalida?fmt(t.amount):'—'}</td>
       <td class="td-mono ${run>=0?'positive':'negative'}">${fmt(run)}</td>
-      <td><button class="del-btn" onclick="delTx(${i},${t.id})">×</button></td>
+      <td style="white-space:nowrap;"><button class="del-btn" title="${t.ref?'Ref: '+esc(t.ref):'Agregar Referencia'}" onclick="openEditRef('tx',${t.id},'${esc(t.ref||'').replace(/'/g,"\\'")}',${i})">✏️</button><button class="del-btn" onclick="delTx(${i},${t.id})">×</button></td>
     </tr>`;
   }).join(''):`<tr><td colspan="8"><div class="empty-state">Sin movimientos registrados.</div></td></tr>`;
   // Cards
@@ -4525,25 +4566,45 @@ function addIngreso(auto=false,data={}){
   const monto=auto?data.monto:numVal('ing-monto')||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
+  const ref=auto?(data.ref||''):document.getElementById('ing-ref').value.trim();
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
   const esHistorico=!auto&&cuentaSelVal==='none';
   const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
-  const cliente=S.clientes.find(x=>x.id===clienteId);
-  S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
-  S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(!auto){
-    if(!esHistorico){
-      // Acreditar en la cuenta bancaria seleccionada
-      const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
-      pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,
-        desc:`Ingreso: ${cliente?.nombre||''} – ${desc||ING_CAT_LABELS[cat]||cat}`});
-      renderTx(cuentaIdx);
+
+  const guardar=()=>{
+    const cliente=S.clientes.find(x=>x.id===clienteId);
+    S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    if(!auto){
+      if(!esHistorico){
+        // Acreditar en la cuenta bancaria seleccionada
+        const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
+        pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'ingreso',method:txMethod,amount:monto,ref,
+          desc:`Ingreso: ${cliente?.nombre||''} – ${desc||ING_CAT_LABELS[cat]||cat}`});
+        renderTx(cuentaIdx);
+      }
+      save();renderIngresos();
+      document.getElementById('ing-monto').value='';
+      document.getElementById('ing-desc').value='';
+      document.getElementById('ing-ref').value='';
     }
-    save();renderIngresos();
-    document.getElementById('ing-monto').value='';
-    document.getElementById('ing-desc').value='';
+  };
+
+  if(!auto){
+    const dup=buscarPosibleDuplicado('cliente',monto,fecha,ref);
+    if(dup){
+      icgConfirm(
+        `Ya existe un registro parecido: ${dup.detalle}. ¿Confirmas que quieres registrar este ingreso también?`,
+        '⚠️ Posible Duplicado',
+        'Sí, registrar de todos modos',
+        true,
+        'Cancelar'
+      ).then(ok=>{ if(ok) guardar(); });
+      return;
+    }
   }
+  guardar();
 }
 
 // ══════════════════ RECIBOS DE INGRESO ══════════════════
@@ -4888,14 +4949,24 @@ function encontrarCuentaPorBanco(bancoDetectado){
 }
 
 // ── Detección de posibles duplicados ──
-function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
+// excludeId: al editar un registro existente, se excluye a sí mismo de la búsqueda
+// (si no, siempre se "encontraría" a sí mismo como coincidencia).
+function buscarPosibleDuplicado(tipo, monto, fecha, referencia, excludeId=null){
   const tol = 0.01;
   const refNorm = (referencia||'').trim().toLowerCase();
   const montoMatch = x => Math.abs((x||0)-monto) < tol;
+  // Una referencia repetida SOLO es señal de duplicado si el monto también coincide.
+  // El banco a veces usa el mismo N° de confirmación para dos cargos distintos de
+  // una misma transacción (ej. la factura y su impuesto) — ahí el monto es distinto
+  // a propósito, y NO debe marcarse como duplicado.
+  const refMatch = (item) => refNorm && item.ref && item.ref.trim().toLowerCase()===refNorm && montoMatch(item.monto!==undefined?item.monto:item.amount);
 
   if(tipo==='interno'){
     for(const acc of S.accounts){
       for(const tx of (acc.transactions||[])){
+        if(excludeId!=null && tx.id===excludeId) continue;
+        if(refMatch({ref:tx.ref,amount:tx.amount}))
+          return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} (Ref: ${esc(tx.ref)})`};
         if(refNorm && tx.desc && tx.desc.toLowerCase().includes(refNorm))
           return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
         if(tx.date===fecha && montoMatch(tx.amount))
@@ -4907,7 +4978,8 @@ function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
     for(const section of Object.keys(S.cuentasPagar)){
       for(const item of (S.cuentasPagar[section]||[])){
         for(const p of (item.pagos||[])){
-          if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm)
+          if(excludeId!=null && p.id===excludeId) continue;
+          if(refMatch({ref:p.ref,amount:p.amount}))
             return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)} (Ref: ${esc(p.ref)})`};
           if(p.date===fecha && montoMatch(p.amount))
             return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)}`};
@@ -4915,6 +4987,9 @@ function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
       }
     }
     for(const e of (S.egresos||[])){
+      if(excludeId!=null && e.id===excludeId) continue;
+      if(refMatch({ref:e.ref,amount:e.monto}))
+        return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')} (Ref: ${esc(e.ref)})`};
       if(e.fecha===fecha && montoMatch(e.monto))
         return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')}`};
     }
@@ -4922,23 +4997,86 @@ function buscarPosibleDuplicado(tipo, monto, fecha, referencia){
   if(tipo==='cliente'){
     for(const x of (S.cuentasCobrar||[])){
       for(const p of (x.pagos||[])){
-        if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm)
+        if(excludeId!=null && p.id===excludeId) continue;
+        if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm && montoMatch(p.montoBruto))
           return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)} (Ref: ${esc(p.ref)})`};
         if(p.date===fecha && montoMatch(p.montoBruto))
           return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)}`};
       }
     }
     for(const i of (S.ingresos||[])){
+      if(excludeId!=null && i.id===excludeId) continue;
+      if(refMatch({ref:i.ref,amount:i.monto}))
+        return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')} (Ref: ${esc(i.ref)})`};
       if(i.fecha===fecha && montoMatch(i.monto))
         return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')}`};
     }
     for(const r of (S.recibos||[])){
+      if(excludeId!=null && r.id===excludeId) continue;
+      if(refMatch({ref:r.ref,amount:r.monto}))
+        return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)}, Ref: ${esc(r.ref)})`};
       if(r.fecha===fecha && montoMatch(r.monto))
         return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)})`};
     }
   }
   return null;
 }
+// ── Editar Referencia de un registro ya existente ──
+let _editRefCtx = null;
+function openEditRef(tipo, id, currentRef, accountIdx=null){
+  _editRefCtx = {tipo, id, accountIdx};
+  document.getElementById('editref-input').value = currentRef||'';
+  document.getElementById('editRefModal').classList.add('open');
+}
+function closeEditRefModal(){
+  document.getElementById('editRefModal').classList.remove('open');
+  _editRefCtx = null;
+}
+function guardarEditRef(){
+  if(!_editRefCtx) return;
+  const {tipo, id, accountIdx} = _editRefCtx;
+  const nuevaRef = document.getElementById('editref-input').value.trim();
+
+  let record, monto, fecha, dupTipo;
+  if(tipo==='ingreso'){
+    record = S.ingresos.find(x=>x.id===id);
+    if(!record){closeEditRefModal();return;}
+    monto=record.monto; fecha=record.fecha; dupTipo='cliente';
+  } else if(tipo==='egreso'){
+    record = S.egresos.find(x=>x.id===id);
+    if(!record){closeEditRefModal();return;}
+    monto=record.monto; fecha=record.fecha; dupTipo='suplidor';
+  } else if(tipo==='tx'){
+    record = (S.accounts[accountIdx]?.transactions||[]).find(x=>x.id===id);
+    if(!record){closeEditRefModal();return;}
+    monto=record.amount; fecha=record.date; dupTipo='interno';
+  } else return;
+
+  const guardar=()=>{
+    record.ref = nuevaRef;
+    save();
+    if(tipo==='ingreso') renderIngresos();
+    else if(tipo==='egreso') renderEgresos();
+    else if(tipo==='tx') renderTx(accountIdx);
+    closeEditRefModal();
+  };
+
+  if(nuevaRef){
+    const dup = buscarPosibleDuplicado(dupTipo, monto, fecha, nuevaRef, id);
+    if(dup){
+      icgConfirm(
+        `Ya existe un registro parecido: ${dup.detalle}. ¿Confirmas que quieres guardar esta referencia de todos modos?`,
+        '⚠️ Posible Duplicado',
+        'Sí, guardar de todos modos',
+        true,
+        'Cancelar'
+      ).then(ok=>{ if(ok) guardar(); });
+      return;
+    }
+  }
+  guardar();
+}
+
 function renderAvisoDuplicado(tipo, monto, fecha, referencia){
   const dup = buscarPosibleDuplicado(tipo, monto, fecha, referencia);
   if(!dup) return '';
@@ -5026,6 +5164,7 @@ function confirmarComprobanteInterno(){
   onFMethodChange(i);
   document.getElementById(`f-amount-${i}`).value=document.getElementById('comp-int-amount').value;
   document.getElementById(`f-desc-${i}`).value=document.getElementById('comp-int-desc').value;
+  document.getElementById(`f-ref-${i}`).value=_comp.parsed?.referencia||'';
   const related=document.getElementById('comp-int-related')?.value||'';
   const relSel=document.getElementById(`f-related-${i}`);
   if(relSel) relSel.value=related;
@@ -5114,7 +5253,8 @@ function confirmarComprobanteSuplidor(){
     activateTab('egresos');
     if(document.getElementById('egr-fecha')) document.getElementById('egr-fecha').value=fecha;
     if(document.getElementById('egr-monto')) setMontoValue('egr-monto',monto);
-    icgAlert(`Completa la categoría y confirma antes de registrar.${ref?' Referencia: '+ref:''}`,'Revisa el Egreso');
+    if(document.getElementById('egr-ref')) document.getElementById('egr-ref').value=ref;
+    icgAlert('Completa la categoría y confirma antes de registrar.','Revisa el Egreso');
   }
 }
 
@@ -5210,7 +5350,7 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${esc(x.ref||'').replace(/'/g,"\\'")}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -5254,38 +5394,58 @@ function addEgreso(auto=false,data={}){
   const monto=auto?data.monto:numVal('egr-monto')||0;
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
+  const ref=auto?(data.ref||''):document.getElementById('egr-ref').value.trim();
   const isTarjeta=!auto&&metodo==='tarjeta';
   const cuentaSelVal=auto?null:document.getElementById('egr-cuenta').value;
   const esHistorico=!auto&&!isTarjeta&&cuentaSelVal==='none';
   const cuentaIdx=auto?data.cuentaIdx:(isTarjeta?null:(esHistorico?null:(parseInt(cuentaSelVal)||0)));
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
-  const suplidor=S.suplidores.find(x=>x.id===suplidorId);
-  S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
-  S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(!auto){
-    if(esHistorico){
-      // Histórico: solo cuenta para el Estado de Resultados, no toca banco ni tarjeta.
-    } else if(metodo !== 'tarjeta'){
-      // Debit bank account (except credit card — CC handles its own balance)
-      const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
-      pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:txMethod,amount:monto,
-        desc:`Egreso: ${suplidor?.nombre||''} – ${desc||EGR_CAT_LABELS[cat]||cat}`});
-      renderTx(cuentaIdx);
-    } else {
-      // Auto-register cargo on credit card — use description as primary text
-      const cc = S.creditCard;
-      if(cc.initAvailRD === undefined || cc.initAvailRD === null) cc.initAvailRD = cc.availableRD||0;
-      const ccDesc = desc
-        ? (suplidor?.nombre ? `${desc} (${suplidor.nombre})` : desc)
-        : (suplidor?.nombre || EGR_CAT_LABELS[cat] || 'Egreso');
-      cc.transactions.push({id:Date.now()+2, date:fecha, type:'cargo', amount:monto, desc:ccDesc, cat:cat});
-      cc.transactions.sort((a,b)=>a.date.localeCompare(b.date));
+
+  const guardar=()=>{
+    const suplidor=S.suplidores.find(x=>x.id===suplidorId);
+    S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    if(!auto){
+      if(esHistorico){
+        // Histórico: solo cuenta para el Estado de Resultados, no toca banco ni tarjeta.
+      } else if(metodo !== 'tarjeta'){
+        // Debit bank account (except credit card — CC handles its own balance)
+        const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
+        pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:txMethod,amount:monto,ref,
+          desc:`Egreso: ${suplidor?.nombre||''} – ${desc||EGR_CAT_LABELS[cat]||cat}`});
+        renderTx(cuentaIdx);
+      } else {
+        // Auto-register cargo on credit card — use description as primary text
+        const cc = S.creditCard;
+        if(cc.initAvailRD === undefined || cc.initAvailRD === null) cc.initAvailRD = cc.availableRD||0;
+        const ccDesc = desc
+          ? (suplidor?.nombre ? `${desc} (${suplidor.nombre})` : desc)
+          : (suplidor?.nombre || EGR_CAT_LABELS[cat] || 'Egreso');
+        cc.transactions.push({id:Date.now()+2, date:fecha, type:'cargo', amount:monto, desc:ccDesc, cat:cat});
+        cc.transactions.sort((a,b)=>a.date.localeCompare(b.date));
+      }
+      save();renderEgresos();
+      document.getElementById('egr-monto').value='';
+      document.getElementById('egr-desc').value='';
+      document.getElementById('egr-categoria').selectedIndex=0;
+      document.getElementById('egr-ref').value='';
     }
-    save();renderEgresos();
-    document.getElementById('egr-monto').value='';
-    document.getElementById('egr-desc').value='';
-    document.getElementById('egr-categoria').selectedIndex=0;
+  };
+
+  if(!auto){
+    const dup=buscarPosibleDuplicado('suplidor',monto,fecha,ref);
+    if(dup){
+      icgConfirm(
+        `Ya existe un registro parecido: ${dup.detalle}. ¿Confirmas que quieres registrar este egreso también?`,
+        '⚠️ Posible Duplicado',
+        'Sí, registrar de todos modos',
+        true,
+        'Cancelar'
+      ).then(ok=>{ if(ok) guardar(); });
+      return;
+    }
   }
+  guardar();
 }
 function delEgreso(id){icgConfirm('¿Eliminar este egreso del historial?','Eliminar Egreso','Eliminar').then(ok=>{if(!ok)return;S.egresos=S.egresos.filter(x=>x.id!==id);save();renderEgresos();});}
 function renderEgresos(){
@@ -5306,7 +5466,7 @@ function renderEgresos(){
     const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${esc(x.ref||'').replace(/'/g,"\\'")}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
