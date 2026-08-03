@@ -1998,15 +1998,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ EXIT MODAL ══ -->
 <!-- ══ CUSTOM CONFIRM MODAL ══ -->
 <div class="modal-overlay" id="confirmModal" style="z-index:99998;">
-  <div class="modal" style="max-width:400px;border-color:rgba(239,68,68,.3);">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-      <div id="confirm-icon" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,.12);color:#ef4444;">!</div>
-      <h2 id="confirm-title" style="font-size:17px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">Confirmar</h2>
+  <div class="modal" style="max-width:420px;border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(239,68,68,.06);">
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;">
+      <div id="confirm-icon" style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(239,68,68,.12);color:#ef4444;">!</div>
+      <h2 id="confirm-title" style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.03em;font-weight:700;line-height:1.4;padding-top:9px;">Confirmar</h2>
     </div>
-    <p id="confirm-msg" style="font-size:15px;color:#8899bb;line-height:1.7;margin-bottom:22px;text-transform:none;letter-spacing:normal;font-weight:400;"></p>
-    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
-      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:15px;white-space:normal;text-align:center;flex:1;min-width:130px;">Cancelar</button>
-      <button class="btn" id="confirm-ok" style="font-size:15px;background:#ef4444;border-color:#ef4444;color:#fff;white-space:normal;text-align:center;flex:1;min-width:130px;">Aceptar</button>
+    <p id="confirm-msg" style="font-size:15px;color:#a8b4cc;line-height:1.65;margin:0 0 24px;text-transform:none;letter-spacing:normal;font-weight:400;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn" id="confirm-ok" style="font-size:14px;background:#ef4444;border-color:#ef4444;color:#fff;white-space:normal;text-align:center;line-height:1.35;padding:13px 20px;width:100%;box-sizing:border-box;border-radius:9px;">Aceptar</button>
+      <button class="btn btn-ghost" id="confirm-cancel" style="font-size:14px;white-space:normal;text-align:center;line-height:1.35;padding:13px 20px;width:100%;box-sizing:border-box;border-radius:9px;">Cancelar</button>
     </div>
   </div>
 </div>
@@ -2313,6 +2313,7 @@ function init(){
   calcDue();
   seedDefaultCatAccountMap();
   limpiarAsientosDevengoObsoletos();
+  repararEgresosFaltantesDeCxP();
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
   refreshIngresoSelects(); refreshEgresoSelects();
@@ -4023,7 +4024,8 @@ function confirmCXPPayment(){
 
   // Initialize pagos array if needed
   if(!item.pagos) item.pagos = [];
-  item.pagos.push({ id: Date.now(), date, amount, method, accountIdx, ref });
+  const pagoId = Date.now();
+  item.pagos.push({ id: pagoId, date, amount, method, accountIdx, ref });
 
   // Check if fully paid now
   const newPending = cxpPending(item);
@@ -4055,7 +4057,7 @@ function confirmCXPPayment(){
   save(); closeCXPPayModal(); renderCXP();
   // Base efectivo: el gasto se reconoce al pagar, no al recibir la obligación.
   // Histórico: mismo egreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
-  autoEgresoFromCxP(item, amount, date, method, accountIdx, method==='historico', _cxpPaySection);
+  autoEgresoFromCxP(item, amount, date, method, accountIdx, method==='historico', _cxpPaySection, pagoId);
 
   const isPartial = newPending > 0.009;
   const pdetail=`Monto: ${fmt(amount)} → ${method==='historico'?'<b>Histórico (sin cuenta)</b>':esc(S.accounts[accountIdx]?.name)||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
@@ -5660,11 +5662,12 @@ function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,mo
   const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(base/x.amount) : 0;
   addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico});save();
 }
-function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null){
-  if(S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp'))return;
+function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null,pagoId=null){
+  const fId = pagoId!=null ? pagoId : item.id;
+  if(S.egresos.find(e=>e.fuenteId===fId&&e.fuente==='cxp'))return;
   const cat = section==='prestamos' ? 'prestamos' : (item.categoriaEgreso ? (CXP_CAT_LABEL_TO_KEY[item.categoriaEgreso]||'otros') : 'otros');
   addEgreso(true,{fecha:date,suplidorId:null,suplidorNombre:item.nombre,categoria:cat,monto:amount,
-    desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:item.id,esHistorico});
+    desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:fId,esHistorico});
   save();
 }
 
@@ -5673,6 +5676,30 @@ function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,
 // Como el sistema volvió a base efectivo, estos ya no aplican — se eliminan una sola vez para
 // que no queden como ingresos/gastos fantasma en el Estado de Resultados. No afecta ningún dato
 // de tu operación real (facturas CxC/CxP, cobros, pagos) — solo quita esos asientos auxiliares.
+// Reparación única: por un bug ya corregido, los abonos parciales a una misma CxP
+// (después del primer pago) no generaban su Egreso correspondiente — el CxP quedaba
+// marcado como pagado, pero el gasto real nunca aparecía en Egresos ni en el Estado
+// de Resultados. Esto recorre todos los pagos ya guardados y crea los Egresos que
+// falten, sin duplicar los que ya existen.
+function repararEgresosFaltantesDeCxP(){
+  let creados=0;
+  Object.keys(S.cuentasPagar||{}).forEach(section=>{
+    (S.cuentasPagar[section]||[]).forEach(item=>{
+      (item.pagos||[]).forEach(p=>{
+        const yaExiste = S.egresos.find(e=>e.fuenteId===p.id&&e.fuente==='cxp');
+        if(!yaExiste){
+          autoEgresoFromCxP(item, p.amount, p.date, p.method, p.accountIdx, p.method==='historico', section, p.id);
+          creados++;
+        }
+      });
+    });
+  });
+  if(creados>0){
+    save();
+    notify('info','Reparación Automática',`Se recuperaron ${creados} egreso(s) de pagos a CxP que no se habían registrado correctamente. Revisa el módulo Egresos.`);
+  }
+}
+
 function limpiarAsientosDevengoObsoletos(){
   const antesIng=S.ingresos.length, antesEgr=S.egresos.length;
   S.ingresos=S.ingresos.filter(i=>i.fuente!=='cxc_devengo');
