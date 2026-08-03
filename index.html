@@ -4956,23 +4956,31 @@ function encontrarCuentaPorBanco(bancoDetectado){
 function buscarPosibleDuplicado(tipo, monto, fecha, referencia, excludeId=null){
   const tol = 0.01;
   const refNorm = (referencia||'').trim().toLowerCase();
+  const tieneRef = !!refNorm;
   const montoMatch = x => Math.abs((x||0)-monto) < tol;
   // Una referencia repetida SOLO es señal de duplicado si el monto también coincide.
   // El banco a veces usa el mismo N° de confirmación para dos cargos distintos de
   // una misma transacción (ej. la factura y su impuesto) — ahí el monto es distinto
   // a propósito, y NO debe marcarse como duplicado.
   const refMatch = (item) => refNorm && item.ref && item.ref.trim().toLowerCase()===refNorm && montoMatch(item.monto!==undefined?item.monto:item.amount);
+  // Si el usuario SÍ escribió una referencia, esa es la señal fuerte y la única que
+  // debe usarse — si no coincide con ninguna existente, ya es suficiente prueba de
+  // que es distinto, y no debe caer al respaldo de "misma fecha y monto por casualidad"
+  // (dos ventas/gastos legítimos y distintos pueden coincidir en fecha y monto).
+  // Ese respaldo por fecha+monto solo aplica cuando NO se dio ninguna referencia.
 
   if(tipo==='interno'){
     for(const acc of S.accounts){
       for(const tx of (acc.transactions||[])){
         if(excludeId!=null && tx.id===excludeId) continue;
-        if(refMatch({ref:tx.ref,amount:tx.amount}))
-          return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} (Ref: ${esc(tx.ref)})`};
-        if(refNorm && tx.desc && tx.desc.toLowerCase().includes(refNorm))
+        if(tieneRef){
+          if(refMatch({ref:tx.ref,amount:tx.amount}))
+            return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} (Ref: ${esc(tx.ref)})`};
+          if(tx.desc && tx.desc.toLowerCase().includes(refNorm) && montoMatch(tx.amount))
+            return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
+        } else if(tx.date===fecha && montoMatch(tx.amount)){
           return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
-        if(tx.date===fecha && montoMatch(tx.amount))
-          return {detalle:`${fmt(tx.amount)} el ${fmtDate(tx.date)} en ${esc(acc.name)} — "${esc(tx.desc||'')}"`};
+        }
       }
     }
   }
@@ -4981,44 +4989,54 @@ function buscarPosibleDuplicado(tipo, monto, fecha, referencia, excludeId=null){
       for(const item of (S.cuentasPagar[section]||[])){
         for(const p of (item.pagos||[])){
           if(excludeId!=null && p.id===excludeId) continue;
-          if(refMatch({ref:p.ref,amount:p.amount}))
-            return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)} (Ref: ${esc(p.ref)})`};
-          if(p.date===fecha && montoMatch(p.amount))
+          if(tieneRef){
+            if(refMatch({ref:p.ref,amount:p.amount}))
+              return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)} (Ref: ${esc(p.ref)})`};
+          } else if(p.date===fecha && montoMatch(p.amount)){
             return {detalle:`${fmt(p.amount)} el ${fmtDate(p.date)} a ${esc(item.nombre)}`};
+          }
         }
       }
     }
     for(const e of (S.egresos||[])){
       if(excludeId!=null && e.id===excludeId) continue;
-      if(refMatch({ref:e.ref,amount:e.monto}))
-        return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')} (Ref: ${esc(e.ref)})`};
-      if(e.fecha===fecha && montoMatch(e.monto))
+      if(tieneRef){
+        if(refMatch({ref:e.ref,amount:e.monto}))
+          return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')} (Ref: ${esc(e.ref)})`};
+      } else if(e.fecha===fecha && montoMatch(e.monto)){
         return {detalle:`${fmt(e.monto)} el ${fmtDate(e.fecha)} — ${esc(e.suplidorNombre||e.desc||'Egreso')}`};
+      }
     }
   }
   if(tipo==='cliente'){
     for(const x of (S.cuentasCobrar||[])){
       for(const p of (x.pagos||[])){
         if(excludeId!=null && p.id===excludeId) continue;
-        if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm && montoMatch(p.montoBruto))
-          return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)} (Ref: ${esc(p.ref)})`};
-        if(p.date===fecha && montoMatch(p.montoBruto))
+        if(tieneRef){
+          if(refNorm && p.ref && p.ref.trim().toLowerCase()===refNorm && montoMatch(p.montoBruto))
+            return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)} (Ref: ${esc(p.ref)})`};
+        } else if(p.date===fecha && montoMatch(p.montoBruto)){
           return {detalle:`${fmt(p.montoBruto)} el ${fmtDate(p.date)} de ${esc(x.client)}`};
+        }
       }
     }
     for(const i of (S.ingresos||[])){
       if(excludeId!=null && i.id===excludeId) continue;
-      if(refMatch({ref:i.ref,amount:i.monto}))
-        return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')} (Ref: ${esc(i.ref)})`};
-      if(i.fecha===fecha && montoMatch(i.monto))
+      if(tieneRef){
+        if(refMatch({ref:i.ref,amount:i.monto}))
+          return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')} (Ref: ${esc(i.ref)})`};
+      } else if(i.fecha===fecha && montoMatch(i.monto)){
         return {detalle:`${fmt(i.monto)} el ${fmtDate(i.fecha)} — ${esc(i.clienteNombre||i.desc||'Ingreso')}`};
+      }
     }
     for(const r of (S.recibos||[])){
       if(excludeId!=null && r.id===excludeId) continue;
-      if(refMatch({ref:r.ref,amount:r.monto}))
-        return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)}, Ref: ${esc(r.ref)})`};
-      if(r.fecha===fecha && montoMatch(r.monto))
+      if(tieneRef){
+        if(refMatch({ref:r.ref,amount:r.monto}))
+          return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)}, Ref: ${esc(r.ref)})`};
+      } else if(r.fecha===fecha && montoMatch(r.monto)){
         return {detalle:`${fmt(r.monto)} el ${fmtDate(r.fecha)} — ${esc(r.clienteNombre||'')} (${esc(r.numero)})`};
+      }
     }
   }
   return null;
