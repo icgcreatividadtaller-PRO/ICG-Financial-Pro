@@ -141,14 +141,14 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 
 /* ── ACCOUNT SUB-NAV ── */
 .acct-subnav{
-  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:24px;padding-bottom:20px;
   border-bottom:1px solid var(--border);
 }
 .acct-tab{
   padding:9px 18px;border-radius:5px;font-size:15px;font-weight:600;
   letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
   border:2px solid rgba(129,140,248,.25);background:transparent;
-  color:#8899bb;transition:all .18s ease;
+  color:#8899bb;transition:all .18s ease;white-space:nowrap;
   box-shadow:0 0 0 1px rgba(129,140,248,.05);
 }
 .acct-tab:hover{border-color:rgba(129,140,248,.5);color:#c8d0e0;box-shadow:0 6px 20px rgba(79,70,229,.3),0 0 12px rgba(129,140,248,.2);transform:translateY(-2px);}
@@ -940,7 +940,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
 
   <!-- Sub-tabs -->
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;" id="cxpSubTabs">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px;" id="cxpSubTabs">
     <button class="acct-tab active" id="cxp-tab-proveedores"    onclick="switchCXP('proveedores')">Proveedores</button>
     <button class="acct-tab"        id="cxp-tab-serviciosFijos" onclick="switchCXP('serviciosFijos')">Servicios Fijos</button>
     <button class="acct-tab"        id="cxp-tab-prestamos"      onclick="switchCXP('prestamos')">Préstamos</button>
@@ -1069,7 +1069,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="account-name-area"><h2 style="color:#818cf8;">Ingresos</h2><p>Ventas y servicios · ICG Creatividad</p></div>
   </div>
 
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;" id="ingSubTabs">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px;" id="ingSubTabs">
     <button class="acct-tab active" id="ing-tab-manual"  onclick="switchIngresosView('manual')">Ingresos Manuales</button>
     <button class="acct-tab"        id="ing-tab-recibos" onclick="switchIngresosView('recibos')">Recibos de Ingreso</button>
   </div>
@@ -1141,7 +1141,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <select id="ing-cuenta" style="height:44px;box-sizing:border-box;"></select>
       </div>
       <div class="form-group" style="width:160px;flex-shrink:0;">
-        <label>Referencia (opc.)</label>
+        <label>Referencia</label>
         <input autocomplete="off" type="text" id="ing-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
       </div>
     </div>
@@ -1330,7 +1330,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
       <div class="form-group" style="width:160px;flex-shrink:0;">
-        <label>Referencia (opc.)</label>
+        <label>Referencia</label>
         <input autocomplete="off" type="text" id="egr-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
       </div>
     </div>
@@ -1587,7 +1587,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
 
   <!-- Sub-tabs -->
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;" id="contabSubTabs">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px;" id="contabSubTabs">
     <button class="acct-tab active" id="contab-tab-plan"         onclick="switchContab('plan')">Plan de Cuentas</button>
     <button class="acct-tab"        id="contab-tab-diario"       onclick="switchContab('diario')">Libro Diario</button>
     <button class="acct-tab"        id="contab-tab-mayor"        onclick="switchContab('mayor')">Libro Mayor</button>
@@ -2132,31 +2132,7 @@ function defaultState() {
 
 // S starts with local cache (instant load), then Firebase overrides
 let S = JSON.parse(localStorage.getItem(STORE_KEY)||'null') || defaultState();
-S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
-ensureCajaGeneral();
-if(!S.creditCard) S.creditCard=defaultState().creditCard;
-if(!S.cuentasCobrar) S.cuentasCobrar=[];
-if(!S.cuentasPagar) S.cuentasPagar={proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
-['proveedores','serviciosFijos','prestamos','otros'].forEach(k=>{if(!S.cuentasPagar[k])S.cuentasPagar[k]=[];});
-if(!S.clientes)   S.clientes=[];
-if(!S.suplidores) S.suplidores=[];
-if(!S.ingresos)   S.ingresos=[];
-if(!S.egresos)    S.egresos=[];
-if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{}};
-if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
-if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
-if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
-if(!S.distribuciones) S.distribuciones=[];
-// Reserved payroll categories for the owner — must exist so 5030/5031/5032 are always available
-if(!S.categoriasEgresos) S.categoriasEgresos=[];
-[{key:'salario_titular',label:'Salario del Titular (bruto)'},
- {key:'aporte_tss',label:'Aporte Patronal TSS'},
- {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'},
- {key:'itbis',label:'ITBIS'},
- {key:'anticipo_isr',label:'Anticipo ISR'},
- {key:'isr_anual',label:'ISR Anual'},
- {key:'prestamos',label:'Préstamos'}
-].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
+ensureEstadoIntegro();
 // Nota: seedDefaultCatAccountMap() se ejecuta dentro de init(), una vez que
 // PLAN_CUENTAS/ING_CAT_LABELS/EGR_CAT_LABELS (declarados más abajo con const) ya existen.
 
@@ -2250,6 +2226,14 @@ function esc(v){
   return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function fmtNum(n){return new Intl.NumberFormat('es-DO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);}
+// Escapa un valor para insertarlo dentro de un atributo tipo onclick="...'VALOR'..." —
+// primero protege comillas/backslashes para el contexto de cadena JS, y DESPUÉS escapa
+// HTML. En ese orden importa: si se hace al revés, el navegador decodifica las entidades
+// HTML del atributo antes de ejecutar el JS, y el escape de comillas queda sin efecto.
+function escAttr(v){
+  const s=(v===null||v===undefined)?'':String(v);
+  return esc(s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
+}
 function today(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -2268,43 +2252,8 @@ function methodBadge(m){
 }
 
 // ══════════════════ INIT ══════════════════
-function ensureContabFields(){
-  if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{},tarjeta:{}};
-  if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
-  if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
-  if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
-  if(!S.distribuciones) S.distribuciones=[];
-  if(S.securityPin===undefined) S.securityPin=null;
-  if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
-  if(!S.activosFijos) S.activosFijos=[];
-  if(!S.recibos) S.recibos=[];
-  if(S.recibosCounter===undefined) S.recibosCounter=0;
-  if(!S.activosFijos.length && !S._activosFijosSembrados){
-    [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
-     {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
-     {nombre:'Acrylic Bending Machine',monto:15000},{nombre:'Inversor',monto:15000},{nombre:'Baterías',monto:32000},
-     {nombre:'Computadoras',monto:50000}
-    ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
-    S._activosFijosSembrados=true;
-  }
-  if(!S._prestamosBHDSembrados && !S.cuentasPagar.prestamos.some(p=>p.nombre==='BHD - Personal a Cuotas')){
-    const proximaFechaDia=(dia)=>{ const n=new Date(); let y=n.getFullYear(),m=n.getMonth(); if(n.getDate()>=dia) m+=1; const d=new Date(y,m,dia); return d.toISOString().slice(0,10); };
-    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random(),nombre:'BHD - Personal a Cuotas',concepto:'Préstamo personal',monto:0,saldo:364216.51,fecha:null,vence:proximaFechaDia(29),metodo:'debito_automático',tasa:21.35,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
-    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random()+1,nombre:'BHD - Crediclick',concepto:'Línea de crédito personal',monto:0,saldo:368539.07,fecha:null,vence:proximaFechaDia(21),metodo:'debito_automático',tasa:23.70,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
-    S._prestamosBHDSembrados=true;
-  }
-  if(!S.categoriasEgresos) S.categoriasEgresos=[];
-  [{key:'salario_titular',label:'Salario del Titular (bruto)'},
-   {key:'aporte_tss',label:'Aporte Patronal TSS'},
-   {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'},
-   {key:'itbis',label:'ITBIS'},
-   {key:'anticipo_isr',label:'Anticipo ISR'},
-   {key:'isr_anual',label:'ISR Anual'},
-   {key:'prestamos',label:'Préstamos'}
-  ].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
-}
 function init(){
-  ensureContabFields();
+  ensureEstadoIntegro();
   document.getElementById('cc-date').value=today();
   document.getElementById('cxc-issued').value=today();
   document.getElementById('ing-fecha').value=today();
@@ -2314,6 +2263,7 @@ function init(){
   seedDefaultCatAccountMap();
   limpiarAsientosDevengoObsoletos();
   repararEgresosFaltantesDeCxP();
+  repararIngresosFaltantesDeCxC();
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
   refreshIngresoSelects(); refreshEgresoSelects();
@@ -2563,7 +2513,7 @@ function accountHTML(i){
           <option value="debito_directo">Débito Directo</option>
         </select></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="f-amount-${i}" placeholder="0.00" min="0" step="0.01" oninput="formatMontoInput(this)"></div>
-      <div class="form-group"><label>Referencia (opc.)</label><input autocomplete="off" type="text" id="f-ref-${i}" placeholder="N° transferencia, confirmación..."></div>
+      <div class="form-group"><label>Referencia</label><input autocomplete="off" type="text" id="f-ref-${i}" placeholder="N° transferencia, confirmación..."></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="f-desc-${i}" placeholder="Descripción del movimiento..."></div>
       <div class="form-group" id="f-related-wrap-${i}" style="grid-column:span 2;display:none;">
         <label id="f-related-label-${i}">Cuenta de Origen / Destino</label>
@@ -2711,9 +2661,14 @@ function pushTx(i,tx){
 }
 
 function delTx(i,id){
-  icgConfirm('¿Eliminar este movimiento del historial bancario?','Eliminar Movimiento','Eliminar').then(ok=>{
+  const t=(S.accounts[i]?.transactions||[]).find(x=>x.id===id);
+  const esVinculado = t && /^(Egreso:|Ingreso:|Recibo |CxP:|Transferencia (recibida|enviada))/.test(t.desc||'');
+  const msg = esVinculado
+    ? 'Este movimiento parece venir de un Ingreso/Egreso/CxC/CxP ya registrado. Si lo eliminas aquí, ese otro registro NO se actualizará ni se eliminará automáticamente — revísalo tú por separado si hace falta. ¿Continuar?'
+    : '¿Eliminar este movimiento del historial bancario?';
+  icgConfirm(msg,'Eliminar Movimiento','Eliminar',true).then(ok=>{
     if(!ok)return;
-    S.accounts[i].transactions=S.accounts[i].transactions.filter(t=>t.id!==id);
+    S.accounts[i].transactions=S.accounts[i].transactions.filter(x=>x.id!==id);
     save(); renderTx(i);
   });
 }
@@ -2747,7 +2702,7 @@ function renderTx(i){
       <td class="td-deposit">${t.type==='ingreso'?fmt(t.amount):'—'}</td>
       <td class="td-withdrawal">${esSalida?fmt(t.amount):'—'}</td>
       <td class="td-mono ${run>=0?'positive':'negative'}">${fmt(run)}</td>
-      <td style="white-space:nowrap;"><button class="del-btn" title="${t.ref?'Ref: '+esc(t.ref):'Agregar Referencia'}" onclick="openEditRef('tx',${t.id},'${esc(t.ref||'').replace(/'/g,"\\'")}',${i})">✏️</button><button class="del-btn" onclick="delTx(${i},${t.id})">×</button></td>
+      <td style="white-space:nowrap;"><button class="del-btn" title="${t.ref?'Ref: '+esc(t.ref):'Agregar Referencia'}" onclick="openEditRef('tx',${t.id},'${escAttr(t.ref)}',${i})">✏️</button><button class="del-btn" onclick="delTx(${i},${t.id})">×</button></td>
     </tr>`;
   }).join(''):`<tr><td colspan="8"><div class="empty-state">Sin movimientos registrados.</div></td></tr>`;
   // Cards
@@ -2858,10 +2813,16 @@ function ccEffectiveAvail(){
 
 
 function delCCTx(id){
-  icgConfirm('¿Eliminar este movimiento?','Eliminar Movimiento','Eliminar').then(ok=>{
+  const t=S.creditCard.transactions.find(x=>x.id===id);
+  const egresoVinculado = t && t.egresoRef ? S.egresos.find(e=>e.id===t.egresoRef) : null;
+  const msg = egresoVinculado
+    ? `Este cargo viene de un Egreso de ${fmt(egresoVinculado.monto)} ya registrado. Al eliminarlo aquí, ese Egreso también se eliminará del Estado de Resultados. ¿Continuar?`
+    : '¿Eliminar este movimiento?';
+  icgConfirm(msg,'Eliminar Movimiento','Eliminar',true).then(ok=>{
     if(!ok)return;
-    S.creditCard.transactions=S.creditCard.transactions.filter(t=>t.id!==id);
-    save(); updateCCCards(); renderCCTx();
+    if(egresoVinculado) S.egresos=S.egresos.filter(e=>e.id!==egresoVinculado.id);
+    S.creditCard.transactions=S.creditCard.transactions.filter(x=>x.id!==id);
+    save(); updateCCCards(); renderCCTx(); renderEgresos();
   });
 }
 
@@ -3163,6 +3124,11 @@ function addCXC(){
         return;
       }
       const existing = S.cuentasCobrar[idx];
+      const yaAbonado = cxcPaidSoFar(existing);
+      if(yaAbonado>0 && amount < yaAbonado - 0.009){
+        notify('error','Monto Inválido',`Esta factura ya tiene ${fmt(yaAbonado)} cobrado en abonos — el nuevo monto no puede ser menor a eso.`);
+        return;
+      }
       S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount, subtotal, itbis};
     }
     save(); renderCXC(); cancelEditCXC();
@@ -3320,7 +3286,7 @@ function confirmPayment(){
   if(ref) desc+=` | Ref: ${ref}`;
   if(!isEfectivo && !isHistorico){
     // Credit the bank account
-    pushTx(bankIdx,{id:Date.now(),date,type:'ingreso',method,amount:netAmount,desc});
+    pushTx(bankIdx,{id:Date.now(),date,type:'ingreso',method,amount:netAmount,desc,ref});
     renderTx(bankIdx);
   }
   save(); renderCXC(); closePayModal();
@@ -3328,7 +3294,7 @@ function confirmPayment(){
   // Histórico: mismo ingreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
   // Cada abono es su propio ingreso — se identifica por el id del abono, no de la factura,
   // para que varios abonos a la misma factura no se pisen entre sí.
-  autoIngresoFromCxC(x, netAmount, date, method, (isEfectivo||isHistorico) ? null : bankIdx, isHistorico, montoAhora, pagoId);
+  autoIngresoFromCxC(x, netAmount, date, method, (isEfectivo||isHistorico) ? null : bankIdx, isHistorico, montoAhora, pagoId, ref);
   let detail=`Abono: ${fmt(montoAhora)}`;
   if(retType!=='ninguna') detail+=`<br>Retención (${retType.toUpperCase()}): -${fmt(retAmount)}`;
   detail+=`<br>Cobrado: ${fmt(netAmount)} ${isHistorico?'· <b>Histórico (sin cuenta)</b>':isEfectivo?'· <b>Efectivo</b>':'→ '+esc(S.accounts[bankIdx]?.name)}`;
@@ -3346,9 +3312,25 @@ function reopenCXC(id){
 }
 
 function delCXC(id){
-  icgConfirm('¿Eliminar esta factura? Si ya fue cobrada, el ingreso bancario no se revertirá.','Eliminar Factura','Eliminar').then(ok=>{
+  const x=S.cuentasCobrar.find(i=>i.id===id);
+  if(!x) return;
+  const pagos=x.pagos||[];
+  const idsVinculo=new Set(pagos.map(p=>p.id));
+  // Compatibilidad con registros viejos de un solo pago, de antes de que existiera
+  // el arreglo de abonos — ahí el Ingreso quedó vinculado directo al id de la factura.
+  if(x.estado==='pagada'||x.estado==='parcial') idsVinculo.add(x.id);
+  const ingresosVinculados=S.ingresos.filter(i=>i.fuente==='cxc' && idsVinculo.has(i.fuenteId));
+  const msg = ingresosVinculados.length
+    ? `Esta factura tiene ${ingresosVinculados.length} cobro(s) ya registrado(s) por un total de ${fmt(ingresosVinculados.reduce((s,i)=>s+i.monto,0))}. Al eliminar la factura, esos Ingresos también se eliminarán del Estado de Resultados. El movimiento bancario ya registrado NO se revertirá automáticamente — revísalo tú en Cuentas si hace falta.`
+    : '¿Eliminar esta factura de CxC permanentemente?';
+  icgConfirm(msg,'Eliminar Factura','Eliminar',true).then(ok=>{
     if(!ok)return;
-    S.cuentasCobrar=S.cuentasCobrar.filter(x=>x.id!==id); save(); renderCXC();
+    if(ingresosVinculados.length){
+      const idsAEliminar=new Set(ingresosVinculados.map(i=>i.id));
+      S.ingresos=S.ingresos.filter(i=>!idsAEliminar.has(i.id));
+    }
+    S.cuentasCobrar=S.cuentasCobrar.filter(i=>i.id!==id);
+    save(); renderCXC(); renderIngresos();
   });
 }
 
@@ -3564,6 +3546,11 @@ function addCXP(){
   if(isEditing){
     const item = S.cuentasPagar[_cxpSection].find(x=>x.id===_editingCXPId);
     if(!item){ notify('error','No Encontrado','El registro que editabas ya no existe.'); cancelEditCXP(); return; }
+    const yaAbonado = cxpPaidSoFar(item);
+    if(yaAbonado>0 && fieldsData.monto < yaAbonado - 0.009){
+      notify('error','Monto Inválido',`Este registro ya tiene ${fmt(yaAbonado)} pagado en abonos — el nuevo monto no puede ser menor a eso.`);
+      return;
+    }
     Object.assign(item, fieldsData); // solo actualiza los campos del formulario — id, estado, pagos, etc. quedan intactos
     _editingCXPId = null; _editingCXPSection = null;
     save(); renderCXP();
@@ -3774,10 +3761,25 @@ function reopenCXP(section, id){
   });
 }
 function deleteCXP(section, id){
-  icgConfirm('¿Eliminar este registro permanentemente?','Eliminar Registro','Eliminar').then(ok=>{
+  const item=(S.cuentasPagar[section]||[]).find(i=>i.id===id);
+  if(!item) return;
+  const pagos=item.pagos||[];
+  const idsVinculo=new Set(pagos.map(p=>p.id));
+  // Compatibilidad con registros viejos de un solo pago, de antes de que existiera
+  // el arreglo de abonos — ahí el Egreso quedó vinculado directo al id de la factura.
+  if(item.estado==='pagada'||item.estado==='parcial') idsVinculo.add(item.id);
+  const egresosVinculados=S.egresos.filter(e=>e.fuente==='cxp' && idsVinculo.has(e.fuenteId));
+  const msg = egresosVinculados.length
+    ? `Este registro tiene ${egresosVinculados.length} pago(s) ya registrado(s) por un total de ${fmt(egresosVinculados.reduce((s,e)=>s+e.monto,0))}. Al eliminarlo, esos Egresos también se eliminarán del Estado de Resultados. El movimiento bancario ya registrado NO se revertirá automáticamente — revísalo tú en Cuentas si hace falta.`
+    : '¿Eliminar este registro permanentemente?';
+  icgConfirm(msg,'Eliminar Registro','Eliminar',true).then(ok=>{
     if(!ok)return;
-    S.cuentasPagar[section]=S.cuentasPagar[section].filter(x=>x.id!==id);
-    save(); renderCXP();
+    if(egresosVinculados.length){
+      const idsAEliminar=new Set(egresosVinculados.map(e=>e.id));
+      S.egresos=S.egresos.filter(e=>!idsAEliminar.has(e.id));
+    }
+    S.cuentasPagar[section]=S.cuentasPagar[section].filter(i=>i.id!==id);
+    save(); renderCXP(); renderEgresos();
   });
 }
 
@@ -3909,7 +3911,7 @@ function renderBalanceGeneral(){
 
   // ── CAPITAL ──
   const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
-  const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>p.nombre==='BHD - Personal a Cuotas'||p.nombre==='BHD - Crediclick').reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
+  const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>(p.nombre==='PRÉSTAMO UNO'||p.nombre==='PRÉSTAMO DOS')&&p.estado!=='pagada').reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
   const capitalTitular = totalActivosFijos + saldosInicialesCuentas - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial, menos deuda que ya existía en ese momento
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
   const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
@@ -4046,7 +4048,7 @@ function confirmCXPPayment(){
                + (numPagos>1 ? ` (Abono ${numPagos})` : '');
     if(accountIdx>=0 && accountIdx<S.accounts.length){
       S.accounts[accountIdx].transactions.push({
-        id:Date.now()+1, date, type:'egreso', method:methodKey, amount, desc
+        id:Date.now()+1, date, type:'egreso', method:methodKey, amount, desc, ref
       });
       save(); // explicit save after pushTx to guarantee persistence
       renderTx(accountIdx);
@@ -4057,7 +4059,7 @@ function confirmCXPPayment(){
   save(); closeCXPPayModal(); renderCXP();
   // Base efectivo: el gasto se reconoce al pagar, no al recibir la obligación.
   // Histórico: mismo egreso para el Estado de Resultados, pero sin tocar ninguna cuenta bancaria.
-  autoEgresoFromCxP(item, amount, date, method, accountIdx, method==='historico', _cxpPaySection, pagoId);
+  autoEgresoFromCxP(item, amount, date, method, accountIdx, method==='historico', _cxpPaySection, pagoId, ref);
 
   const isPartial = newPending > 0.009;
   const pdetail=`Monto: ${fmt(amount)} → ${method==='historico'?'<b>Histórico (sin cuenta)</b>':esc(S.accounts[accountIdx]?.name)||''}${isPartial?'<br>Saldo pendiente: <strong>'+fmt(newPending)+'</strong>':'<br>Factura completamente saldada'}`;
@@ -4278,8 +4280,7 @@ function handleImportFile(event){
       if(!S.suplidores) S.suplidores=[];
       if(!S.ingresos)   S.ingresos=[];
       if(!S.egresos)    S.egresos=[];
-      S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
-      ensureCajaGeneral();
+      ensureEstadoIntegro();
       save(); renderTabs(); renderAccountPanels(); renderCCPanel(); refreshCXCBankSelect(); renderCXC(); activateTab(0);
       notify('success','Importación Exitosa','Todos tus datos han sido cargados.');
       event.target.value='';
@@ -4360,7 +4361,15 @@ function saveCliente(){
   if(origin==='cxc'){const s=document.getElementById('cxc-client');if(s)s.value=obj.id;}
   document.getElementById('clienteModal').dataset.origin='';
 }
-function deleteCliente(id){icgConfirm('¿Eliminar este cliente del directorio?','Eliminar Cliente','Eliminar').then(ok=>{if(!ok)return;S.clientes=S.clientes.filter(x=>x.id!==id);save();renderClientes();});}
+function deleteCliente(id){
+  const cliente=S.clientes.find(c=>c.id===id);
+  if(!cliente) return;
+  const pendientes=S.cuentasCobrar.filter(x=>x.clientId===id && x.estado!=='pagada');
+  const msg = pendientes.length
+    ? `${cliente.nombre} todavía tiene ${pendientes.length} factura(s) de CxC sin cobrar por un total de ${fmt(pendientes.reduce((s,x)=>s+cxcPending(x),0))}. Las facturas seguirán existiendo, pero perderás el acceso fácil a este contacto mientras la deuda sigue abierta. ¿Eliminar de todos modos?`
+    : '¿Eliminar este cliente del directorio?';
+  icgConfirm(msg,'Eliminar Cliente','Eliminar',true).then(ok=>{if(!ok)return;S.clientes=S.clientes.filter(x=>x.id!==id);save();renderClientes();});
+}
 function renderClientes(){
   const q=(document.getElementById('cli-search')?.value||'').toLowerCase();
   const tbody=document.getElementById('cli-tbody');if(!tbody)return;
@@ -4410,7 +4419,16 @@ function saveSuplidor(){
   // Rebuild CxP form so new suplidor appears in dropdown
   buildCXPForm(_cxpSection);
 }
-function deleteSuplidor(id){icgConfirm('¿Eliminar este beneficiario del directorio?','Eliminar Beneficiario','Eliminar').then(ok=>{if(!ok)return;S.suplidores=S.suplidores.filter(x=>x.id!==id);save();renderSuplidores();});}
+function deleteSuplidor(id){
+  const suplidor=S.suplidores.find(s=>s.id===id);
+  if(!suplidor) return;
+  const nombreNorm=normalizarTexto(suplidor.nombre);
+  const pendientes=Object.values(S.cuentasPagar).flat().filter(x=>x.estado!=='pagada' && normalizarTexto(x.nombre)===nombreNorm);
+  const msg = pendientes.length
+    ? `${suplidor.nombre} todavía tiene ${pendientes.length} registro(s) de CxP sin pagar por un total de ${fmt(pendientes.reduce((s,x)=>s+cxpPending(x),0))}. Los registros seguirán existiendo, pero perderás el acceso fácil a este contacto mientras la deuda sigue abierta. ¿Eliminar de todos modos?`
+    : '¿Eliminar este beneficiario del directorio?';
+  icgConfirm(msg,'Eliminar Beneficiario','Eliminar',true).then(ok=>{if(!ok)return;S.suplidores=S.suplidores.filter(x=>x.id!==id);save();renderSuplidores();});
+}
 function renderSuplidores(){
   const q=(document.getElementById('sup-search')?.value||'').toLowerCase();
   const list=S.suplidores.filter(s=>!q||s.nombre.toLowerCase().includes(q));
@@ -4786,7 +4804,15 @@ function imprimirRecibo(id){
   setTimeout(()=>{w.print();},600);
 }
 
-function delIngreso(id){icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(x=>x.id!==id);save();renderIngresos();});}
+function delIngreso(id){
+  const x=S.ingresos.find(i=>i.id===id);
+  if(!x) return;
+  if(x.fuente && x.fuente!=='manual'){
+    icgAlert(`Este ingreso viene de ${x.fuente==='cxc'?'un cobro de CxC':x.fuente==='recibo'?'un Recibo de Ingreso':'otro registro automático'} — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a ${x.fuente==='cxc'?'CxC':x.fuente==='recibo'?'Recibos de Ingreso':'el origen correspondiente'} para corregirlo desde la fuente.`,'No se Puede Eliminar Aquí');
+    return;
+  }
+  icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(i=>i.id!==id);save();renderIngresos();});
+}
 
 // ══════════════════ FASE 1: CARGAR COMPROBANTE (OCR) ══════════════════
 let _comp = {};
@@ -5370,7 +5396,7 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${esc(x.ref||'').replace(/'/g,"\\'")}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -5423,7 +5449,8 @@ function addEgreso(auto=false,data={}){
 
   const guardar=()=>{
     const suplidor=S.suplidores.find(x=>x.id===suplidorId);
-    S.egresos.push({id:Date.now()+Math.random(),fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    const egresoId=Date.now()+Math.random();
+    S.egresos.push({id:egresoId,fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
     S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
     if(!auto){
       if(esHistorico){
@@ -5441,7 +5468,9 @@ function addEgreso(auto=false,data={}){
         const ccDesc = desc
           ? (suplidor?.nombre ? `${desc} (${suplidor.nombre})` : desc)
           : (suplidor?.nombre || EGR_CAT_LABELS[cat] || 'Egreso');
-        cc.transactions.push({id:Date.now()+2, date:fecha, type:'cargo', amount:monto, desc:ccDesc, cat:cat});
+        // egresoRef vincula este cargo con el Egreso que lo creó, para poder avisar/limpiar
+        // en cascada si alguno de los dos se elimina más adelante.
+        cc.transactions.push({id:Date.now()+2, date:fecha, type:'cargo', amount:monto, desc:ccDesc, cat:cat, egresoRef:egresoId});
         cc.transactions.sort((a,b)=>a.date.localeCompare(b.date));
       }
       save();renderEgresos();
@@ -5467,7 +5496,24 @@ function addEgreso(auto=false,data={}){
   }
   guardar();
 }
-function delEgreso(id){icgConfirm('¿Eliminar este egreso del historial?','Eliminar Egreso','Eliminar').then(ok=>{if(!ok)return;S.egresos=S.egresos.filter(x=>x.id!==id);save();renderEgresos();});}
+function delEgreso(id){
+  const x=S.egresos.find(e=>e.id===id);
+  if(!x) return;
+  if(x.fuente && x.fuente!=='manual'){
+    icgAlert('Este egreso viene de un pago de CxP — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a CxP para corregirlo desde la fuente.','No se Puede Eliminar Aquí');
+    return;
+  }
+  const cargoVinculado = x.metodo==='tarjeta' ? S.creditCard.transactions.find(t=>t.egresoRef===id) : null;
+  const msg = cargoVinculado
+    ? `Este egreso también generó un cargo de ${fmt(cargoVinculado.amount)} en tu Tarjeta de Crédito. Al eliminar el egreso, ese cargo se eliminará también. ¿Continuar?`
+    : '¿Eliminar este egreso del historial?';
+  icgConfirm(msg,'Eliminar Egreso','Eliminar',true).then(ok=>{
+    if(!ok)return;
+    if(cargoVinculado) S.creditCard.transactions=S.creditCard.transactions.filter(t=>t.id!==cargoVinculado.id);
+    S.egresos=S.egresos.filter(e=>e.id!==id);
+    save(); renderEgresos(); updateCCCards(); renderCCTx();
+  });
+}
 function renderEgresos(){
   refreshEgresoSelects();
   // Sync Debitar de Cuenta visibility with current method selection
@@ -5486,7 +5532,7 @@ function renderEgresos(){
     const acct=x.esHistorico?'📋 Histórico':(S.accounts[x.cuentaIdx]?.name||'—');
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${esc(x.ref||'').replace(/'/g,"\\'")}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${esc(egrDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -5548,6 +5594,36 @@ function renderRentabilidad(){
 }
 
 function closeModal(id){document.getElementById(id)?.classList.remove('open');}
+
+// ── Cerrar ventanas emergentes con la tecla ESC ──
+// Reutiliza el botón de cerrar/cancelar que cada ventana YA tiene, en vez de reinventar
+// la lógica de cierre — así cualquier limpieza de estado que haga ese botón (cancelar una
+// edición en curso, resetear un formulario, etc.) sigue ocurriendo igual.
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+
+  const renameDialog = document.getElementById('renameDialog');
+  if(renameDialog && renameDialog.classList.contains('open')){ closeRename(); return; }
+
+  // El candado de PIN nunca se cierra con ESC — sería una forma de saltárselo.
+  const pinGate = document.getElementById('pinGateModal');
+  if(pinGate && pinGate.style.display!=='none') return;
+
+  const confirmEl = document.getElementById('confirmModal');
+  if(confirmEl && confirmEl.classList.contains('open')){
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const okBtn = document.getElementById('confirm-ok');
+    const btn = (cancelBtn && cancelBtn.offsetParent!==null) ? cancelBtn : okBtn;
+    if(btn) btn.click();
+    return;
+  }
+
+  const abiertos = Array.from(document.querySelectorAll('.modal-overlay.open')).filter(m=>m.id!=='confirmModal');
+  if(!abiertos.length) return;
+  const modal = abiertos[abiertos.length-1];
+  const btn = modal.querySelector('.modal-close') || modal.querySelector('.btn-ghost, .btn-secondary');
+  if(btn) btn.click();
+});
 
 // ══ QUICK CREATE CLIENTE (desde Ingresos) ══
 function openQuickCliente(){
@@ -5670,7 +5746,7 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
   'publicidad':'publicidad','impuestos':'impuestos','contabilidad':'contabilidad',
   'transportación':'transporte','otros':'otros'};
 
-function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,montoBruto=null,pagoId=null){
+function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,montoBruto=null,pagoId=null,ref=''){
   const fId = pagoId!=null ? pagoId : x.id;
   if(S.ingresos.find(i=>i.fuenteId===fId&&i.fuente==='cxc'))return;
   // Prorratea el ITBIS de la factura según la proporción de ESTE abono (no de toda la factura)
@@ -5678,14 +5754,14 @@ function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,mo
   const base = montoBruto!=null ? montoBruto : netAmount;
   const itbisFactura = parseFloat(x.itbis)||0;
   const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(base/x.amount) : 0;
-  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico});save();
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,ref,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico});save();
 }
-function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null,pagoId=null){
+function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null,pagoId=null,ref=''){
   const fId = pagoId!=null ? pagoId : item.id;
   if(S.egresos.find(e=>e.fuenteId===fId&&e.fuente==='cxp'))return;
   const cat = section==='prestamos' ? 'prestamos' : (item.categoriaEgreso ? (CXP_CAT_LABEL_TO_KEY[item.categoriaEgreso]||'otros') : 'otros');
   addEgreso(true,{fecha:date,suplidorId:null,suplidorNombre:item.nombre,categoria:cat,monto:amount,
-    desc:item.concepto||item.nombre,metodo:method,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:fId,esHistorico});
+    desc:item.concepto||item.nombre,metodo:method,ref,cuentaIdx:accountIdx,fuente:'cxp',fuenteId:fId,esHistorico});
   save();
 }
 
@@ -5703,18 +5779,55 @@ function repararEgresosFaltantesDeCxP(){
   let creados=0;
   Object.keys(S.cuentasPagar||{}).forEach(section=>{
     (S.cuentasPagar[section]||[]).forEach(item=>{
-      (item.pagos||[]).forEach(p=>{
-        const yaExiste = S.egresos.find(e=>e.fuenteId===p.id&&e.fuente==='cxp');
+      const pagos=item.pagos||[];
+      if(pagos.length){
+        pagos.forEach(p=>{
+          const yaExiste = S.egresos.find(e=>e.fuenteId===p.id&&e.fuente==='cxp');
+          if(!yaExiste){
+            autoEgresoFromCxP(item, p.amount, p.date, p.method, p.accountIdx, p.method==='historico', section, p.id, p.ref||'');
+            creados++;
+          }
+        });
+      } else if((item.estado==='pagada'||item.estado==='parcial') && item.paidDate){
+        // Registro viejo de un solo pago, de antes de que existiera el arreglo de abonos —
+        // aquí el pago vive directo en los campos del item (paidDate/payMethod/...), no en pagos[].
+        const yaExiste = S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp');
         if(!yaExiste){
-          autoEgresoFromCxP(item, p.amount, p.date, p.method, p.accountIdx, p.method==='historico', section, p.id);
+          autoEgresoFromCxP(item, item.monto, item.paidDate, item.payMethod||'transferencia', item.payAccountIdx, item.payMethod==='historico', section, null, item.payRef||'');
           creados++;
         }
-      });
+      }
     });
   });
   if(creados>0){
     save();
     notify('info','Reparación Automática',`Se recuperaron ${creados} egreso(s) de pagos a CxP que no se habían registrado correctamente. Revisa el módulo Egresos.`);
+  }
+}
+function repararIngresosFaltantesDeCxC(){
+  let creados=0;
+  (S.cuentasCobrar||[]).forEach(x=>{
+    const pagos=x.pagos||[];
+    if(pagos.length){
+      pagos.forEach(p=>{
+        const yaExiste = S.ingresos.find(i=>i.fuenteId===p.id&&i.fuente==='cxc');
+        if(!yaExiste){
+          autoIngresoFromCxC(x, p.netAmount, p.date, p.method, p.bankIdx, p.method==='historico', p.montoBruto, p.id, p.ref||'');
+          creados++;
+        }
+      });
+    } else if((x.estado==='pagada'||x.estado==='parcial') && x.paidDate){
+      // Mismo caso que en CxP: registro viejo de un solo cobro, sin arreglo de abonos.
+      const yaExiste = S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc');
+      if(!yaExiste){
+        autoIngresoFromCxC(x, x.amountPaid!=null?x.amountPaid:x.amount, x.paidDate, x.payMethod||'transferencia', x.payBankIdx, x.payMethod==='historico', x.amountPaid, null, x.payRef||'');
+        creados++;
+      }
+    }
+  });
+  if(creados>0){
+    save();
+    notify('info','Reparación Automática',`Se recuperaron ${creados} ingreso(s) de cobros de CxC que no se habían registrado correctamente. Revisa el módulo Ingresos.`);
   }
 }
 
@@ -6471,28 +6584,28 @@ let _appInitialized   = false;
 // Garantiza que "Caja General" exista en S.accounts — se llama en TODO punto
 // donde S se reasigna por completo (carga inicial, sync de Firebase, o
 // respaldo a localStorage), para que nunca quede ausente en los datos reales.
-function ensureCajaGeneral(){
+// Garantiza que todos los campos esenciales del estado existan con su valor por
+// defecto seguro — se llama en TODO punto donde S se reasigna por completo (arranque
+// inicial, sincronización con Firebase, o cualquiera de los 4 caminos de respaldo),
+// para que el sistema nunca quede con piezas faltantes sin importar de dónde vengan
+// los datos. Sustituye a los antiguos "sembradores" de datos de ejemplo (activos fijos
+// y préstamos con montos genéricos) — esos ya no pertenecen al código de arranque de
+// un sistema en producción; si faltan, se agregan a mano con los datos reales.
+function ensureEstadoIntegro(){
   if(!S.accounts) S.accounts=[];
-  if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
-    S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
-  }
-}
-
-function applyFirebaseData(data){
-  S = data;
-  if(!S.accounts||!S.accounts.length) S.accounts = defaultState().accounts;
+  S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
   ensureCajaGeneral();
-  if(!S.creditCard)  S.creditCard  = defaultState().creditCard;
-  if(!S.cuentasCobrar) S.cuentasCobrar = [];
-  if(!S.cuentasPagar)  S.cuentasPagar  = {proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
+  if(!S.creditCard) S.creditCard=defaultState().creditCard;
+  if(!S.cuentasCobrar) S.cuentasCobrar=[];
+  if(!S.cuentasPagar) S.cuentasPagar={proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
   ['proveedores','serviciosFijos','prestamos','otros'].forEach(k=>{if(!S.cuentasPagar[k])S.cuentasPagar[k]=[];});
-  if(!S.clientes)   S.clientes   = [];
-  if(!S.suplidores) S.suplidores = [];
-  if(!S.ingresos)   S.ingresos   = [];
-  if(!S.egresos)    S.egresos    = [];
-  if(!S.categoriasIngresos) S.categoriasIngresos = [];
-  if(!S.categoriasEgresos)  S.categoriasEgresos  = [];
-  if(!S.categoriasTarjeta)  S.categoriasTarjeta  = [];
+  if(!S.clientes)   S.clientes=[];
+  if(!S.suplidores) S.suplidores=[];
+  if(!S.ingresos)   S.ingresos=[];
+  if(!S.egresos)    S.egresos=[];
+  if(!S.categoriasIngresos) S.categoriasIngresos=[];
+  if(!S.categoriasEgresos)  S.categoriasEgresos=[];
+  if(!S.categoriasTarjeta)  S.categoriasTarjeta=[];
   if(!S.catAccountMap) S.catAccountMap={ingresos:{},egresos:{},tarjeta:{}};
   if(!S.catAccountMap.ingresos) S.catAccountMap.ingresos={};
   if(!S.catAccountMap.egresos)  S.catAccountMap.egresos={};
@@ -6503,20 +6616,7 @@ function applyFirebaseData(data){
   if(!S.activosFijos) S.activosFijos=[];
   if(!S.recibos) S.recibos=[];
   if(S.recibosCounter===undefined) S.recibosCounter=0;
-  if(!S.activosFijos.length && !S._activosFijosSembrados){
-    [{nombre:'Láser CO2',monto:200000},{nombre:'Laminadora',monto:60000},{nombre:'Plotter de Corte',monto:52000},
-     {nombre:'UPS',monto:50000},{nombre:'Impresora Epson ET-8550',monto:50000},{nombre:'Plancha Sublimar Tazas',monto:18000},
-     {nombre:'Acrylic Bending Machine',monto:15000},{nombre:'Inversor',monto:15000},{nombre:'Baterías',monto:32000},
-     {nombre:'Computadoras',monto:50000}
-    ].forEach(m=>S.activosFijos.push({id:Date.now()+Math.random(),nombre:m.nombre,monto:m.monto,fecha:null}));
-    S._activosFijosSembrados=true;
-  }
-  if(!S._prestamosBHDSembrados && !S.cuentasPagar.prestamos.some(p=>p.nombre==='BHD - Personal a Cuotas')){
-    const proximaFechaDia=(dia)=>{ const n=new Date(); let y=n.getFullYear(),m=n.getMonth(); if(n.getDate()>=dia) m+=1; const d=new Date(y,m,dia); return d.toISOString().slice(0,10); };
-    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random(),nombre:'BHD - Personal a Cuotas',concepto:'Préstamo personal',monto:0,saldo:364216.51,fecha:null,vence:proximaFechaDia(29),metodo:'debito_automático',tasa:21.35,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
-    S.cuentasPagar.prestamos.push({id:Date.now()+Math.random()+1,nombre:'BHD - Crediclick',concepto:'Línea de crédito personal',monto:0,saldo:368539.07,fecha:null,vence:proximaFechaDia(21),metodo:'debito_automático',tasa:23.70,categoriaEgreso:'otros',estado:'pendiente',pagos:[]});
-    S._prestamosBHDSembrados=true;
-  }
+  // Categorías reservadas de nómina del titular — deben existir siempre
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
    {key:'aporte_infotep',label:'Aporte Patronal INFOTEP'},
@@ -6525,10 +6625,17 @@ function applyFirebaseData(data){
    {key:'isr_anual',label:'ISR Anual'},
    {key:'prestamos',label:'Préstamos'}
   ].forEach(rc=>{ if(!S.categoriasEgresos.some(c=>c.key===rc.key)) S.categoriasEgresos.push(rc); });
-  S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
+}
+function ensureCajaGeneral(){
+  if(!S.accounts) S.accounts=[];
   if(!S.accounts.some(a=>(a.name||'').toUpperCase().includes('CAJA GENERAL'))){
     S.accounts.unshift({name:'Caja General',initialBalance:0,transactions:[]});
   }
+}
+
+function applyFirebaseData(data){
+  S = data;
+  ensureEstadoIntegro();
   try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){}
 }
 
@@ -6563,7 +6670,6 @@ function loadFromFirebase(){
       _appInitialized = true;
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
-      ensureCajaGeneral();
       init();
       showConnectionError();
     }
@@ -6579,7 +6685,6 @@ function loadFromFirebase(){
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local){
         S = local;
-        ensureCajaGeneral();
         window.ICG_DOC.set(JSON.parse(JSON.stringify({...S, _ts: Date.now()})))
           .then(()=>notify('success','Datos Migrados','Tus datos locales fueron subidos a la nube ☁'));
       } else {
@@ -6601,7 +6706,6 @@ function loadFromFirebase(){
       } else {
         const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local) S = local;
-        ensureCajaGeneral();
       }
       showLoadingOverlay(false);
       _appInitialized = true;
@@ -6612,7 +6716,6 @@ function loadFromFirebase(){
       showLoadingOverlay(false);
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
-      ensureCajaGeneral();
       _appInitialized = true;
       init();
       showConnectionError();
