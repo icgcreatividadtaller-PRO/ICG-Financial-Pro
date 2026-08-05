@@ -301,7 +301,7 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
 @keyframes hudEchoBreathe{0%,100%{opacity:1;}50%{opacity:.5;}}
 @media (prefers-reduced-motion: reduce){.hud-echo{animation:none;}}
 .hud-echo-1{inset:-11px;clip-path:polygon(0 0, calc(100% - 42px) 0, 100% 42px, 100% 100%, 0 100%);
-  transform:rotate(-1deg);box-shadow:0 0 36px rgba(34,211,238,.1);}
+  transform:rotate(-1deg);filter:drop-shadow(0 0 26px rgba(34,211,238,.14));}
 .hud-echo-2{inset:-22px;border-color:rgba(34,211,238,.14);
   clip-path:polygon(0 0, calc(100% - 56px) 0, 100% 56px, 100% 100%, 0 100%);
   transform:rotate(1.3deg);animation-delay:.6s;}
@@ -318,13 +318,16 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
     repeating-linear-gradient(115deg, rgba(103,232,249,.035) 0px, rgba(103,232,249,.035) 1px, transparent 1px, transparent 22px),
     repeating-linear-gradient(25deg, rgba(103,232,249,.03) 0px, rgba(103,232,249,.03) 1px, transparent 1px, transparent 22px),
     var(--s1);
-  box-shadow:
-    0 50px 120px rgba(0,0,0,.8),
-    0 0 0 1px rgba(34,211,238,.18),
-    0 0 70px rgba(34,211,238,.28),
-    0 0 160px rgba(34,211,238,.14),
-    0 0 260px rgba(34,211,238,.06),
-    inset 0 1px 0 rgba(103,232,249,.16);
+  /* El corte diagonal (clip-path) recorta cualquier box-shadow que se ponga en el
+     mismo elemento — por eso el resplandor grande se movió a filter:drop-shadow(),
+     que sí sobrevive al recorte. Solo el brillo interior (inset) se queda como box-shadow. */
+  box-shadow: inset 0 1px 0 rgba(103,232,249,.16);
+  filter:
+    drop-shadow(0 40px 90px rgba(0,0,0,.75))
+    drop-shadow(0 0 3px rgba(34,211,238,.5))
+    drop-shadow(0 0 45px rgba(34,211,238,.35))
+    drop-shadow(0 0 100px rgba(34,211,238,.2))
+    drop-shadow(0 0 170px rgba(34,211,238,.1));
 }
 .modal-hud::before{
   content:'';position:absolute;top:0;right:0;width:34px;height:34px;pointer-events:none;z-index:3;
