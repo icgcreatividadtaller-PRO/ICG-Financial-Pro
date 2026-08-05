@@ -664,8 +664,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 
 <!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
-<div id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
-  <div style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
+<div class="modal-overlay" id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
+  <div class="modal" style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
     <h3 id="pinGateTitle" style="color:#818cf8;margin:0 0 8px;font-size:18px;">Acceso Protegido</h3>
     <p id="pinGateSubtitle" style="color:#9ca3af;font-size:15px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
     <div id="pinGateOldWrap" style="display:none;margin-bottom:12px;">
@@ -5157,17 +5157,18 @@ function renderRevisionFactura(){
   wrap.style.display='';
   const clienteMatch = p.clienteNombre ? buscarEntidadEnTextoCompleto(p.clienteNombre, S.clientes, 'nombre') : null;
   const gap = p.ncf ? verificarSecuenciaNCF(p.ncf) : null;
+  const esAnuladaInicial = !!p.anulada;
 
   const avisoAnulada = p.anulada
     ? `<div style="background:rgba(107,122,153,.1);border:1px solid rgba(107,122,153,.4);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#c0c6d8;">
-        🏷️ <strong>El sistema detectó la palabra "ANULADA"</strong> en esta factura. Se va a registrar en RD$0.00, sin afectar tus Ingresos ni Balance — solo para dejar el número en tu secuencia.
+        🏷️ <strong>El sistema detectó la palabra "ANULADA"</strong> en esta factura. Se va a registrar en RD$0.00, sin afectar tus Ingresos ni Balance — solo para dejar el número en tu secuencia. Los campos de monto de abajo quedan deshabilitados porque no aplican.
         <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;">
-          <input type="checkbox" id="cf-es-anulada" checked onchange="toggleCfAnulada()"> En realidad NO está anulada — es una factura válida
+          <input type="checkbox" id="cf-es-anulada" onchange="toggleCfAnulada()"> En realidad NO está anulada — es una factura válida (habilitar montos)
         </label>
       </div>`
     : `<div style="margin-bottom:12px;">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#8899bb;">
-          <input type="checkbox" id="cf-es-anulada" onchange="toggleCfAnulada()"> Esta factura en realidad está anulada
+          <input type="checkbox" id="cf-es-anulada" onchange="toggleCfAnulada()"> Esta factura en realidad está anulada (deshabilitar montos)
         </label>
       </div>`;
 
@@ -5189,13 +5190,13 @@ function renderRevisionFactura(){
         </select>
       </div>
       <div class="form-group"><label>NCF</label><input autocomplete="off" type="text" id="cf-ncf" value="${esc(p.ncf||'')}"></div>
-      <div class="form-group"><label>Categoría</label><select id="cf-categoria"><option value="">— Elegir —</option>${getAllIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Categoría</label><select id="cf-categoria" ${esAnuladaInicial?'disabled':''}><option value="">— Elegir —</option>${getAllIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select></div>
       <div class="form-group"><label>Fecha Emisión</label><input autocomplete="off" type="date" id="cf-fecha-emision" value="${esc(p.fechaExpedicion||today())}"></div>
       <div class="form-group"><label>Fecha Vencimiento</label><input autocomplete="off" type="date" id="cf-fecha-vencimiento" value="${esc(p.fechaVencimiento||today())}"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="cf-desc" value="${esc(p.descripcion||'')}"></div>
-      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this)"></div>
-      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this)"></div>
-      <div class="form-group"><label>Total (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-total" value="${fmtInputNum(p.total)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this)" ${esAnuladaInicial?'disabled':''}></div>
+      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this)" ${esAnuladaInicial?'disabled':''}></div>
+      <div class="form-group"><label>Total (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-total" value="${fmtInputNum(p.total)}" oninput="formatMontoInput(this)" ${esAnuladaInicial?'disabled':''}></div>
     </div>
     <details style="margin-top:14px;">
       <summary style="cursor:pointer;font-size:11px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;">Ver texto detectado</summary>
@@ -5209,7 +5210,12 @@ function renderRevisionFactura(){
 
 function toggleCfAnulada(){
   const chk=document.getElementById('cf-es-anulada');
-  _cf.anuladaOverride = _cf.parsed.anulada ? !chk.checked : chk.checked;
+  const esAnuladaAhora = _cf.parsed.anulada ? !chk.checked : chk.checked;
+  _cf.anuladaOverride = esAnuladaAhora;
+  ['cf-categoria','cf-subtotal','cf-itbis','cf-total'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.disabled = esAnuladaAhora;
+  });
 }
 
 function confirmarCargaFactura(){
@@ -7087,32 +7093,37 @@ let _appInitialized   = false;
 // y respeta cualquier modal que ya lo tenga puesto a mano (como Cargar Factura de Venta),
 // para no duplicar el envoltorio.
 function aplicarEstiloHUDATodosLosModales(){
-  document.querySelectorAll('.modal-overlay > .modal').forEach(modal=>{
-    if(modal.classList.contains('modal-hud')) return;
-    const overlay=modal.parentElement;
+  Array.from(document.querySelectorAll('.modal-overlay > .modal')).forEach(modal=>{
+    try{
+      if(modal.classList.contains('modal-hud')) return;
+      const overlay=modal.parentElement;
+      if(!overlay) return;
 
-    const anchoActual=modal.style.maxWidth || getComputedStyle(modal).maxWidth;
-    const wrap=document.createElement('div');
-    wrap.className='hud-wrap';
-    if(anchoActual && anchoActual!=='none') wrap.style.maxWidth=anchoActual;
-    modal.style.maxWidth='';
+      const anchoActual=modal.style.maxWidth || getComputedStyle(modal).maxWidth;
+      const wrap=document.createElement('div');
+      wrap.className='hud-wrap';
+      if(anchoActual && anchoActual!=='none') wrap.style.maxWidth=anchoActual;
+      modal.style.maxWidth='';
 
-    overlay.insertBefore(wrap, modal);
-    const shadow=document.createElement('div'); shadow.className='hud-shadow';
-    const echo2=document.createElement('div'); echo2.className='hud-echo hud-echo-2';
-    const echo1=document.createElement('div'); echo1.className='hud-echo hud-echo-1';
-    wrap.appendChild(shadow); wrap.appendChild(echo2); wrap.appendChild(echo1); wrap.appendChild(modal);
+      overlay.insertBefore(wrap, modal);
+      const shadow=document.createElement('div'); shadow.className='hud-shadow';
+      const echo2=document.createElement('div'); echo2.className='hud-echo hud-echo-2';
+      const echo1=document.createElement('div'); echo1.className='hud-echo hud-echo-1';
+      wrap.appendChild(shadow); wrap.appendChild(echo2); wrap.appendChild(echo1); wrap.appendChild(modal);
 
-    modal.classList.add('modal-hud');
-    const cornerTl=document.createElement('span'); cornerTl.className='hud-corner hud-corner-tl';
-    const cornerBl=document.createElement('span'); cornerBl.className='hud-corner hud-corner-bl';
-    const sweep=document.createElement('span'); sweep.className='hud-sweep';
-    modal.prepend(sweep); modal.prepend(cornerBl); modal.prepend(cornerTl);
+      modal.classList.add('modal-hud');
+      const cornerTl=document.createElement('span'); cornerTl.className='hud-corner hud-corner-tl';
+      const cornerBl=document.createElement('span'); cornerBl.className='hud-corner hud-corner-bl';
+      const sweep=document.createElement('span'); sweep.className='hud-sweep';
+      modal.prepend(sweep); modal.prepend(cornerBl); modal.prepend(cornerTl);
 
-    const h2=modal.querySelector('h2');
-    if(h2 && !h2.querySelector('.hud-dot')){
-      const dot=document.createElement('span'); dot.className='hud-dot';
-      h2.prepend(dot);
+      const h2=modal.querySelector('h2');
+      if(h2 && !h2.querySelector('.hud-dot')){
+        const dot=document.createElement('span'); dot.className='hud-dot';
+        h2.prepend(dot);
+      }
+    }catch(err){
+      console.error('No se pudo aplicar el estilo HUD a un modal:', modal?.id||modal, err);
     }
   });
 }
