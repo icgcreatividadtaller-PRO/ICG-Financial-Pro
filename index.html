@@ -277,7 +277,7 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
 .cc-meter-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--indigo2),var(--red));transition:width .5s;}
 
 /* ── MODALS ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(2,5,16,.9);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(1,3,10,.96);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(7px);}
 .modal-overlay.open{display:flex;}
 .modal{
   background:var(--s1);border:2px solid rgba(129,140,248,.28);
@@ -288,13 +288,13 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
 }
 @keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 /* ══ MODAL "HUD" — panel futurista flotante, con planos superpuestos, en prueba en Cargar Factura ══ */
-.hud-wrap{position:relative;width:94%;max-width:600px;animation:hudFloat 5s ease-in-out infinite;}
+.hud-wrap{position:relative;width:94%;max-width:600px;animation:hudFloat 8s ease-in-out infinite;}
 .hud-shadow{position:absolute;left:50%;bottom:-34px;width:72%;height:26px;border-radius:50%;
   transform:translateX(-50%);pointer-events:none;
   background:radial-gradient(ellipse at center, rgba(0,0,0,.6) 0%, rgba(0,0,0,.25) 55%, transparent 75%);
-  filter:blur(3px);animation:hudShadowPulse 5s ease-in-out infinite;}
-@keyframes hudFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
-@keyframes hudShadowPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:.85;}50%{transform:translateX(-50%) scale(.78);opacity:.4;}}
+  filter:blur(3px);animation:hudShadowPulse 8s ease-in-out infinite;}
+@keyframes hudFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+@keyframes hudShadowPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:.85;}50%{transform:translateX(-50%) scale(.72);opacity:.35;}}
 @media (prefers-reduced-motion: reduce){.hud-wrap{animation:none;}.hud-shadow{animation:none;}}
 .hud-echo{position:absolute;pointer-events:none;border:1px solid rgba(34,211,238,.24);border-radius:2px;
   animation:hudEchoBreathe 4s ease-in-out infinite;}
@@ -2395,6 +2395,7 @@ function methodBadge(m){
 // ══════════════════ INIT ══════════════════
 function init(){
   ensureEstadoIntegro();
+  aplicarEstiloHUDATodosLosModales();
   document.getElementById('cc-date').value=today();
   document.getElementById('cxc-issued').value=today();
   document.getElementById('ing-fecha').value=today();
@@ -7081,6 +7082,40 @@ let _appInitialized   = false;
 // los datos. Sustituye a los antiguos "sembradores" de datos de ejemplo (activos fijos
 // y préstamos con montos genéricos) — esos ya no pertenecen al código de arranque de
 // un sistema en producción; si faltan, se agregan a mano con los datos reales.
+// Aplica el marco "HUD" (planos eco, esquinas, brillo, flote, barrido de luz) a TODAS
+// las ventanas emergentes del sistema automáticamente — corre una sola vez al arrancar,
+// y respeta cualquier modal que ya lo tenga puesto a mano (como Cargar Factura de Venta),
+// para no duplicar el envoltorio.
+function aplicarEstiloHUDATodosLosModales(){
+  document.querySelectorAll('.modal-overlay > .modal').forEach(modal=>{
+    if(modal.classList.contains('modal-hud')) return;
+    const overlay=modal.parentElement;
+
+    const anchoActual=modal.style.maxWidth || getComputedStyle(modal).maxWidth;
+    const wrap=document.createElement('div');
+    wrap.className='hud-wrap';
+    if(anchoActual && anchoActual!=='none') wrap.style.maxWidth=anchoActual;
+    modal.style.maxWidth='';
+
+    overlay.insertBefore(wrap, modal);
+    const shadow=document.createElement('div'); shadow.className='hud-shadow';
+    const echo2=document.createElement('div'); echo2.className='hud-echo hud-echo-2';
+    const echo1=document.createElement('div'); echo1.className='hud-echo hud-echo-1';
+    wrap.appendChild(shadow); wrap.appendChild(echo2); wrap.appendChild(echo1); wrap.appendChild(modal);
+
+    modal.classList.add('modal-hud');
+    const cornerTl=document.createElement('span'); cornerTl.className='hud-corner hud-corner-tl';
+    const cornerBl=document.createElement('span'); cornerBl.className='hud-corner hud-corner-bl';
+    const sweep=document.createElement('span'); sweep.className='hud-sweep';
+    modal.prepend(sweep); modal.prepend(cornerBl); modal.prepend(cornerTl);
+
+    const h2=modal.querySelector('h2');
+    if(h2 && !h2.querySelector('.hud-dot')){
+      const dot=document.createElement('span'); dot.className='hud-dot';
+      h2.prepend(dot);
+    }
+  });
+}
 function ensureEstadoIntegro(){
   if(!S.accounts) S.accounts=[];
   S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
