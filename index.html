@@ -602,8 +602,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div id="pin-gate-error" style="color:#ef4444;font-size:15px;margin-bottom:14px;display:none;"></div>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" style="flex:1;" onclick="cancelPinGate()">Cancelar</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="confirmPinGate()">Continuar</button>
+      <button class="btn btn-secondary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="cancelPinGate()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="confirmPinGate()">Continuar</button>
     </div>
   </div>
 </div>
@@ -885,6 +885,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
       <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:15px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
+      <button class="btn btn-secondary" onclick="openCargarFacturaModal()">📄 Cargar Factura de Venta</button>
       <button class="btn btn-ghost" id="cxc-cancel-btn" style="display:none;font-size:15px;" onclick="cancelEditCXC()">✕ Cancelar edición</button>
     </div>
   </div>
@@ -898,6 +899,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="vencida">Solo Vencidas</option>
           <option value="parcial">Parcial</option>
           <option value="pagada">Pagada</option>
+          <option value="anulada">Anulada</option>
         </select>
       </div>
       <div class="form-group"><label>Buscar cliente</label><input autocomplete="off" type="text" id="cxc-filter-client" oninput="renderCXC()" placeholder="Buscar..." style="width:160px;"></div>
@@ -1056,7 +1058,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
 
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-primary" style="flex:1;" onclick="confirmCXPPayment()">Confirmar Pago</button>
+      <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="confirmCXPPayment()">Confirmar Pago</button>
       <button class="btn btn-secondary" onclick="closeCXPPayModal()">Cancelar</button>
     </div>
     <p style="font-size:16px;color:#9ca3af;margin-top:10px;">El monto se debitará automáticamente de la cuenta seleccionada.</p>
@@ -1821,7 +1823,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
 
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-primary" style="flex:1;" onclick="confirmPayment()">Confirmar Cobro</button>
+      <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="confirmPayment()">Confirmar Cobro</button>
       <button class="btn btn-ghost" onclick="closePayModal()">Cancelar</button>
     </div>
   </div>
@@ -1852,7 +1854,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="grid-column:span 2;"><label>Dirección</label><input autocomplete="off" type="text" id="cli-dir" placeholder="Dirección del cliente"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-primary" style="flex:1;" onclick="saveCliente()">Guardar</button>
+      <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="saveCliente()">Guardar</button>
       <button class="btn btn-secondary" onclick="closeModal('clienteModal')">Cancelar</button>
     </div>
   </div>
@@ -1918,7 +1920,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div id="ccbal-preview" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#ef4444;">RD$0.00</div>
     </div>
     <div style="display:flex;gap:10px;margin-top:4px;">
-      <button class="btn btn-indigo" style="flex:1;" onclick="applyCCBalance()">Aplicar Balance</button>
+      <button class="btn btn-indigo" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="applyCCBalance()">Aplicar Balance</button>
       <button class="btn btn-ghost" onclick="closeModal('ccBalanceModal')">Cancelar</button>
     </div>
   </div>
@@ -1967,7 +1969,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="grid-column:span 2;"><label>Email</label><input autocomplete="off" type="email" id="qc-email" placeholder="correo@cliente.com"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-indigo" style="flex:1;" onclick="saveQuickCliente()">Guardar y Seleccionar</button>
+      <button class="btn btn-indigo" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="saveQuickCliente()">Guardar y Seleccionar</button>
       <button class="btn btn-ghost" onclick="closeModal('quickClienteModal')">Cancelar</button>
     </div>
   </div>
@@ -1986,7 +1988,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="grid-column:span 2;"><label>Email</label><input autocomplete="off" type="email" id="qb-email" placeholder="correo@beneficiario.com"></div>
     </div>
     <div style="display:flex;gap:10px;margin-top:18px;">
-      <button class="btn btn-indigo" style="flex:1;" onclick="saveQuickBeneficiario()">Guardar y Seleccionar</button>
+      <button class="btn btn-indigo" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="saveQuickBeneficiario()">Guardar y Seleccionar</button>
       <button class="btn btn-ghost" onclick="closeModal('quickBeneficiarioModal')">Cancelar</button>
     </div>
   </div>
@@ -2024,6 +2026,55 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-ghost" onclick="closeEditRefModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="guardarEditRef()">Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ DETALLE DE CATEGORÍA (Estado de Resultados — clic en cualquier barra) ══ -->
+<div class="modal-overlay" id="catDetailModal">
+  <div class="modal" style="max-width:640px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 id="catDetailTitle" style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;"></h2>
+      <button class="modal-close" onclick="closeModal('catDetailModal')">✕</button>
+    </div>
+    <div id="catDetailBody" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- ══ SECUENCIA NCF INCOMPLETA ══ -->
+<div class="modal-overlay" id="ncfGapModal">
+  <div class="modal" style="max-width:440px;border-radius:14px;padding:28px;">
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;">
+      <div style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:rgba(253,201,1,.12);color:#fdc901;">⚠️</div>
+      <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.03em;font-weight:700;line-height:1.4;padding-top:9px;">Secuencia Incompleta</h2>
+    </div>
+    <p id="ncfGapMsg" style="font-size:15px;color:#a8b4cc;line-height:1.65;margin:0 0 22px;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" style="width:100%;white-space:normal;box-sizing:border-box;" onclick="ncfGapMarcarAnulada()">Marcar como Anulada</button>
+      <button class="btn btn-secondary" style="width:100%;white-space:normal;box-sizing:border-box;" onclick="ncfGapContinuar()">Continuar de Todos Modos</button>
+      <button class="btn btn-ghost" style="width:100%;white-space:normal;box-sizing:border-box;" onclick="ncfGapCancelar()">Cancelar — Voy a Buscarla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARGAR FACTURA DE VENTA (lectura de PDF + extracción automática) ══ -->
+<div class="modal-overlay" id="cargarFacturaModal">
+  <div class="modal" style="max-width:600px;border-color:rgba(129,140,248,.4);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">📄 Cargar Factura de Venta</h2>
+      <button class="modal-close" onclick="closeCargarFacturaModal()">✕</button>
+    </div>
+
+    <div id="cf-step-upload">
+      <p style="font-size:13px;color:#8899bb;line-height:1.6;margin-bottom:16px;">Sube el PDF de la factura tal como la generaste. El sistema lee el cliente, NCF, fechas, montos — y si está marcada como ANULADA, la reconoce automáticamente. Tú revisas todo antes de guardar y le asignas la categoría.</p>
+      <input autocomplete="off" type="file" id="cf-file-input" accept="application/pdf,image/*" onchange="handleFacturaFile(this)" style="width:100%;padding:10px;border:2px dashed rgba(129,140,248,.3);border-radius:8px;background:rgba(129,140,248,.04);color:#8899bb;font-size:13px;">
+    </div>
+
+    <div id="cf-step-processing" style="display:none;text-align:center;padding:36px 0;">
+      <div style="width:36px;height:36px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;margin:0 auto;animation:compSpin 0.8s linear infinite;"></div>
+      <p id="cf-processing-msg" style="margin-top:16px;font-size:13px;color:#8899bb;">Leyendo factura...</p>
+    </div>
+
+    <div id="cf-step-review" style="display:none;"></div>
   </div>
 </div>
 
@@ -3142,40 +3193,51 @@ function addCXC(){
     document.getElementById('cxc-invoice').focus();
     return;
   }
-  const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[]};
 
-  const anticipo=parseFloat(document.getElementById('cxc-anticipo')?.value)||0;
-  if(anticipo>0){
-    if(anticipo>amount+0.009){
-      notify('error','Anticipo Excedido',`El anticipo (${fmt(anticipo)}) no puede ser mayor al total de la factura (${fmt(amount)}).`);
-      return;
+  const procederConCreacionCxC=()=>{
+    const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[]};
+
+    const anticipo=parseFloat(document.getElementById('cxc-anticipo')?.value)||0;
+    if(anticipo>0){
+      if(anticipo>amount+0.009){
+        notify('error','Anticipo Excedido',`El anticipo (${fmt(anticipo)}) no puede ser mayor al total de la factura (${fmt(amount)}).`);
+        return;
+      }
+      // Este dinero ya se contó como Ingreso cuando llegó vía Recibo — aquí solo se
+      // reduce el pendiente de la factura, sin volver a generar un Ingreso nuevo.
+      nuevaFactura.pagos.push({id:Date.now()+1,date:issued,montoBruto:anticipo,netAmount:anticipo,method:'anticipo_previo',bankIdx:null,retType:'ninguna',retAmount:0,ref:'Anticipo ya cobrado vía Recibo(s) de Ingreso'});
+      const pendienteInicial=amount-anticipo;
+      if(pendienteInicial<=0.009){ nuevaFactura.estado='pagada'; nuevaFactura.paidDate=issued; }
+      else { nuevaFactura.estado='parcial'; }
     }
-    // Este dinero ya se contó como Ingreso cuando llegó vía Recibo — aquí solo se
-    // reduce el pendiente de la factura, sin volver a generar un Ingreso nuevo.
-    nuevaFactura.pagos.push({id:Date.now()+1,date:issued,montoBruto:anticipo,netAmount:anticipo,method:'anticipo_previo',bankIdx:null,retType:'ninguna',retAmount:0,ref:'Anticipo ya cobrado vía Recibo(s) de Ingreso'});
-    const pendienteInicial=amount-anticipo;
-    if(pendienteInicial<=0.009){ nuevaFactura.estado='pagada'; nuevaFactura.paidDate=issued; }
-    else { nuevaFactura.estado='parcial'; }
-  }
 
-  S.cuentasCobrar.push(nuevaFactura);
-  save(); renderCXC();
-  document.getElementById('cxc-invoice').value='';
-  const invEl=document.getElementById('cxc-invoice');
-  if(invEl){invEl.style.borderColor='';invEl.style.boxShadow='';}
-  const warnEl=document.getElementById('cxc-invoice-warn');
-  if(warnEl) warnEl.style.display='none';
-  document.getElementById('cxc-client').selectedIndex=0;
-  document.getElementById('cxc-desc').value='';
-  document.getElementById('cxc-subtotal').value='';
-  document.getElementById('cxc-itbis').value='';
-  document.getElementById('cxc-amount').value='';
-  document.getElementById('cxc-anticipo').value='';
-  const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
-  refreshCxCCatSelect('');
+    S.cuentasCobrar.push(nuevaFactura);
+    save(); renderCXC();
+    document.getElementById('cxc-invoice').value='';
+    const invEl=document.getElementById('cxc-invoice');
+    if(invEl){invEl.style.borderColor='';invEl.style.boxShadow='';}
+    const warnEl=document.getElementById('cxc-invoice-warn');
+    if(warnEl) warnEl.style.display='none';
+    document.getElementById('cxc-client').selectedIndex=0;
+    document.getElementById('cxc-desc').value='';
+    document.getElementById('cxc-subtotal').value='';
+    document.getElementById('cxc-itbis').value='';
+    document.getElementById('cxc-amount').value='';
+    document.getElementById('cxc-anticipo').value='';
+    const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
+    refreshCxCCatSelect('');
+  };
+
+  const gap=verificarSecuenciaNCF(invoice);
+  if(gap){
+    mostrarAvisoSecuenciaNCF(gap.ncfFaltante, issued, '', procederConCreacionCxC);
+    return;
+  }
+  procederConCreacionCxC();
 }
 
 function cxcSt(x){
+  if(x.estado==='anulada') return 'anulada';
   if(x.estado==='pagada') return 'pagada';
   if(x.estado==='parcial') return 'parcial';
   if(x.due<today()) return 'vencida';
@@ -3183,6 +3245,66 @@ function cxcSt(x){
 }
 function cxcPaidSoFar(x){ return (x.pagos||[]).reduce((s,p)=>s+p.montoBruto,0); }
 function cxcPending(x){ return Math.max(0, x.amount - cxcPaidSoFar(x)); }
+// Una factura anulada nunca representa dinero pendiente por cobrar — se trata igual
+// que una pagada para efectos de KPIs, Flujo de Caja y listas de "pendientes".
+function cxcEstaResuelta(x){ return x.estado==='pagada' || x.estado==='anulada'; }
+
+// Crea un registro liviano de CxC para una factura anulada — deja rastro del NCF, fecha
+// y cliente, pero en RD$0.00 y sin afectar Ingresos ni Balance. Así, la próxima factura
+// de la secuencia ya no vuelve a preguntar por este número.
+function crearFacturaAnulada(ncf, fecha, cliente){
+  S.cuentasCobrar.push({
+    id:Date.now()+Math.random(), invoice:ncf, client:cliente||'(Sin especificar)', clientId:null,
+    desc:'(Anulada)', categoria:null, issued:fecha||today(), due:fecha||today(), creditDays:0,
+    amount:0, subtotal:0, itbis:0, estado:'anulada', paidDate:null, payMethod:null, payBankIdx:null, pagos:[]
+  });
+  save(); renderCXC();
+}
+
+// ── Secuencia de NCF ──
+// Asume el formato estándar de la DGII: prefijo (letra + tipo) + 8 dígitos correlativos.
+function parseNCF(ncf){
+  const limpio=(ncf||'').trim().toUpperCase();
+  const m=limpio.match(/^([A-Z0-9]+?)(\d{8})$/);
+  if(!m) return null;
+  return {prefijo:m[1], numero:parseInt(m[2],10), digitos:m[2].length};
+}
+// Revisa si el NCF inmediatamente anterior en la secuencia ya está registrado en el
+// sistema (como factura real o como anulada). Si no lo encuentra, devuelve el número
+// que falta — el llamador decide qué hacer (avisar, bloquear, etc.), esto solo detecta.
+function verificarSecuenciaNCF(ncf, excludeId=null){
+  const parsed=parseNCF(ncf);
+  if(!parsed || parsed.numero<=1) return null;
+  const ncfAnterior=parsed.prefijo+String(parsed.numero-1).padStart(parsed.digitos,'0');
+  const existe=S.cuentasCobrar.some(x=>x.id!==excludeId && (x.invoice||'').trim().toUpperCase()===ncfAnterior);
+  return existe ? null : {ncfFaltante:ncfAnterior};
+}
+let _ncfGapContext=null;
+function mostrarAvisoSecuenciaNCF(ncfFaltante, fecha, cliente, onContinuar){
+  _ncfGapContext={ncfFaltante, fecha, cliente, onContinuar};
+  document.getElementById('ncfGapMsg').textContent=`Parece que falta la factura ${ncfFaltante} en el sistema — no la encuentro registrada. ¿Qué quieres hacer?`;
+  document.getElementById('ncfGapModal').classList.add('open');
+}
+function ncfGapMarcarAnulada(){
+  if(!_ncfGapContext) return;
+  const {ncfFaltante, fecha, cliente, onContinuar}=_ncfGapContext;
+  crearFacturaAnulada(ncfFaltante, fecha, cliente);
+  notify('success','Factura Anulada Registrada',`${ncfFaltante} quedó marcada como Anulada.`);
+  document.getElementById('ncfGapModal').classList.remove('open');
+  _ncfGapContext=null;
+  if(onContinuar) onContinuar();
+}
+function ncfGapContinuar(){
+  if(!_ncfGapContext) return;
+  const {onContinuar}=_ncfGapContext;
+  document.getElementById('ncfGapModal').classList.remove('open');
+  _ncfGapContext=null;
+  if(onContinuar) onContinuar();
+}
+function ncfGapCancelar(){
+  document.getElementById('ncfGapModal').classList.remove('open');
+  _ncfGapContext=null;
+}
 
 // ── Payment Modal ──
 let _payId=null;
@@ -3338,7 +3460,7 @@ function renderCXC(){
   refreshCxCClientSelect();
   // Cards — Por Cobrar = TODO lo no pagado (pendiente + vencido), usando el saldo real
   const tot=S.cuentasCobrar.reduce((s,x)=>s+x.amount,0);
-  const unpaid=S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+cxcPending(x),0);
+  const unpaid=S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x)).reduce((s,x)=>s+cxcPending(x),0);
   const venc=S.cuentasCobrar.filter(x=>cxcSt(x)==='vencida').reduce((s,x)=>s+cxcPending(x),0);
   const paid=S.cuentasCobrar.filter(x=>x.estado==='pagada').reduce((s,x)=>s+x.amount,0);
   document.getElementById('cxcTotal').textContent=fmt(tot);
@@ -3367,9 +3489,12 @@ function renderCXC(){
     const isOverdue=x._st==='vencida';
     const isPaid=x._st==='pagada';
     const isParcial=x._st==='parcial';
+    const isAnulada=x._st==='anulada';
     // Estado cell
     let estadoCell='';
-    if(isPaid){
+    if(isAnulada){
+      estadoCell=`<div><span class="badge" style="background:rgba(107,122,153,.15);color:#6b7a99;font-size:16px;padding:4px 10px;border:1px solid rgba(107,122,153,.35);">ANULADA</span></div>`;
+    } else if(isPaid){
       const bankName=x.payBankIdx!=null?S.accounts[x.payBankIdx]?.name:'';
       const mBadge=x.payMethod==='cheque'?`<span class="badge badge-check">📄 Ck</span>`:x.payMethod==='efectivo'?`<span class="badge badge-cash">💵 Ef.</span>`:`<span class="badge badge-transfer">⇄ Tr.</span>`;
       const retInfo=x.retType&&x.retType!=='ninguna'
@@ -3813,7 +3938,7 @@ function renderFlujoCaja(){
   });
 
   // Cobros esperados de CxC — pendientes con vencimiento dentro de los próximos 30 días (incluye ya vencidas)
-  const cxcEsperado = S.cuentasCobrar.filter(x=>x.estado!=='pagada' && x.due<=limite).sort((a,b)=>a.due.localeCompare(b.due));
+  const cxcEsperado = S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x) && x.due<=limite).sort((a,b)=>a.due.localeCompare(b.due));
   const totalCxC = cxcEsperado.reduce((s,x)=>s+cxcPending(x),0);
 
   // Pagos comprometidos de CxP — todas las secciones, pendiente real (ya descontando abonos), vencimiento dentro de 30 días
@@ -3891,7 +4016,7 @@ function renderBalanceGeneral(){
     (acc.transactions||[]).forEach(t=>{ bal += t.type==='ingreso' ? t.amount : -t.amount; });
     saldoBancos+=bal;
   });
-  const cxcPendiente = S.cuentasCobrar.filter(x=>x.estado!=='pagada').reduce((s,x)=>s+cxcPending(x),0);
+  const cxcPendiente = S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x)).reduce((s,x)=>s+cxcPending(x),0);
   const inventario = 0; // no se lleva inventario formal — confirmado con el usuario
   const totalActivosFijos = S.activosFijos.reduce((s,x)=>s+x.monto,0);
   const totalActivos = saldoBancos + cxcPendiente + inventario + totalActivosFijos;
@@ -4364,7 +4489,7 @@ function saveCliente(){
 function deleteCliente(id){
   const cliente=S.clientes.find(c=>c.id===id);
   if(!cliente) return;
-  const pendientes=S.cuentasCobrar.filter(x=>x.clientId===id && x.estado!=='pagada');
+  const pendientes=S.cuentasCobrar.filter(x=>x.clientId===id && !cxcEstaResuelta(x));
   const msg = pendientes.length
     ? `${cliente.nombre} todavía tiene ${pendientes.length} factura(s) de CxC sin cobrar por un total de ${fmt(pendientes.reduce((s,x)=>s+cxcPending(x),0))}. Las facturas seguirán existiendo, pero perderás el acceso fácil a este contacto mientras la deuda sigue abierta. ¿Eliminar de todos modos?`
     : '¿Eliminar este cliente del directorio?';
@@ -4515,6 +4640,12 @@ function getAllEgrCats(){
   const builtin=Object.entries(EGR_CAT_LABELS).map(([k,v])=>({key:k,label:v}));
   return [...builtin,...custom].sort((a,b)=>a.label.localeCompare(b.label,'es'));
 }
+// Para los desplegables donde se ELIGE una categoría nueva, "Otros" se excluye a propósito
+// — si no encaja ninguna categoría existente, el botón "+" ya sirve para crear una específica.
+// getAllIngCats()/getAllEgrCats() se mantienen completas (con "Otros" incluido) para que los
+// registros VIEJOS que ya tienen esa categoría sigan mostrando su etiqueta correctamente.
+function getSelectableIngCats(){ return getAllIngCats().filter(c=>c.key!=='otros'); }
+function getSelectableEgrCats(){ return getAllEgrCats().filter(c=>c.key!=='otros'); }
 function getCatLabel(key,list){
   const found=list.find(c=>c.key===key);
   return found?found.label:key||'—';
@@ -4556,7 +4687,7 @@ function refreshIngresoSelects(){
   const ingCatSel=document.getElementById('ing-categoria');
   if(ingCatSel){
     const curVal=ingCatSel.value;
-    ingCatSel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    ingCatSel.innerHTML=getSelectableIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
     if(curVal && ingCatSel.querySelector(`option[value="${curVal}"]`)) ingCatSel.value=curVal;
   }
   // Recibos de Ingreso usa los mismos clientes/cuentas/categorías
@@ -4567,7 +4698,7 @@ function refreshIngresoSelects(){
   const recCatSel=document.getElementById('rec-categoria');
   if(recCatSel){
     const curVal=recCatSel.value;
-    recCatSel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    recCatSel.innerHTML=getSelectableIngCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
     if(curVal && recCatSel.querySelector(`option[value="${curVal}"]`)) recCatSel.value=curVal;
   }
 }
@@ -4816,6 +4947,244 @@ function delIngreso(id){
 
 // ══════════════════ FASE 1: CARGAR COMPROBANTE (OCR) ══════════════════
 let _comp = {};
+
+// ══════════════════ CARGAR FACTURA DE VENTA (PDF → CxC) ══════════════════
+let _cf = {};
+
+function closeCargarFacturaModal(){
+  document.getElementById('cargarFacturaModal').classList.remove('open');
+}
+function resetCargarFacturaModal(){
+  _cf = {};
+  document.getElementById('cf-file-input').value='';
+  document.getElementById('cf-step-upload').style.display='';
+  document.getElementById('cf-step-processing').style.display='none';
+  document.getElementById('cf-step-review').style.display='none';
+  document.getElementById('cf-step-review').innerHTML='';
+}
+function openCargarFacturaModal(){
+  resetCargarFacturaModal();
+  document.getElementById('cargarFacturaModal').classList.add('open');
+}
+
+async function handleFacturaFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  document.getElementById('cf-step-upload').style.display='none';
+  document.getElementById('cf-step-processing').style.display='';
+  document.getElementById('cf-processing-msg').textContent='Leyendo el PDF...';
+  try{
+    let texto='';
+    if(file.type==='application/pdf'){
+      texto=await extraerTextoPDF(file);
+      if((texto||'').trim().length<40){
+        // Muy poco texto real — probablemente es una foto/escaneo, no un PDF de texto.
+        // Se cae a OCR como respaldo, igual que en Cargar Comprobante.
+        document.getElementById('cf-processing-msg').textContent='No parece tener texto — leyendo como imagen (esto puede tardar más)...';
+        const canvas=await renderizarPrimeraPaginaPDF(file);
+        const {data:{text}}=await Tesseract.recognize(canvas,'spa');
+        texto=text;
+      }
+    } else {
+      document.getElementById('cf-processing-msg').textContent='Leyendo imagen...';
+      const {data:{text}}=await Tesseract.recognize(file,'spa');
+      texto=text;
+    }
+    onFacturaTextoListo(texto);
+  }catch(err){
+    console.error(err);
+    notify('error','No se pudo leer la factura',(err&&err.message)||'Intenta con otro archivo o revisa tu conexión.');
+    resetCargarFacturaModal();
+  }
+}
+
+// Extrae el texto real de un PDF (no una imagen) usando pdf.js, reconstruyendo líneas
+// por posición vertical — así los regex de campos pueden leerlo de forma parecida a
+// como se ve el documento, en vez de recibir el texto en cualquier orden.
+async function extraerTextoPDF(file){
+  if(!window.pdfjsLib) throw new Error('El lector de PDF no cargó — verifica tu conexión e intenta de nuevo.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  const page=await pdf.getPage(1);
+  const content=await page.getTextContent();
+  const items=content.items.map(it=>({str:it.str, x:it.transform[4], y:it.transform[5]}));
+  items.sort((a,b)=> b.y-a.y || a.x-b.x);
+  const TOL=3;
+  const lineas=[];
+  items.forEach(it=>{
+    if(!it.str || !it.str.trim()) return;
+    let linea=lineas.find(l=>Math.abs(l.y-it.y)<TOL);
+    if(!linea){ linea={y:it.y, partes:[]}; lineas.push(linea); }
+    linea.partes.push(it);
+  });
+  lineas.forEach(l=>l.partes.sort((a,b)=>a.x-b.x));
+  return lineas.map(l=>l.partes.map(p=>p.str).join(' ')).join('\n');
+}
+
+function fechaAISO(ddmmyyyy){
+  const m=(ddmmyyyy||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(!m) return null;
+  return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+}
+
+// Analiza el texto de una factura de venta (propia, generada por el sistema de
+// cotización de ICG) y extrae los campos clave. Diseñado para el formato específico
+// de esas facturas — cliente, NCF, fechas, montos, y si está marcada ANULADA.
+function parseFacturaVenta(texto){
+  const t=texto||'';
+  const out={ncf:null,fechaExpedicion:null,fechaVencimiento:null,clienteNombre:null,clienteRNC:null,
+             descripcion:null,subtotal:null,itbis:null,total:null,anulada:false};
+  out.anulada = /ANULADA/i.test(t);
+  let m;
+  m=t.match(/NCF\s+([A-Z]\d{9,15})/i); if(m) out.ncf=m[1].toUpperCase();
+  m=t.match(/FECHA\s*DE\s*EXPEDICI[OÓ]N\D*(\d{1,2}\/\d{1,2}\/\d{4})/i); if(m) out.fechaExpedicion=fechaAISO(m[1]);
+  m=t.match(/FECHA\s*DE\s*VENCIMIENTO\D*(\d{1,2}\/\d{1,2}\/\d{4})/i); if(m) out.fechaVencimiento=fechaAISO(m[1]);
+  m=t.match(/SE[ÑN]OR\(ES\)\s+([^\n]+)/i); if(m) out.clienteNombre=m[1].replace(/\s+/g,' ').trim();
+  m=t.match(/\bRNC\b\D{0,3}(\d[\d\-]{6,})/i); if(m) out.clienteRNC=m[1];
+  m=t.match(/Subtotal\s+RD\$?\s*([\d,]+\.\d{2})/i); if(m) out.subtotal=parseFloat(m[1].replace(/,/g,''));
+  m=t.match(/ITBIS\s*\([\d.]+%\)\s*RD\$?\s*([\d,]+\.\d{2})/i); if(m) out.itbis=parseFloat(m[1].replace(/,/g,''));
+  m=t.match(/\bTotal\b\s+RD\$?\s*([\d,]+\.\d{2})/i); if(m) out.total=parseFloat(m[1].replace(/,/g,''));
+  // Descripción: lo que hay entre el encabezado de la tabla y el primer monto en RD$
+  m=t.match(/Producto\/?\s*servicio[^\n]*\n([\s\S]*?)RD\$/i);
+  if(m){
+    out.descripcion = m[1].replace(/\s+/g,' ').replace(/\d+\s*$/,'').trim();
+  }
+  return out;
+}
+
+function onFacturaTextoListo(texto){
+  _cf.rawText = texto;
+  _cf.parsed = parseFacturaVenta(texto);
+  document.getElementById('cf-step-processing').style.display='none';
+  renderRevisionFactura();
+}
+
+function renderRevisionFactura(){
+  const p=_cf.parsed||{};
+  const wrap=document.getElementById('cf-step-review');
+  wrap.style.display='';
+  const clienteMatch = p.clienteNombre ? buscarEntidadEnTextoCompleto(p.clienteNombre, S.clientes, 'nombre') : null;
+  const gap = p.ncf ? verificarSecuenciaNCF(p.ncf) : null;
+
+  const avisoAnulada = p.anulada
+    ? `<div style="background:rgba(107,122,153,.1);border:1px solid rgba(107,122,153,.4);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#c0c6d8;">
+        🏷️ <strong>El sistema detectó la palabra "ANULADA"</strong> en esta factura. Se va a registrar en RD$0.00, sin afectar tus Ingresos ni Balance — solo para dejar el número en tu secuencia.
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;">
+          <input type="checkbox" id="cf-es-anulada" checked onchange="toggleCfAnulada()"> En realidad NO está anulada — es una factura válida
+        </label>
+      </div>`
+    : `<div style="margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#8899bb;">
+          <input type="checkbox" id="cf-es-anulada" onchange="toggleCfAnulada()"> Esta factura en realidad está anulada
+        </label>
+      </div>`;
+
+  const avisoGap = gap
+    ? `<div style="background:rgba(253,201,1,.08);border:1px solid rgba(253,201,1,.35);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#f0dba0;">
+        ⚠️ Parece que falta la factura <strong>${esc(gap.ncfFaltante)}</strong> en el sistema — no la encuentro registrada.
+      </div>`
+    : '';
+
+  wrap.innerHTML = `
+    ${avisoGap}
+    ${avisoAnulada}
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:span 2;"><label>Cliente</label>
+        <select id="cf-cliente">
+          <option value="">— Seleccionar —</option>
+          ${S.clientes.map(c=>`<option value="${c.id}" ${clienteMatch&&clienteMatch.id===c.id?'selected':''}>${esc(c.nombre)}</option>`).join('')}
+          <option value="__nuevo__" ${!clienteMatch?'':''}>+ Crear cliente "${esc(p.clienteNombre||'')}"</option>
+        </select>
+      </div>
+      <div class="form-group"><label>NCF</label><input autocomplete="off" type="text" id="cf-ncf" value="${esc(p.ncf||'')}"></div>
+      <div class="form-group"><label>Categoría</label><select id="cf-categoria"><option value="">— Elegir —</option>${getAllIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Fecha Emisión</label><input autocomplete="off" type="date" id="cf-fecha-emision" value="${esc(p.fechaExpedicion||today())}"></div>
+      <div class="form-group"><label>Fecha Vencimiento</label><input autocomplete="off" type="date" id="cf-fecha-vencimiento" value="${esc(p.fechaVencimiento||today())}"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="cf-desc" value="${esc(p.descripcion||'')}"></div>
+      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Total (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="cf-total" value="${fmtInputNum(p.total)}" oninput="formatMontoInput(this)"></div>
+    </div>
+    <details style="margin-top:14px;">
+      <summary style="cursor:pointer;font-size:11px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;">Ver texto detectado</summary>
+      <pre style="white-space:pre-wrap;font-size:11px;color:#8899bb;background:rgba(255,255,255,.03);padding:10px;border-radius:6px;margin-top:8px;max-height:150px;overflow:auto;font-family:var(--mono);">${esc(_cf.rawText||'')}</pre>
+    </details>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" onclick="closeCargarFacturaModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarCargaFactura()">Confirmar y Registrar</button>
+    </div>`;
+}
+
+function toggleCfAnulada(){
+  const chk=document.getElementById('cf-es-anulada');
+  _cf.anuladaOverride = _cf.parsed.anulada ? !chk.checked : chk.checked;
+}
+
+function confirmarCargaFactura(){
+  const clienteSelVal=document.getElementById('cf-cliente').value;
+  const ncf=document.getElementById('cf-ncf').value.trim();
+  const fechaEmision=document.getElementById('cf-fecha-emision').value;
+  const fechaVencimiento=document.getElementById('cf-fecha-vencimiento').value;
+  const desc=document.getElementById('cf-desc').value.trim();
+  const categoria=document.getElementById('cf-categoria')?.value||'';
+  const subtotal=numVal('cf-subtotal');
+  const itbis=numVal('cf-itbis');
+  const total=numVal('cf-total');
+  const esAnulada = _cf.anuladaOverride!=null ? _cf.anuladaOverride : !!_cf.parsed?.anulada;
+
+  if(!ncf){ notify('error','Falta el NCF','No se detectó — escríbelo a mano antes de continuar.'); return; }
+
+  let clienteNombre='';
+  if(clienteSelVal==='__nuevo__'){
+    clienteNombre=(_cf.parsed?.clienteNombre||'').trim();
+  } else if(clienteSelVal){
+    const c=S.clientes.find(x=>x.id===parseInt(clienteSelVal));
+    clienteNombre=c?.nombre||'';
+  }
+  if(!clienteNombre && !esAnulada){ notify('error','Falta el Cliente','Selecciona o escribe el cliente de esta factura.'); return; }
+
+  closeCargarFacturaModal();
+
+  if(esAnulada){
+    // Chequeo de duplicado también aplica a las anuladas — no tiene sentido registrar el mismo NCF dos veces.
+    if(S.cuentasCobrar.some(x=>(x.invoice||'').toUpperCase()===ncf.toUpperCase())){
+      notify('error','Número Duplicado',`La factura "${ncf}" ya existe en el sistema.`);
+      return;
+    }
+    crearFacturaAnulada(ncf, fechaEmision, clienteNombre);
+    notify('success','Factura Anulada Registrada',`${ncf} quedó marcada como Anulada.`);
+    return;
+  }
+
+  // Factura real: se llenan los campos del formulario de CxC y se reutiliza addCXC(),
+  // para que corra exactamente la misma validación, chequeo de duplicados y de secuencia
+  // que una factura registrada a mano.
+  activateTab('cxc');
+  document.getElementById('cxc-invoice').value=ncf;
+  const cs=document.getElementById('cxc-client');
+  if(clienteSelVal && clienteSelVal!=='__nuevo__') cs.value=clienteSelVal;
+  document.getElementById('cxc-desc').value=desc;
+  document.getElementById('cxc-issued').value=fechaEmision;
+  if(categoria){ refreshCxCCatSelect(categoria); }
+  setMontoValue('cxc-subtotal',subtotal);
+  setMontoValue('cxc-itbis',itbis);
+  setMontoValue('cxc-amount',total);
+  // Ajusta "Condiciones de Pago" para que el Vencimiento calculado coincida exactamente
+  // con el de la factura real, aunque no caiga en uno de los plazos estándar (0/7/15/30).
+  const diasReales = Math.round((new Date(fechaVencimiento+'T00:00:00') - new Date(fechaEmision+'T00:00:00'))/86400000);
+  const daysSel=document.getElementById('cxc-days');
+  if(daysSel){
+    if(![...daysSel.options].some(o=>o.value===String(diasReales))){
+      const opt=document.createElement('option');
+      opt.value=String(diasReales); opt.textContent=`${diasReales} días (detectado)`;
+      daysSel.appendChild(opt);
+    }
+    daysSel.value=String(diasReales);
+  }
+  calcDue();
+  icgAlert('Revisa los datos y presiona "Registrar Factura" para confirmar — el sistema ya validó que el NCF no esté duplicado.','Factura Lista para Revisar');
+}
 
 function closeComprobanteModal(){
   document.getElementById('comprobanteModal').classList.remove('open');
@@ -5308,7 +5677,7 @@ function confirmarComprobanteSuplidor(){
 function renderRevisionCliente(wrap){
   const p=_comp.parsed||{};
   const cliMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.clientes, 'nombre');
-  const pendientes=(S.cuentasCobrar||[]).filter(x=>x.estado!=='pagada'&&(!cliMatch||normalizarTexto(x.client)===normalizarTexto(cliMatch.nombre)));
+  const pendientes=(S.cuentasCobrar||[]).filter(x=>!cxcEstaResuelta(x)&&(!cliMatch||normalizarTexto(x.client)===normalizarTexto(cliMatch.nombre)));
   let mejorFacturaId='';
   if(p.monto&&pendientes.length){
     let best=null,bestDiff=Infinity;
@@ -5429,7 +5798,7 @@ function refreshEgresoSelects(){
   const egrCatSel=document.getElementById('egr-categoria');
   if(egrCatSel){
     const curVal=egrCatSel.value;
-    egrCatSel.innerHTML=getAllEgrCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    egrCatSel.innerHTML=getSelectableEgrCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
     if(curVal && egrCatSel.querySelector(`option[value="${curVal}"]`)) egrCatSel.value=curVal;
   }
 }
@@ -5584,13 +5953,32 @@ function renderRentabilidad(){
   document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos (sin ITBIS)</th><th>ITBIS Cobrado</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
   document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono" style="color:#fdc901;">${fmt(p.itbis)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono" style="color:#fdc901;font-weight:700;">${fmt(totItbis)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
   // Category bars
-  const catBar=(items,labels,col)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
+  const catBar=(items,labels,col,tipo,year)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;cursor:pointer;" onclick="verDetalleCategoria('${tipo}','${k}',${year})" title="Ver el detalle de esta categoría"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
   const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString()));
   const egrY=S.egresos.filter(x=>x.fecha.startsWith(year.toString()));
   const ingLabelsAll={...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))};
-  document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8');
+  document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8','ingreso',year);
   const egrLabelsAll={...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
-  document.getElementById('rent-cat-egr').innerHTML=catBar(egrY,egrLabelsAll,'#ef4444');
+  document.getElementById('rent-cat-egr').innerHTML=catBar(egrY,egrLabelsAll,'#ef4444','egreso',year);
+}
+// Abre el detalle de una categoría del Estado de Resultados — para ver de un vistazo
+// qué registros concretos componen ese total, en vez de tener que adivinar o ir a la consola.
+function verDetalleCategoria(tipo, catKey, year){
+  const items = tipo==='ingreso'
+    ? S.ingresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()))
+    : S.egresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()));
+  const labels = tipo==='ingreso'
+    ? {...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))}
+    : {...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
+  const catLabel = labels[catKey]||catKey;
+  const total = items.reduce((s,x)=>s+x.monto,0);
+  document.getElementById('catDetailTitle').textContent = `${catLabel} · ${year} · ${fmt(total)}`;
+  const rows = [...items].sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(x=>{
+    const quien = tipo==='ingreso' ? (x.clienteNombre||'—') : (x.suplidorNombre||'—');
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(quien)}</td><td style="max-width:260px;">${esc(x.desc)||'—'}</td><td class="td-mono ${tipo==='ingreso'?'positive':'negative'}" style="font-weight:600;">${fmt(x.monto)}</td></tr>`;
+  }).join('') || `<tr><td colspan="4" style="text-align:center;color:#6b7280;padding:24px;">Sin registros en esta categoría.</td></tr>`;
+  document.getElementById('catDetailBody').innerHTML = `<table><thead><tr><th>Fecha</th><th>${tipo==='ingreso'?'Cliente':'Suplidor'}</th><th>Descripción</th><th>Monto</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById('catDetailModal').classList.add('open');
 }
 
 function closeModal(id){document.getElementById(id)?.classList.remove('open');}
