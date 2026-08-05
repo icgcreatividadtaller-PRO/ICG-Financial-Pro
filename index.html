@@ -214,6 +214,10 @@ button:not(.del-btn):not(.modal-close):not(.notif-close):not(.rename-btn):not(.c
 }
 .form-group select option{background:var(--s2);}
 .form-group textarea{resize:vertical;min-height:64px;}
+.form-group input:disabled,.form-group select:disabled,.form-group textarea:disabled{
+  opacity:.4;cursor:not-allowed;background:rgba(255,255,255,.02);
+  border-style:dashed;color:var(--text3);
+}
 .span2{grid-column:span 2;}
 .form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
 
