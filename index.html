@@ -5135,12 +5135,22 @@ function confirmarCargaFactura(){
 
   if(!ncf){ notify('error','Falta el NCF','No se detectó — escríbelo a mano antes de continuar.'); return; }
 
-  let clienteNombre='';
+  let clienteIdFinal=null, clienteNombre='';
   if(clienteSelVal==='__nuevo__'){
     clienteNombre=(_cf.parsed?.clienteNombre||'').trim();
+    if(!clienteNombre && !esAnulada){ notify('error','Falta el Cliente','Selecciona o escribe el cliente de esta factura.'); return; }
+    if(clienteNombre){
+      // Crea el cliente en el directorio de una vez — con el mismo mínimo de datos que
+      // "+ Nuevo" pide a mano (nombre, y el RNC si se detectó en la factura).
+      const nuevoCliente={id:Date.now(),nombre:clienteNombre,rnc:_cf.parsed?.clienteRNC||'',email:'',tel:'',contacto:'',dir:''};
+      S.clientes.push(nuevoCliente);
+      save(); refreshIngresoSelects(); refreshCxCClientSelect();
+      clienteIdFinal=nuevoCliente.id;
+    }
   } else if(clienteSelVal){
     const c=S.clientes.find(x=>x.id===parseInt(clienteSelVal));
     clienteNombre=c?.nombre||'';
+    clienteIdFinal=c?.id||null;
   }
   if(!clienteNombre && !esAnulada){ notify('error','Falta el Cliente','Selecciona o escribe el cliente de esta factura.'); return; }
 
@@ -5157,13 +5167,15 @@ function confirmarCargaFactura(){
     return;
   }
 
-  // Factura real: se llenan los campos del formulario de CxC y se reutiliza addCXC(),
-  // para que corra exactamente la misma validación, chequeo de duplicados y de secuencia
-  // que una factura registrada a mano.
+  // Factura real: se llenan los campos del formulario de CxC y se reutiliza addCXC()
+  // — incluyendo su propia validación, chequeo de duplicados y de secuencia — y se
+  // llama directo, sin dejarle al usuario un segundo botón escondido por darle clic.
   activateTab('cxc');
   document.getElementById('cxc-invoice').value=ncf;
-  const cs=document.getElementById('cxc-client');
-  if(clienteSelVal && clienteSelVal!=='__nuevo__') cs.value=clienteSelVal;
+  if(clienteIdFinal){
+    const cs=document.getElementById('cxc-client');
+    if(cs) cs.value=clienteIdFinal;
+  }
   document.getElementById('cxc-desc').value=desc;
   document.getElementById('cxc-issued').value=fechaEmision;
   if(categoria){ refreshCxCCatSelect(categoria); }
@@ -5172,7 +5184,7 @@ function confirmarCargaFactura(){
   setMontoValue('cxc-amount',total);
   // Ajusta "Condiciones de Pago" para que el Vencimiento calculado coincida exactamente
   // con el de la factura real, aunque no caiga en uno de los plazos estándar (0/7/15/30).
-  const diasReales = Math.round((new Date(fechaVencimiento+'T00:00:00') - new Date(fechaEmision+'T00:00:00'))/86400000);
+  const diasReales = Math.max(0, Math.round((new Date(fechaVencimiento+'T00:00:00') - new Date(fechaEmision+'T00:00:00'))/86400000));
   const daysSel=document.getElementById('cxc-days');
   if(daysSel){
     if(![...daysSel.options].some(o=>o.value===String(diasReales))){
@@ -5183,7 +5195,7 @@ function confirmarCargaFactura(){
     daysSel.value=String(diasReales);
   }
   calcDue();
-  icgAlert('Revisa los datos y presiona "Registrar Factura" para confirmar — el sistema ya validó que el NCF no esté duplicado.','Factura Lista para Revisar');
+  addCXC();
 }
 
 function closeComprobanteModal(){
