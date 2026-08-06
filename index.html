@@ -2440,6 +2440,7 @@ function init(){
   limpiarAsientosDevengoObsoletos();
   repararEgresosFaltantesDeCxP();
   repararIngresosFaltantesDeCxC();
+  repararSuplidoresFaltantes();
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
   refreshIngresoSelects(); refreshEgresoSelects();
@@ -3919,6 +3920,8 @@ function renderCXP(){
   }
 
   // ── NORMAL SECTIONS ──
+  const addFormNormal=document.getElementById('cxpAddForm');
+  if(addFormNormal) addFormNormal.style.display='';
   buildCXPForm(_cxpSection);
   const cfg = CXP_CONFIG[_cxpSection];
   const fstt   = document.getElementById('cxp-filter-status')?.value || '';
@@ -6677,6 +6680,28 @@ function repararEgresosFaltantesDeCxP(){
   if(creados>0){
     save();
     notify('info','Reparación Automática',`Se recuperaron ${creados} egreso(s) de pagos a CxP que no se habían registrado correctamente. Revisa el módulo Egresos.`);
+  }
+}
+// Reparación única: si en algún momento se eliminó un suplidor del directorio mientras
+// todavía tenía registros de CxP a su nombre, esos registros se quedan viéndose bien
+// (guardan el nombre como texto), pero el suplidor desaparece del directorio. Esto
+// recorre las 4 secciones de CxP y recrea en Suplidores cualquier nombre huérfano.
+function repararSuplidoresFaltantes(){
+  let creados=0;
+  const nombresSuplidores=new Set(S.suplidores.map(s=>normalizarTexto(s.nombre)));
+  const nombresYaCreados=new Set();
+  Object.values(S.cuentasPagar||{}).flat().forEach(item=>{
+    const nombre=(item.nombre||'').trim();
+    if(!nombre) return;
+    const norm=normalizarTexto(nombre);
+    if(nombresSuplidores.has(norm) || nombresYaCreados.has(norm)) return;
+    S.suplidores.push({id:Date.now()+Math.random(),nombre,rnc:'',email:'',tel:'',contacto:'',dir:''});
+    nombresYaCreados.add(norm);
+    creados++;
+  });
+  if(creados>0){
+    save();
+    notify('info','Reparación Automática',`Se recuperaron ${creados} suplidor(es) que tenían registros en CxP pero ya no estaban en el directorio. Revisa el módulo Suplidores.`);
   }
 }
 function repararIngresosFaltantesDeCxC(){
