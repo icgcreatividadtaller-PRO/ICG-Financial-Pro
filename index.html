@@ -1427,6 +1427,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="form-actions">
       <button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addEgreso()">Registrar Egreso</button>
       <button class="btn btn-secondary" onclick="openComprobanteModalDesdeEgresos()">📎 Cargar Comprobante</button>
+      <button class="btn btn-secondary" onclick="openFacturaCompraModal()">📄 Cargar Factura de Compra</button>
     </div>
     <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los egresos de CxP pagadas se registran automáticamente aquí.</p>
   </div>
@@ -2148,6 +2149,28 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ══ CARGAR FACTURA DE VENTA (lectura de PDF + extracción automática) ══ -->
+<!-- ══ CARGAR FACTURA DE COMPRA (factura de un suplidor → Egresos o CxP, según cómo se pagó) ══ -->
+<div class="modal-overlay" id="cargarFacturaCompraModal">
+  <div class="modal" style="max-width:640px;border-color:rgba(129,140,248,.4);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">📄 Cargar Factura de Compra</h2>
+      <button class="modal-close" onclick="closeFacturaCompraModal()">✕</button>
+    </div>
+
+    <div id="fc-step-upload">
+      <p style="font-size:13px;color:#8899bb;line-height:1.6;margin-bottom:16px;">Sube el PDF de la factura que te envió un suplidor. El sistema intenta leer proveedor, NCF, número de factura, fechas y montos. Tú confirmas todo — incluyendo si ya la pagaste (va a Egresos) o si queda pendiente (va a CxP).</p>
+      <input autocomplete="off" type="file" id="fc-file-input" accept="application/pdf,image/*" onchange="handleFacturaCompraFile(this)" style="width:100%;padding:10px;border:2px dashed rgba(129,140,248,.3);border-radius:8px;background:rgba(129,140,248,.04);color:#8899bb;font-size:13px;">
+    </div>
+
+    <div id="fc-step-processing" style="display:none;text-align:center;padding:36px 0;">
+      <div style="width:36px;height:36px;border:3px solid rgba(129,140,248,.2);border-top-color:#818cf8;border-radius:50%;margin:0 auto;animation:compSpin 0.8s linear infinite;"></div>
+      <p id="fc-processing-msg" style="margin-top:16px;font-size:13px;color:#8899bb;">Leyendo factura...</p>
+    </div>
+
+    <div id="fc-step-review" style="display:none;"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="cargarFacturaModal">
   <div class="hud-wrap">
     <div class="hud-shadow"></div>
@@ -3755,6 +3778,25 @@ function buildCXPForm(section){
   // Build table header
   document.getElementById('cxpTableHead').innerHTML =
     `<tr>${cfg.headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+
+  renderCxpFormActions();
+}
+// Centraliza el HTML de los botones de acción del formulario de CxP — se llama desde
+// buildCXPForm/editCXPItem/cancelEditCXP/addCXP, para que "Cargar Factura de Compra"
+// (solo visible en Proveedores) nunca se pierda al entrar o salir de modo edición.
+function renderCxpFormActions(){
+  const btnWrap = document.querySelector('#cxpAddForm .form-actions');
+  if(!btnWrap) return;
+  const cargarFacturaBtn = _cxpSection==='proveedores'
+    ? `<button class="btn btn-secondary" onclick="openFacturaCompraModal()">📄 Cargar Factura de Compra</button>`
+    : '';
+  if(_editingCXPId!=null){
+    btnWrap.innerHTML = `
+      <button class="btn btn-primary" onclick="addCXP()">Actualizar</button>
+      <button class="btn btn-secondary" onclick="cancelEditCXP()">Cancelar</button>`;
+  } else {
+    btnWrap.innerHTML = `<button class="btn btn-primary" onclick="addCXP()">Registrar</button>${cargarFacturaBtn}`;
+  }
 }
 
 let _editingCXPId = null;
@@ -3781,8 +3823,7 @@ function addCXP(){
     Object.assign(item, fieldsData); // solo actualiza los campos del formulario — id, estado, pagos, etc. quedan intactos
     _editingCXPId = null; _editingCXPSection = null;
     save(); renderCXP();
-    const btnWrap = document.querySelector('#cxpAddForm .form-actions');
-    if(btnWrap) btnWrap.innerHTML = `<button class="btn btn-primary" onclick="addCXP()">Registrar</button>`;
+    renderCxpFormActions();
     notify('success','Actualizado',`${fieldsData.nombre} se actualizó correctamente.`);
     return;
   }
@@ -3809,10 +3850,7 @@ function editCXPItem(section,id){
     if(el) el.value = item[f.id] ?? '';
   });
   document.getElementById('cxpFormTitle').textContent = `Editando: ${item.nombre}`;
-  const btnWrap = document.querySelector('#cxpAddForm .form-actions');
-  if(btnWrap) btnWrap.innerHTML = `
-    <button class="btn btn-primary" onclick="addCXP()">Actualizar</button>
-    <button class="btn btn-secondary" onclick="cancelEditCXP()">Cancelar</button>`;
+  renderCxpFormActions();
   document.getElementById('cxpAddForm').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -3820,8 +3858,6 @@ function cancelEditCXP(){
   _editingCXPId = null;
   _editingCXPSection = null;
   buildCXPForm(_cxpSection);
-  const btnWrap = document.querySelector('#cxpAddForm .form-actions');
-  if(btnWrap) btnWrap.innerHTML = `<button class="btn btn-primary" onclick="addCXP()">Registrar</button>`;
 }
 
 function cxpStatus(item){
@@ -5051,7 +5087,258 @@ function delIngreso(id){
 // ══════════════════ FASE 1: CARGAR COMPROBANTE (OCR) ══════════════════
 let _comp = {};
 
-// ══════════════════ CARGAR FACTURA DE VENTA (PDF → CxC) ══════════════════
+// ══════════════════ CARGAR FACTURA DE COMPRA (PDF → Egresos o CxP) ══════════════════
+let _fc = {};
+
+function closeFacturaCompraModal(){
+  document.getElementById('cargarFacturaCompraModal').classList.remove('open');
+}
+function resetFacturaCompraModal(){
+  _fc = {};
+  document.getElementById('fc-file-input').value='';
+  document.getElementById('fc-step-upload').style.display='';
+  document.getElementById('fc-step-processing').style.display='none';
+  document.getElementById('fc-step-review').style.display='none';
+  document.getElementById('fc-step-review').innerHTML='';
+}
+function openFacturaCompraModal(){
+  resetFacturaCompraModal();
+  document.getElementById('cargarFacturaCompraModal').classList.add('open');
+}
+
+async function handleFacturaCompraFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  document.getElementById('fc-step-upload').style.display='none';
+  document.getElementById('fc-step-processing').style.display='';
+  document.getElementById('fc-processing-msg').textContent='Leyendo el PDF...';
+  try{
+    let texto='';
+    if(file.type==='application/pdf'){
+      texto=await extraerTextoPDF(file);
+      if((texto||'').trim().length<40){
+        document.getElementById('fc-processing-msg').textContent='No parece tener texto — leyendo como imagen (esto puede tardar más)...';
+        const canvas=await renderizarPrimeraPaginaPDF(file);
+        const {data:{text}}=await Tesseract.recognize(canvas,'spa');
+        texto=text;
+      }
+    } else {
+      document.getElementById('fc-processing-msg').textContent='Leyendo imagen...';
+      const {data:{text}}=await Tesseract.recognize(file,'spa');
+      texto=text;
+    }
+    onFacturaCompraTextoListo(texto);
+  }catch(err){
+    console.error(err);
+    notify('error','No se pudo leer la factura',(err&&err.message)||'Intenta con otro archivo o revisa tu conexión.');
+    resetFacturaCompraModal();
+  }
+}
+
+// Analiza el texto de una factura de COMPRA (de un suplidor, formato variable —
+// a diferencia de las facturas de venta propias, que siempre salen del mismo molde).
+// Por eso los patrones aquí son más flexibles, y el nombre del proveedor se resuelve
+// buscándolo en el directorio en vez de tratar de extraerlo de un campo sin etiqueta fija.
+function parseFacturaCompra(texto){
+  const t=texto||'';
+  const out={ncf:null,numFactura:null,proveedorRNC:null,fechaEmision:null,fechaVencimiento:null,
+             condicionPago:null,descripcion:null,subtotal:null,itbis:null,total:null};
+  let m;
+  m=t.match(/NCF\.?\s*:?\s*([A-Z]\d{10,15})/i); if(m) out.ncf=m[1].toUpperCase();
+  m=t.match(/(?:N[uú]m(?:ero)?\.?\s*(?:de\s*)?Factura|Factura\s*(?:No\.?|N[uú]m\.?)?)\s*:?\s*#?\s*(\d{3,})/i); if(m) out.numFactura=m[1];
+  m=t.match(/RNC\.?\s*:?\s*(\d[\d\-]{7,})/i); if(m) out.proveedorRNC=m[1];
+  m=t.match(/Fecha\s*(?:de\s*)?Emisi[oó]n\.?\s*:?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i); if(m) out.fechaEmision=fechaAISO(m[1]);
+  m=t.match(/Fecha\s*(?:de\s*)?Vencim(?:iento)?\.?\s*:?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i); if(m) out.fechaVencimiento=fechaAISO(m[1]);
+  m=t.match(/Condic(?:i[oó]n)?\.?\s*(?:de\s*)?Pago\s*:?\s*([A-Za-zÀ-ÿ0-9 ]{4,24})/i); if(m) out.condicionPago=m[1].trim();
+  m=t.match(/Sub[\s-]?Total\s*:?\s*(?:RD\$)?\s*([\d,]+\.\d{2})/i); if(m) out.subtotal=parseFloat(m[1].replace(/,/g,''));
+  m=t.match(/ITBIS\s*:?\s*(?:RD\$)?\s*([\d,]+\.\d{2})/i); if(m) out.itbis=parseFloat(m[1].replace(/,/g,''));
+  m=t.match(/\bNETO\b\s*:?\s*(?:RD\$)?\s*([\d,]+\.\d{2})/i);
+  if(!m) m=t.match(/(?<!sub[\s-]?)\bTotal\b\s*(?:a\s*Pagar)?\s*:?\s*(?:RD\$)?\s*([\d,]+\.\d{2})/i);
+  if(!m) m=t.match(/Monto\s*Total\s*:?\s*(?:RD\$)?\s*([\d,]+\.\d{2})/i);
+  if(m) out.total=parseFloat(m[1].replace(/,/g,''));
+  out.esContado = /CONTADO/i.test(t);
+  out.esCredito = /CR[EÉ]DITO/i.test(t);
+  return out;
+}
+
+function onFacturaCompraTextoListo(texto){
+  _fc.rawText=texto;
+  _fc.parsed=parseFacturaCompra(texto);
+  document.getElementById('fc-step-processing').style.display='none';
+  _fc.pagada = _fc.parsed.esContado && !_fc.parsed.esCredito; // sugerencia inicial, el usuario la confirma
+  renderRevisionFacturaCompra();
+}
+
+function renderRevisionFacturaCompra(){
+  const p=_fc.parsed||{};
+  const wrap=document.getElementById('fc-step-review');
+  wrap.style.display='';
+  const supMatch = buscarEntidadEnTextoCompleto(_fc.rawText, S.suplidores, 'nombre');
+  const gap = p.ncf ? null : null; // los NCF de facturas de compra son del proveedor — no aplica el chequeo de secuencia propio
+
+  wrap.innerHTML = `
+    <p style="font-size:15px;color:#8899bb;margin-bottom:14px;">${supMatch?`Proveedor detectado: <strong style="color:#818cf8;">${esc(supMatch.nombre)}</strong>`:'No se detectó un proveedor conocido — puedes elegirlo abajo.'}</p>
+    <div class="form-grid">
+      <div class="form-group" style="grid-column:span 2;"><label>Proveedor</label>
+        <select id="fc-proveedor">
+          <option value="">— Seleccionar —</option>
+          ${[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(s=>`<option value="${s.id}" ${supMatch&&supMatch.id===s.id?'selected':''}>${esc(s.nombre)}</option>`).join('')}
+          <option value="__nuevo__">+ Crear proveedor nuevo...</option>
+        </select>
+      </div>
+      <div class="form-group" id="fc-proveedor-nuevo-wrap" style="grid-column:span 2;display:none;"><label>Nombre del proveedor nuevo</label><input autocomplete="off" type="text" id="fc-proveedor-nuevo"></div>
+      <div class="form-group"><label>NCF</label><input autocomplete="off" type="text" id="fc-ncf" value="${esc(p.ncf||'')}"></div>
+      <div class="form-group"><label>N° Factura</label><input autocomplete="off" type="text" id="fc-numfactura" value="${esc(p.numFactura||'')}"></div>
+      <div class="form-group"><label>Fecha Emisión</label><input autocomplete="off" type="date" id="fc-fecha-emision" value="${esc(p.fechaEmision||today())}"></div>
+      <div class="form-group"><label>Fecha Vencimiento</label><input autocomplete="off" type="date" id="fc-fecha-vencimiento" value="${esc(p.fechaVencimiento||p.fechaEmision||today())}"></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="fc-desc" value=""></div>
+      <div class="form-group"><label>Categoría</label><select id="fc-categoria"><option value="">— Elegir —</option>${getSelectableEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Total (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-total" value="${fmtInputNum(p.total)}" oninput="formatMontoInput(this)"></div>
+    </div>
+
+    <div style="background:rgba(129,140,248,.06);border:1px solid rgba(129,140,248,.25);border-radius:8px;padding:14px;margin-top:16px;">
+      <label style="font-size:15px;color:#8899bb;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:10px;">¿Cómo está esta factura?</label>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <button type="button" class="btn ${_fc.pagada?'btn-primary':'btn-secondary'}" id="fc-btn-pagada" onclick="setFcPagada(true)">Ya está pagada</button>
+        <button type="button" class="btn ${!_fc.pagada?'btn-primary':'btn-secondary'}" id="fc-btn-pendiente" onclick="setFcPagada(false)">Pendiente de pago</button>
+      </div>
+      <div id="fc-pago-campos" class="form-grid"></div>
+    </div>
+
+    <details style="margin-top:14px;">
+      <summary style="cursor:pointer;font-size:11px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;">Ver texto detectado</summary>
+      <pre style="white-space:pre-wrap;font-size:11px;color:#8899bb;background:rgba(255,255,255,.03);padding:10px;border-radius:6px;margin-top:8px;max-height:150px;overflow:auto;font-family:var(--mono);">${esc(_fc.rawText||'')}</pre>
+    </details>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:18px;">
+      <button class="btn btn-ghost" onclick="closeFacturaCompraModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarCargaFacturaCompra()">Confirmar y Registrar</button>
+    </div>`;
+
+  document.getElementById('fc-proveedor').addEventListener('change', function(){
+    document.getElementById('fc-proveedor-nuevo-wrap').style.display = this.value==='__nuevo__' ? '' : 'none';
+  });
+  renderFcPagoCampos();
+}
+
+function setFcPagada(val){
+  _fc.pagada = val;
+  document.getElementById('fc-btn-pagada').className = `btn ${val?'btn-primary':'btn-secondary'}`;
+  document.getElementById('fc-btn-pendiente').className = `btn ${!val?'btn-primary':'btn-secondary'}`;
+  renderFcPagoCampos();
+}
+
+function renderFcPagoCampos(){
+  const wrap=document.getElementById('fc-pago-campos');
+  const p=_fc.parsed||{};
+  if(_fc.pagada){
+    wrap.innerHTML=`
+      <div class="form-group"><label>Fecha de Pago</label><input autocomplete="off" type="date" id="fc-fecha-pago" value="${esc(p.fechaEmision||today())}"></div>
+      <div class="form-group"><label>Forma de Pago</label>
+        <select id="fc-metodo-pago">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="cheque">Cheque</option>
+          <option value="debito">Tarjeta de Débito</option>
+          <option value="tarjeta">Tarjeta de Crédito</option>
+        </select>
+      </div>
+      <div class="form-group" id="fc-cuenta-wrap"><label>Cuenta Bancaria</label><select id="fc-cuenta">${S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Referencia</label><input autocomplete="off" type="text" id="fc-ref" value=""></div>`;
+  } else {
+    wrap.innerHTML=`<p style="font-size:13px;color:#8899bb;grid-column:span 2;">Se creará como Cuenta por Pagar pendiente, con vencimiento el ${fmtDate(document.getElementById('fc-fecha-vencimiento')?.value||p.fechaVencimiento||today())}. La pagas normalmente desde CxP cuando corresponda.</p>`;
+  }
+}
+
+function confirmarCargaFacturaCompra(){
+  const proveedorSelVal=document.getElementById('fc-proveedor').value;
+  const proveedorNuevo=document.getElementById('fc-proveedor-nuevo')?.value.trim()||'';
+  const ncf=document.getElementById('fc-ncf').value.trim();
+  const numFactura=document.getElementById('fc-numfactura').value.trim();
+  const fechaEmision=document.getElementById('fc-fecha-emision').value;
+  const fechaVencimiento=document.getElementById('fc-fecha-vencimiento').value;
+  const desc=document.getElementById('fc-desc').value.trim();
+  const categoria=document.getElementById('fc-categoria').value;
+  const subtotal=numVal('fc-subtotal');
+  const itbis=numVal('fc-itbis');
+  const total=numVal('fc-total');
+
+  let proveedorNombre='';
+  if(proveedorSelVal==='__nuevo__'){
+    proveedorNombre=proveedorNuevo;
+    if(!proveedorNombre){ notify('error','Falta el Proveedor','Escribe el nombre del proveedor nuevo.'); return; }
+    S.suplidores.push({id:Date.now(),nombre:proveedorNombre,rnc:_fc.parsed?.proveedorRNC||'',email:'',tel:'',contacto:'',dir:''});
+    save();
+  } else if(proveedorSelVal){
+    const s=S.suplidores.find(x=>x.id===parseInt(proveedorSelVal));
+    proveedorNombre=s?.nombre||'';
+  }
+  if(!proveedorNombre){ notify('error','Falta el Proveedor','Selecciona o escribe el proveedor de esta factura.'); return; }
+  if(!categoria){ notify('error','Falta la Categoría','Elige una categoría antes de continuar.'); return; }
+  if(total<=0){ notify('error','Monto Inválido','El Total debe ser mayor a cero.'); return; }
+
+  // Duplicado: mismo N° de factura o NCF ya registrado, en Egresos o en CxP —
+  // muy relevante aquí porque vas a cargar facturas viejas de varios meses atrás.
+  const yaExisteEgreso = numFactura && S.egresos.some(e=>e.numFactura && e.numFactura.toUpperCase()===numFactura.toUpperCase());
+  const yaExisteCxp = numFactura && S.cuentasPagar.proveedores.some(x=>(x.referencia||'').toUpperCase().includes(numFactura.toUpperCase()));
+  if(yaExisteEgreso || yaExisteCxp){
+    icgConfirm(`Ya existe un registro con la factura N° ${numFactura}. ¿Confirmas que quieres registrar esta también?`,'⚠️ Posible Duplicado','Sí, registrar de todos modos',true,'Cancelar')
+      .then(ok=>{ if(ok) _procederConFacturaCompra(proveedorSelVal,proveedorNombre,ncf,numFactura,fechaEmision,fechaVencimiento,desc,categoria,subtotal,itbis,total); });
+    return;
+  }
+  _procederConFacturaCompra(proveedorSelVal,proveedorNombre,ncf,numFactura,fechaEmision,fechaVencimiento,desc,categoria,subtotal,itbis,total);
+}
+
+function _procederConFacturaCompra(proveedorSelVal,proveedorNombre,ncf,numFactura,fechaEmision,fechaVencimiento,desc,categoria,subtotal,itbis,total){
+  const bancoIdx=encontrarCuentaPorBanco(_fc.parsed?.banco);
+  closeFacturaCompraModal();
+
+  if(_fc.pagada){
+    // Ya pagada (contado, o factura vieja de meses atrás ya liquidada) → Egreso directo.
+    const fechaPago=document.getElementById('fc-fecha-pago')?.value||fechaEmision;
+    const metodo=document.getElementById('fc-metodo-pago')?.value||'transferencia';
+    const cuentaIdx=document.getElementById('fc-cuenta')?.value;
+    const ref=document.getElementById('fc-ref')?.value.trim()||'';
+    activateTab('egresos');
+    document.getElementById('egr-fecha').value=fechaPago;
+    refreshEgresoSelects();
+    const suplidorEncontrado=S.suplidores.find(s=>s.nombre===proveedorNombre);
+    if(suplidorEncontrado) document.getElementById('egr-suplidor').value=suplidorEncontrado.id;
+    document.getElementById('egr-categoria').value=categoria;
+    document.getElementById('egr-desc').value=desc||`Fact. ${numFactura||ncf||proveedorNombre}`;
+    document.getElementById('egr-numfactura').value=numFactura||ncf||'';
+    setMontoValue('egr-monto',total);
+    document.getElementById('egr-metodo').value=metodo;
+    onEgrMetodoChange(document.getElementById('egr-metodo'));
+    if(cuentaIdx!=null && document.getElementById('egr-cuenta')) document.getElementById('egr-cuenta').value=cuentaIdx;
+    document.getElementById('egr-ref').value=ref;
+    addEgreso();
+  } else {
+    // Pendiente de pago → crea la Cuenta por Pagar en Proveedores.
+    activateTab('cxp');
+    switchCXP('proveedores');
+    const nombreSel=document.getElementById('cxp-f-nombre');
+    if(nombreSel) nombreSel.value=proveedorNombre;
+    document.getElementById('cxp-f-concepto').value=desc||`Fact. ${numFactura||ncf||''}`;
+    document.getElementById('cxp-f-monto').value=total.toFixed(2);
+    document.getElementById('cxp-f-fecha').value=fechaEmision;
+    document.getElementById('cxp-f-vence').value=fechaVencimiento||fechaEmision;
+    document.getElementById('cxp-f-referencia').value=[ncf,numFactura].filter(Boolean).join(' · ');
+    const catSel=document.getElementById('cxp-f-categoriaEgreso');
+    if(catSel){
+      const catLabel = getSelectableEgrCats().find(c=>c.key===categoria)?.label;
+      if(catLabel){
+        const opt=[...catSel.options].find(o=>o.textContent===catLabel);
+        if(opt) catSel.value=opt.value;
+      }
+    }
+    addCXP();
+  }
+}
+
+
 let _cf = {};
 
 function closeCargarFacturaModal(){
