@@ -5751,7 +5751,11 @@ function renderRevisionSuplidor(wrap){
   const supMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.suplidores, 'nombre');
   const pendientes=(S.cuentasPagar.proveedores||[]).filter(x=>x.estado!=='pagada'&&(!supMatch||normalizarTexto(x.nombre)===normalizarTexto(supMatch.nombre)));
   let mejorFacturaId='';
-  if(p.monto&&pendientes.length){
+  // Solo se preselecciona una factura por coincidencia de monto cuando SÍ hay un
+  // suplidor identificado con confianza — adivinar solo por el monto, entre las
+  // facturas de CUALQUIER suplidor, es una coincidencia demasiado débil (dos
+  // facturas de proveedores distintos pueden coincidir en monto por casualidad).
+  if(supMatch && p.monto && pendientes.length){
     let best=null,bestDiff=Infinity;
     pendientes.forEach(x=>{const diff=Math.abs(cxpPending(x)-p.monto); if(diff<bestDiff){bestDiff=diff;best=x;}});
     if(best&&bestDiff<=Math.max(5,best.monto*0.02)) mejorFacturaId=best.id;
@@ -5816,7 +5820,10 @@ function renderRevisionCliente(wrap){
   const cliMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.clientes, 'nombre');
   const pendientes=(S.cuentasCobrar||[]).filter(x=>!cxcEstaResuelta(x)&&(!cliMatch||normalizarTexto(x.client)===normalizarTexto(cliMatch.nombre)));
   let mejorFacturaId='';
-  if(p.monto&&pendientes.length){
+  // Igual que en Suplidor: solo se preselecciona por monto cuando SÍ hay un cliente
+  // identificado con confianza — entre facturas de cualquier cliente, dos montos
+  // pueden coincidir por pura casualidad.
+  if(cliMatch && p.monto && pendientes.length){
     let best=null,bestDiff=Infinity;
     pendientes.forEach(x=>{const diff=Math.abs(cxcPending(x)-p.monto); if(diff<bestDiff){bestDiff=diff;best=x;}});
     if(best&&bestDiff<=Math.max(5,best.amount*0.02)) mejorFacturaId=best.id;
