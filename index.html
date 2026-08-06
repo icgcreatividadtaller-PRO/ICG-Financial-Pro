@@ -1420,7 +1420,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <input autocomplete="off" type="text" id="egr-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
       </div>
     </div>
-    <div class="form-actions"><button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addEgreso()">Registrar Egreso</button></div>
+    <div class="form-actions">
+      <button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addEgreso()">Registrar Egreso</button>
+      <button class="btn btn-secondary" onclick="openComprobanteModalDesdeEgresos()">📎 Cargar Comprobante</button>
+    </div>
     <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los egresos de CxP pagadas se registran automáticamente aquí.</p>
   </div>
   <div class="transactions-section">
@@ -5320,6 +5323,14 @@ function openComprobanteModal(i){
   _comp.accountIdx=i;
   document.getElementById('comprobanteModal').classList.add('open');
 }
+// Entrada directa desde "Registrar Egreso" — como ya sabemos que es un pago a
+// suplidor, se salta la pantalla de "¿qué tipo de comprobante es?" y va directo
+// a buscar coincidencia con CxP pendientes o al formulario de Egreso.
+function openComprobanteModalDesdeEgresos(){
+  resetComprobanteModal();
+  _comp.tipoForzado='suplidor';
+  document.getElementById('comprobanteModal').classList.add('open');
+}
 
 function normalizarTexto(s){
   return (s||'').toString().toUpperCase()
@@ -5368,7 +5379,11 @@ function onComprobanteOCRListo(text){
   document.getElementById('comp-raw-text').textContent=text||'(sin texto detectado)';
   document.getElementById('comp-raw-text-wrap').style.display='';
   document.getElementById('comp-step-processing').style.display='none';
-  document.getElementById('comp-step-classify').style.display='';
+  if(_comp.tipoForzado){
+    seleccionarTipoComprobante(_comp.tipoForzado);
+  } else {
+    document.getElementById('comp-step-classify').style.display='';
+  }
 }
 
 function parseComprobanteTexto(text){
