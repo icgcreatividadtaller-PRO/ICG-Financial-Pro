@@ -5418,7 +5418,7 @@ function parseComprobanteTexto(text){
 
   // Referencia: cubre variantes reales de OCR como "NO. DE REFERENCIA:", "N° de referencia",
   // "Referencia", "Confirmación".
-  m=t.match(/(?:n[o°º]\.?\s*de\s*referencia|referencia|confirmaci[oó]n)\s*:?\s*(\d{4,})/i);
+  m=t.match(/(?:n[o°º]\.?\s*de\s*referencia|referencia|confirmaci[oó]n)\s*:?\s*[-—–]?\s*(\d{4,})/i);
   if(m) out.referencia=m[1];
 
   // Beneficiario: se deja como intento best-effort (los recibos con 3 columnas
@@ -5447,6 +5447,14 @@ function detectarBanco(texto){
 // Busca si el nombre de algún suplidor/cliente conocido aparece en CUALQUIER
 // parte del texto OCR completo — mucho más confiable que extraer un campo
 // "beneficiario" con regex cuando el layout de 3 columnas desordena el texto.
+// Palabras genéricas que aparecen en CASI cualquier comprobante bancario, sin importar
+// quién sea el verdadero beneficiario — nombres del banco emisor, términos del recibo, etc.
+// Si un suplidor/cliente se llama exactamente igual a una de estas, nunca se usa para
+// "adivinar" quién es, porque calzaría con prácticamente cualquier comprobante.
+const TERMINOS_GENERICOS_COMPROBANTE = ['BANCO','DGII','ITBIS','POPULAR','SCOTIA','SCOTIABANK','BHD','APAP',
+  'BANRESERVAS','BANESCO','TRANSFERENCIA','TRANSFERENCIAS','COMISION','IMPUESTO','IMPUESTOS','CANAL',
+  'CUENTA','MONTO','FECHA','REFERENCIA','BENEFICIARIO','ENTIDAD','FINANCIERA','DESCRIPCION'];
+
 function buscarEntidadEnTextoCompleto(texto, lista, campoNombre){
   const textoNorm = normalizarTexto(texto);
   if(!textoNorm) return null;
@@ -5454,6 +5462,7 @@ function buscarEntidadEnTextoCompleto(texto, lista, campoNombre){
   lista.forEach(item=>{
     const nombreNorm = normalizarTexto(item[campoNombre]);
     if(!nombreNorm || nombreNorm.length<4) return;
+    if(TERMINOS_GENERICOS_COMPROBANTE.includes(nombreNorm)) return;
     if(textoNorm.includes(nombreNorm) && nombreNorm.length>bestLen){
       best=item; bestLen=nombreNorm.length;
     }
