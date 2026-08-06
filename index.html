@@ -2391,7 +2391,7 @@ function methodBadge(m){
   if(m==='transferencia') return `<span class="badge badge-transfer">Transf.</span>`;
   if(m==='cheque')        return `<span class="badge badge-check">Cheque</span>`;
   if(m==='retiro')        return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">Retiro</span>`;
-  if(m==='debito_directo')return `<span class="badge" style="background:rgba(253,201,1,.15);color:#fdc901;">Déb. Directo</span>`;
+  if(m==='debito_directo')return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">Déb. Directo</span>`;
   if(m==='debito')        return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;">T. Débito</span>`;
   if(m==='historico')     return `<span class="badge" style="background:rgba(107,122,153,.15);color:#8899bb;">📋 Histórico</span>`;
   if(m==='anticipo_previo')return `<span class="badge" style="background:rgba(74,222,128,.15);color:#4ade80;">Anticipo Previo</span>`;
@@ -4655,6 +4655,7 @@ function deleteSuplidor(id){
 function renderSuplidores(){
   const q=(document.getElementById('sup-search')?.value||'').toLowerCase();
   const list=S.suplidores.filter(s=>!q||s.nombre.toLowerCase().includes(q));
+  list.sort((a,b)=>a.nombre.localeCompare(b.nombre));
   const tbody=document.getElementById('sup-tbody');if(!tbody)return;
   const egrTotal=id=>S.egresos.filter(x=>x.suplidorId===id).reduce((s,x)=>s+x.monto,0);
   const catL={materiales:'Materiales',servicios:'Servicios',equipos:'Equipos',freelancer:'Freelancer',otros:'Otros'};
@@ -5455,17 +5456,25 @@ const TERMINOS_GENERICOS_COMPROBANTE = ['BANCO','DGII','ITBIS','POPULAR','SCOTIA
   'BANRESERVAS','BANESCO','TRANSFERENCIA','TRANSFERENCIAS','COMISION','IMPUESTO','IMPUESTOS','CANAL',
   'CUENTA','MONTO','FECHA','REFERENCIA','BENEFICIARIO','ENTIDAD','FINANCIERA','DESCRIPCION'];
 
+// Busca si el nombre de algún suplidor/cliente conocido aparece en el texto OCR completo.
+// No exige que las palabras estén juntas — los recibos de 3 columnas (Desde/Monto/
+// Beneficiario) desordenan el texto y separan "Alejandro" de "Sepúlveda" con otras
+// palabras en medio — así que basta con que TODAS las palabras del nombre aparezcan
+// en algún lugar del texto, sueltas o no.
 function buscarEntidadEnTextoCompleto(texto, lista, campoNombre){
   const textoNorm = normalizarTexto(texto);
   if(!textoNorm) return null;
-  let best=null, bestLen=0;
+  const palabrasTexto = new Set(textoNorm.split(' ').filter(w=>w.length>=3));
+  let best=null, bestScore=0;
   lista.forEach(item=>{
     const nombreNorm = normalizarTexto(item[campoNombre]);
     if(!nombreNorm || nombreNorm.length<4) return;
     if(TERMINOS_GENERICOS_COMPROBANTE.includes(nombreNorm)) return;
-    if(textoNorm.includes(nombreNorm) && nombreNorm.length>bestLen){
-      best=item; bestLen=nombreNorm.length;
-    }
+    const palabrasNombre = nombreNorm.split(' ').filter(w=>w.length>=3);
+    if(!palabrasNombre.length) return;
+    const todasPresentes = palabrasNombre.every(w=>palabrasTexto.has(w));
+    if(!todasPresentes) return;
+    if(nombreNorm.length>bestScore){ best=item; bestScore=nombreNorm.length; }
   });
   return best;
 }
@@ -5768,7 +5777,7 @@ function renderRevisionSuplidor(wrap){
       <div class="form-group" style="grid-column:span 2;"><label>Suplidor</label>
         <select id="comp-sup-select">
           <option value="">— Seleccionar —</option>
-          ${S.suplidores.map(s=>`<option value="${s.id}" ${supMatch&&supMatch.id===s.id?'selected':''}>${esc(s.nombre)}</option>`).join('')}
+          ${[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(s=>`<option value="${s.id}" ${supMatch&&supMatch.id===s.id?'selected':''}>${esc(s.nombre)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group" style="grid-column:span 2;"><label>Factura / CxP a aplicar</label>
@@ -5777,6 +5786,10 @@ function renderRevisionSuplidor(wrap){
           ${pendientes.map(x=>`<option value="${x.id}" ${String(x.id)===String(mejorFacturaId)?'selected':''}>${esc(x.nombre)} · Pendiente ${fmt(cxpPending(x))}</option>`).join('')}
         </select>
       </div>
+      <div class="form-group" id="comp-sup-cat-wrap" style="grid-column:span 2;"><label>Categoría <span style="font-weight:400;color:#6b7a99;">(solo si es Egreso suelto)</span></label>
+        <select id="comp-sup-categoria"><option value="">— Elegir —</option>${getSelectableEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select>
+      </div>
+      <div class="form-group" id="comp-sup-desc-wrap" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="comp-sup-desc" value=""></div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-sup-date" value="${esc(p.fecha||today())}"></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-sup-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Referencia</label><input autocomplete="off" type="text" id="comp-sup-ref" value="${esc(p.referencia||'')}"></div>
@@ -5790,10 +5803,14 @@ function onCompSupInvoiceChange(){/* placeholder para futura sincronización vis
 
 function confirmarComprobanteSuplidor(){
   const invoiceId=document.getElementById('comp-sup-invoice').value;
+  const suplidorId=document.getElementById('comp-sup-select').value;
+  const categoria=document.getElementById('comp-sup-categoria')?.value||'';
+  const desc=document.getElementById('comp-sup-desc')?.value.trim()||'';
   const monto=numVal('comp-sup-amount')||0;
   const fecha=document.getElementById('comp-sup-date').value;
   const ref=document.getElementById('comp-sup-ref').value.trim();
   const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
+  const suplidor=suplidorId?S.suplidores.find(s=>s.id===parseInt(suplidorId)):null;
   closeComprobanteModal();
   if(invoiceId){
     const item=S.cuentasPagar.proveedores.find(x=>String(x.id)===String(invoiceId));
@@ -5806,11 +5823,24 @@ function confirmarComprobanteSuplidor(){
     document.getElementById('cxp-pay-method').value='transferencia';
     if(bancoIdx!==null) document.getElementById('cxp-pay-account').value=bancoIdx;
   } else {
+    if(!categoria){
+      icgAlert('No se pudo completar el registro porque falta la Categoría del gasto. Vuelve a cargar el comprobante e indícala antes de confirmar.','Falta la Categoría');
+      return;
+    }
+    // Se completa el registro directamente aquí, reutilizando addEgreso() — igual que
+    // en Cargar Factura de Venta, sin dejar un segundo paso pendiente en otra pantalla.
     activateTab('egresos');
-    if(document.getElementById('egr-fecha')) document.getElementById('egr-fecha').value=fecha;
-    if(document.getElementById('egr-monto')) setMontoValue('egr-monto',monto);
-    if(document.getElementById('egr-ref')) document.getElementById('egr-ref').value=ref;
-    icgAlert('Completa la categoría y confirma antes de registrar.','Revisa el Egreso');
+    document.getElementById('egr-fecha').value=fecha;
+    refreshEgresoSelects();
+    if(suplidorId) document.getElementById('egr-suplidor').value=suplidorId;
+    document.getElementById('egr-categoria').value=categoria;
+    document.getElementById('egr-desc').value=desc||(suplidor?.nombre||'');
+    setMontoValue('egr-monto',monto);
+    document.getElementById('egr-metodo').value='transferencia';
+    onEgrMetodoChange(document.getElementById('egr-metodo'));
+    if(bancoIdx!==null) document.getElementById('egr-cuenta').value=bancoIdx;
+    document.getElementById('egr-ref').value=ref;
+    addEgreso();
   }
 }
 
@@ -5845,6 +5875,10 @@ function renderRevisionCliente(wrap){
           ${pendientes.map(x=>`<option value="${x.id}" ${String(x.id)===String(mejorFacturaId)?'selected':''}>${esc(x.invoice)} · ${esc(x.client)} · Pendiente ${fmt(cxcPending(x))}</option>`).join('')}
         </select>
       </div>
+      <div class="form-group" style="grid-column:span 2;"><label>Categoría <span style="font-weight:400;color:#6b7a99;">(solo si es Ingreso/Recibo suelto)</span></label>
+        <select id="comp-cli-categoria"><option value="">— Elegir —</option>${getSelectableIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select>
+      </div>
+      <div class="form-group" style="grid-column:span 2;"><label>Concepto</label><input autocomplete="off" type="text" id="comp-cli-concepto" value=""></div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-cli-date" value="${esc(p.fecha||today())}"></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-cli-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Referencia</label><input autocomplete="off" type="text" id="comp-cli-ref" value="${esc(p.referencia||'')}"></div>
@@ -5856,6 +5890,9 @@ function renderRevisionCliente(wrap){
 
 function confirmarComprobanteCliente(){
   const invoiceId=document.getElementById('comp-cli-invoice').value;
+  const clienteId=document.getElementById('comp-cli-select').value;
+  const categoria=document.getElementById('comp-cli-categoria')?.value||'';
+  const concepto=document.getElementById('comp-cli-concepto')?.value.trim()||'';
   const monto=numVal('comp-cli-amount')||0;
   const fecha=document.getElementById('comp-cli-date').value;
   const ref=document.getElementById('comp-cli-ref').value.trim();
@@ -5873,12 +5910,24 @@ function confirmarComprobanteCliente(){
     calcPayNet();
     if(bancoIdx!==null) document.getElementById('pay-bank').value=bancoIdx;
   } else {
+    if(!categoria){
+      icgAlert('No se pudo completar el registro porque falta la Categoría. Vuelve a cargar el comprobante e indícala antes de confirmar.','Falta la Categoría');
+      return;
+    }
+    // Se completa el registro directamente aquí, reutilizando addRecibo() — igual que
+    // en Cargar Factura de Venta, sin dejar un segundo paso pendiente en otra pantalla.
     activateTab('ingresos');
     switchIngresosView('recibos');
-    if(document.getElementById('rec-fecha')) document.getElementById('rec-fecha').value=fecha;
-    if(document.getElementById('rec-monto')) setMontoValue('rec-monto',monto);
-    if(document.getElementById('rec-ref')) document.getElementById('rec-ref').value=ref;
-    icgAlert('Completa el cliente y la categoría antes de registrar.','Revisa el Recibo');
+    document.getElementById('rec-fecha').value=fecha;
+    if(clienteId) document.getElementById('rec-cliente').value=clienteId;
+    document.getElementById('rec-categoria').value=categoria;
+    document.getElementById('rec-concepto').value=concepto;
+    setMontoValue('rec-monto',monto);
+    document.getElementById('rec-metodo').value='transferencia';
+    onRecMetodoChange(document.getElementById('rec-metodo'));
+    if(bancoIdx!==null) document.getElementById('rec-cuenta').value=bancoIdx;
+    document.getElementById('rec-ref').value=ref;
+    addRecibo();
   }
 }
 let _ingresosView='manual';
