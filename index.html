@@ -1235,7 +1235,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los ingresos de CxC pagadas se registran automáticamente aquí.</p>
   </div>
   <div class="transactions-section">
-    <h3>Historial de Ingresos</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Historial de Ingresos</h3>
+      <button class="btn btn-secondary" style="font-size:13px;padding:8px 14px;" onclick="abrirRevisionDuplicados('ingresos')">🔍 Revisar Posibles Duplicados</button>
+    </div>
     <div class="filter-bar">
       <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="ing-filter-mes" oninput="renderIngresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
@@ -1432,7 +1435,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <p style="font-size:15px;color:#6b7a99;margin-top:8px;">Los egresos de CxP pagadas se registran automáticamente aquí.</p>
   </div>
   <div class="transactions-section">
-    <h3>Historial de Egresos</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Historial de Egresos</h3>
+      <button class="btn btn-secondary" style="font-size:13px;padding:8px 14px;" onclick="abrirRevisionDuplicados('egresos')">🔍 Revisar Posibles Duplicados</button>
+    </div>
     <div class="filter-bar">
       <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="egr-filter-mes" oninput="renderEgresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
@@ -2122,6 +2128,18 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 </div>
 
 <!-- ══ DETALLE DE CATEGORÍA (Estado de Resultados — clic en cualquier barra) ══ -->
+<!-- ══ REVISAR POSIBLES DUPLICADOS (Ingresos/Egresos, todo el historial) ══ -->
+<div class="modal-overlay" id="duplicadosModal">
+  <div class="modal" style="max-width:720px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 id="duplicadosTitle" style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;"></h2>
+      <button class="modal-close" onclick="closeModal('duplicadosModal')">✕</button>
+    </div>
+    <p style="font-size:13px;color:#8899bb;line-height:1.6;margin-bottom:16px;">Estos registros comparten la misma fecha y el mismo monto — puede ser el mismo pago registrado dos veces, o puede ser una coincidencia real. Revisa cada grupo y decide tú si hace falta borrar alguno.</p>
+    <div id="duplicadosBody" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="catDetailModal">
   <div class="modal" style="max-width:640px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -5081,12 +5099,12 @@ function imprimirRecibo(id){
 
 function delIngreso(id){
   const x=S.ingresos.find(i=>i.id===id);
-  if(!x) return;
+  if(!x) return Promise.resolve(false);
   if(x.fuente && x.fuente!=='manual'){
     icgAlert(`Este ingreso viene de ${x.fuente==='cxc'?'un cobro de CxC':x.fuente==='recibo'?'un Recibo de Ingreso':'otro registro automático'} — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a ${x.fuente==='cxc'?'CxC':x.fuente==='recibo'?'Recibos de Ingreso':'el origen correspondiente'} para corregirlo desde la fuente.`,'No se Puede Eliminar Aquí');
-    return;
+    return Promise.resolve(false);
   }
-  icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return;S.ingresos=S.ingresos.filter(i=>i.id!==id);save();renderIngresos();});
+  return icgConfirm('¿Eliminar este ingreso del historial?','Eliminar Ingreso','Eliminar').then(ok=>{if(!ok)return false;S.ingresos=S.ingresos.filter(i=>i.id!==id);save();renderIngresos();return true;});
 }
 
 // ══════════════════ FASE 1: CARGAR COMPROBANTE (OCR) ══════════════════
@@ -6358,20 +6376,21 @@ function addEgreso(auto=false,data={}){
 }
 function delEgreso(id){
   const x=S.egresos.find(e=>e.id===id);
-  if(!x) return;
+  if(!x) return Promise.resolve(false);
   if(x.fuente && x.fuente!=='manual'){
     icgAlert('Este egreso viene de un pago de CxP — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a CxP para corregirlo desde la fuente.','No se Puede Eliminar Aquí');
-    return;
+    return Promise.resolve(false);
   }
   const cargoVinculado = x.metodo==='tarjeta' ? S.creditCard.transactions.find(t=>t.egresoRef===id) : null;
   const msg = cargoVinculado
     ? `Este egreso también generó un cargo de ${fmt(cargoVinculado.amount)} en tu Tarjeta de Crédito. Al eliminar el egreso, ese cargo se eliminará también. ¿Continuar?`
     : '¿Eliminar este egreso del historial?';
-  icgConfirm(msg,'Eliminar Egreso','Eliminar',true).then(ok=>{
-    if(!ok)return;
+  return icgConfirm(msg,'Eliminar Egreso','Eliminar',true).then(ok=>{
+    if(!ok)return false;
     if(cargoVinculado) S.creditCard.transactions=S.creditCard.transactions.filter(t=>t.id!==cargoVinculado.id);
     S.egresos=S.egresos.filter(e=>e.id!==id);
     save(); renderEgresos(); updateCCCards(); renderCCTx();
+    return true;
   });
 }
 function renderEgresos(){
@@ -6695,6 +6714,50 @@ function repararEgresosFaltantesDeCxP(){
 // creado por error, cuando un registro viejo de CxP no fue reconocido como ya cubierto
 // (por tener un id en formato distinto). Se agrupan por suplidor+fecha+monto entre los
 // egresos con fuente='cxp', y de cada grupo con más de uno se conserva solo el primero.
+// ── Revisar Posibles Duplicados (todo el historial, cualquier fuente) ──
+// A diferencia de las limpiezas automáticas de arriba (que solo cubren el patrón
+// específico CxP+CxP), esta herramienta agrupa TODOS los Ingresos o Egresos por
+// fecha+monto, sin importar si vienen de un registro manual, CxP, CxC o Recibo — y
+// deja que el usuario decida caso por caso, porque auto-borrar aquí sería arriesgado.
+function abrirRevisionDuplicados(tipo){
+  const lista = tipo==='egresos' ? S.egresos : S.ingresos;
+  const grupos={};
+  lista.forEach(x=>{
+    const clave=`${x.fecha}|${(x.monto||0).toFixed(2)}`;
+    (grupos[clave]=grupos[clave]||[]).push(x);
+  });
+  const gruposConDuplicados = Object.values(grupos).filter(g=>g.length>1)
+    .sort((a,b)=>b[0].fecha.localeCompare(a[0].fecha));
+
+  document.getElementById('duplicadosTitle').textContent =
+    `Posibles Duplicados — ${tipo==='egresos'?'Egresos':'Ingresos'} (${gruposConDuplicados.length} grupo(s))`;
+
+  const body=document.getElementById('duplicadosBody');
+  if(!gruposConDuplicados.length){
+    body.innerHTML = `<p style="text-align:center;color:#6b7280;padding:24px;">No se encontró ningún grupo con la misma fecha y monto. 👍</p>`;
+  } else {
+    body.innerHTML = gruposConDuplicados.map((g,gi)=>{
+      const filas = g.map(x=>{
+        const quien = tipo==='egresos' ? (x.suplidorNombre||'—') : (x.clienteNombre||'—');
+        const esManual = x.fuente==='manual';
+        const accion = esManual
+          ? `<button class="del-btn" onclick="eliminarDesdeRevisionDuplicados('${tipo}',${x.id})">Eliminar</button>`
+          : `<span style="font-size:11px;color:#6b7a99;">Viene de ${x.fuente==='cxp'?'CxP':x.fuente==='cxc'?'CxC':x.fuente==='recibo'?'un Recibo':'otro registro'} — bórralo desde ahí si hace falta</span>`;
+        return `<tr><td>${esc(quien)}</td><td>${esc(x.categoria||'—')}</td><td style="max-width:220px;">${esc(x.desc||'—')}</td><td><span class="badge ${x.fuente==='manual'?'badge-overdue':'badge-transfer'}">${x.fuente==='manual'?'Manual':x.fuente==='cxp'?'CxP':x.fuente==='cxc'?'CxC':x.fuente==='recibo'?'Recibo':x.fuente}</span></td><td>${accion}</td></tr>`;
+      }).join('');
+      return `<div style="margin-bottom:18px;border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:12px;">
+        <div style="font-size:13px;color:#f0a8a8;margin-bottom:8px;">📅 ${fmtDate(g[0].fecha)} · ${fmt(g[0].monto)} · ${g.length} registros</div>
+        <table style="width:100%;"><thead><tr><th>${tipo==='egresos'?'Suplidor':'Cliente'}</th><th>Categoría</th><th>Descripción</th><th>Fuente</th><th></th></tr></thead><tbody>${filas}</tbody></table>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('duplicadosModal').classList.add('open');
+}
+function eliminarDesdeRevisionDuplicados(tipo, id){
+  const promesa = tipo==='egresos' ? delEgreso(id) : delIngreso(id);
+  promesa.then(()=>abrirRevisionDuplicados(tipo));
+}
+
 function limpiarEgresosDuplicadosDeCxP(){
   const grupos={};
   S.egresos.forEach(e=>{
