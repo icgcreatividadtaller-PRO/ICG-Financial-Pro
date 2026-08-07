@@ -2440,6 +2440,8 @@ function init(){
   limpiarAsientosDevengoObsoletos();
   repararEgresosFaltantesDeCxP();
   repararIngresosFaltantesDeCxC();
+  limpiarEgresosDuplicadosDeCxP();
+  limpiarIngresosDuplicadosDeCxC();
   repararSuplidoresFaltantes();
   renderTabs();
   renderCCPanel(); renderCXC(); buildCXPForm('proveedores');
@@ -6655,12 +6657,19 @@ function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,
 // falten, sin duplicar los que ya existen.
 function repararEgresosFaltantesDeCxP(){
   let creados=0;
+  const tol=0.01;
+  // Además del id exacto, revisa por suplidor+fecha+monto — los registros viejos de
+  // versiones anteriores del sistema pueden no tener el mismo formato de id, y sin
+  // este respaldo la reparación los duplicaría en vez de reconocerlos.
+  const yaCubierto=(nombre,fecha,monto)=>S.egresos.some(e=>e.fuente==='cxp'
+    && normalizarTexto(e.suplidorNombre)===normalizarTexto(nombre)
+    && e.fecha===fecha && Math.abs((e.monto||0)-monto)<tol);
   Object.keys(S.cuentasPagar||{}).forEach(section=>{
     (S.cuentasPagar[section]||[]).forEach(item=>{
       const pagos=item.pagos||[];
       if(pagos.length){
         pagos.forEach(p=>{
-          const yaExiste = S.egresos.find(e=>e.fuenteId===p.id&&e.fuente==='cxp');
+          const yaExiste = S.egresos.find(e=>e.fuenteId===p.id&&e.fuente==='cxp') || yaCubierto(item.nombre,p.date,p.amount);
           if(!yaExiste){
             autoEgresoFromCxP(item, p.amount, p.date, p.method, p.accountIdx, p.method==='historico', section, p.id, p.ref||'');
             creados++;
@@ -6669,7 +6678,7 @@ function repararEgresosFaltantesDeCxP(){
       } else if((item.estado==='pagada'||item.estado==='parcial') && item.paidDate){
         // Registro viejo de un solo pago, de antes de que existiera el arreglo de abonos —
         // aquí el pago vive directo en los campos del item (paidDate/payMethod/...), no en pagos[].
-        const yaExiste = S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp');
+        const yaExiste = S.egresos.find(e=>e.fuenteId===item.id&&e.fuente==='cxp') || yaCubierto(item.nombre,item.paidDate,item.monto);
         if(!yaExiste){
           autoEgresoFromCxP(item, item.monto, item.paidDate, item.payMethod||'transferencia', item.payAccountIdx, item.payMethod==='historico', section, null, item.payRef||'');
           creados++;
@@ -6680,6 +6689,36 @@ function repararEgresosFaltantesDeCxP(){
   if(creados>0){
     save();
     notify('info','Reparación Automática',`Se recuperaron ${creados} egreso(s) de pagos a CxP que no se habían registrado correctamente. Revisa el módulo Egresos.`);
+  }
+}
+// Limpieza única: elimina los Egresos DUPLICADOS que la reparación anterior pudo haber
+// creado por error, cuando un registro viejo de CxP no fue reconocido como ya cubierto
+// (por tener un id en formato distinto). Se agrupan por suplidor+fecha+monto entre los
+// egresos con fuente='cxp', y de cada grupo con más de uno se conserva solo el primero.
+function limpiarEgresosDuplicadosDeCxP(){
+  const grupos={};
+  S.egresos.forEach(e=>{
+    if(e.fuente!=='cxp') return;
+    const clave=`${normalizarTexto(e.suplidorNombre)}|${e.fecha}|${(e.monto||0).toFixed(2)}`;
+    (grupos[clave]=grupos[clave]||[]).push(e);
+  });
+  const idsAEliminar=new Set();
+  let detalle=[];
+  Object.values(grupos).forEach(lista=>{
+    if(lista.length<2) return;
+    // Se conserva el que tenga referencia (más completo), o si ninguno la tiene, el primero.
+    const conservar = lista.find(e=>e.ref) || lista[0];
+    lista.forEach(e=>{
+      if(e.id!==conservar.id){
+        idsAEliminar.add(e.id);
+        detalle.push(`${e.suplidorNombre} — ${fmtDate(e.fecha)} — ${fmt(e.monto)}`);
+      }
+    });
+  });
+  if(idsAEliminar.size>0){
+    S.egresos=S.egresos.filter(e=>!idsAEliminar.has(e.id));
+    save();
+    notify('warning','Duplicados Eliminados',`Se encontraron y eliminaron ${idsAEliminar.size} egreso(s) duplicado(s) de pagos a CxP: ${detalle.slice(0,3).join('; ')}${detalle.length>3?'...':''}. Revisa el módulo Egresos para confirmar.`);
   }
 }
 // Reparación única: si en algún momento se eliminó un suplidor del directorio mientras
@@ -6706,11 +6745,15 @@ function repararSuplidoresFaltantes(){
 }
 function repararIngresosFaltantesDeCxC(){
   let creados=0;
+  const tol=0.01;
+  const yaCubierto=(client,fecha,monto)=>S.ingresos.some(i=>i.fuente==='cxc'
+    && normalizarTexto(i.clienteNombre)===normalizarTexto(client)
+    && i.fecha===fecha && Math.abs((i.monto||0)-monto)<tol);
   (S.cuentasCobrar||[]).forEach(x=>{
     const pagos=x.pagos||[];
     if(pagos.length){
       pagos.forEach(p=>{
-        const yaExiste = S.ingresos.find(i=>i.fuenteId===p.id&&i.fuente==='cxc');
+        const yaExiste = S.ingresos.find(i=>i.fuenteId===p.id&&i.fuente==='cxc') || yaCubierto(x.client,p.date,p.netAmount);
         if(!yaExiste){
           autoIngresoFromCxC(x, p.netAmount, p.date, p.method, p.bankIdx, p.method==='historico', p.montoBruto, p.id, p.ref||'');
           creados++;
@@ -6718,9 +6761,10 @@ function repararIngresosFaltantesDeCxC(){
       });
     } else if((x.estado==='pagada'||x.estado==='parcial') && x.paidDate){
       // Mismo caso que en CxP: registro viejo de un solo cobro, sin arreglo de abonos.
-      const yaExiste = S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc');
+      const montoLegacy = x.amountPaid!=null?x.amountPaid:x.amount;
+      const yaExiste = S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc') || yaCubierto(x.client,x.paidDate,montoLegacy);
       if(!yaExiste){
-        autoIngresoFromCxC(x, x.amountPaid!=null?x.amountPaid:x.amount, x.paidDate, x.payMethod||'transferencia', x.payBankIdx, x.payMethod==='historico', x.amountPaid, null, x.payRef||'');
+        autoIngresoFromCxC(x, montoLegacy, x.paidDate, x.payMethod||'transferencia', x.payBankIdx, x.payMethod==='historico', x.amountPaid, null, x.payRef||'');
         creados++;
       }
     }
@@ -6728,6 +6772,32 @@ function repararIngresosFaltantesDeCxC(){
   if(creados>0){
     save();
     notify('info','Reparación Automática',`Se recuperaron ${creados} ingreso(s) de cobros de CxC que no se habían registrado correctamente. Revisa el módulo Ingresos.`);
+  }
+}
+// Limpieza única — mismo criterio que limpiarEgresosDuplicadosDeCxP, del lado de Ingresos.
+function limpiarIngresosDuplicadosDeCxC(){
+  const grupos={};
+  S.ingresos.forEach(i=>{
+    if(i.fuente!=='cxc') return;
+    const clave=`${normalizarTexto(i.clienteNombre)}|${i.fecha}|${(i.monto||0).toFixed(2)}`;
+    (grupos[clave]=grupos[clave]||[]).push(i);
+  });
+  const idsAEliminar=new Set();
+  let detalle=[];
+  Object.values(grupos).forEach(lista=>{
+    if(lista.length<2) return;
+    const conservar = lista.find(i=>i.ref) || lista[0];
+    lista.forEach(i=>{
+      if(i.id!==conservar.id){
+        idsAEliminar.add(i.id);
+        detalle.push(`${i.clienteNombre} — ${fmtDate(i.fecha)} — ${fmt(i.monto)}`);
+      }
+    });
+  });
+  if(idsAEliminar.size>0){
+    S.ingresos=S.ingresos.filter(i=>!idsAEliminar.has(i.id));
+    save();
+    notify('warning','Duplicados Eliminados',`Se encontraron y eliminaron ${idsAEliminar.size} ingreso(s) duplicado(s) de cobros de CxC: ${detalle.slice(0,3).join('; ')}${detalle.length>3?'...':''}. Revisa el módulo Ingresos para confirmar.`);
   }
 }
 
