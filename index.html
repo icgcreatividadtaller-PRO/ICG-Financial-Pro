@@ -1821,10 +1821,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 <!-- ══ PAYMENT MODAL CxC ══ -->
 <div class="modal-overlay" id="paymentModal" style="z-index:300;">
-  <div class="modal" style="max-width:520px;border:2px solid rgba(129,140,248,.4);">
+  <div class="modal" style="max-width:600px;border:2px solid rgba(129,140,248,.4);">
     <button class="modal-close" onclick="closePayModal()">×</button>
     <h2 style="color:#818cf8;font-size:19px;letter-spacing:.05em;">Registrar Cobro</h2>
-    <p id="payModalSubtitle" style="margin-bottom:16px;font-size:15px;color:#c8d0e0;font-weight:600;text-transform:none;letter-spacing:.02em;"></p>
+    <p id="payModalSubtitle" style="margin-bottom:16px;font-size:19px;color:#c8d0e0;font-weight:600;text-transform:none;letter-spacing:.02em;"></p>
 
     <!-- Monto factura -->
     <div style="background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.25);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
@@ -1840,7 +1840,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <input autocomplete="off" type="text" inputmode="decimal" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
         style="width:100%;border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;height:44px;box-sizing:border-box;"
         oninput="formatMontoInput(this);calcPayNet()">
-      <div style="font-size:15px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
+      <div style="font-size:12px;line-height:1.35;color:#6b7a99;margin-top:4px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
     </div>
 
     <!-- Método + Banco + Fecha + Referencia -->
@@ -3873,6 +3873,9 @@ function addCXP(){
 function syncPrestamosTintinPily(){
   if(!confirm('Esto va a crear/actualizar PRÉSTAMO_TINTIN y PRÉSTAMO_PILY con los datos actuales al 07/08/2026. ¿Continuar?')) return;
 
+  // Quita acentos/diacríticos para que la comparación no falle por diferencias de codificación
+  const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+
   const datos = {
     PRESTAMO_TINTIN: {
       nombre: 'BHD', concepto: 'TINTIN',
@@ -3884,7 +3887,7 @@ function syncPrestamosTintinPily(){
       nombre: 'BHD', concepto: 'PILY',
       monto: 14534.10, saldo: 360361.08, vence: '2026-08-21',
       metodo: 'débito_automático', tasa: 23.70,
-      oldMatches: ['PRÉSTAMO_PILY','PRÉSTAMO-Z','PRÉSTAMO DOS','CREDICLICK','PILY']
+      oldMatches: ['PRÉSTAMO_PILY','PRÉSTAMO-Z','PRÉSTAMO DOS','CREDICLICK','PILY','LÍNEA DE CRÉDITO PERSONAL (CREDICLICK)','LINEA DE CREDITO PERSONAL']
     }
   };
 
@@ -3892,8 +3895,8 @@ function syncPrestamosTintinPily(){
   Object.values(datos).forEach(d=>{
     const existente = S.cuentasPagar.prestamos.find(p =>
       d.oldMatches.some(n => {
-        const nu = n.toUpperCase();
-        return (p.nombre||'').trim().toUpperCase()===nu || (p.concepto||'').trim().toUpperCase().includes(nu);
+        const nu = norm(n);
+        return norm(p.nombre)===nu || norm(p.concepto).includes(nu);
       })
     );
     if(existente){
