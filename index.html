@@ -3875,16 +3875,16 @@ function syncPrestamosTintinPily(){
 
   const datos = {
     PRESTAMO_TINTIN: {
-      nombre: 'BHD', concepto: 'PRÉSTAMO_TINTIN · Préstamo personal',
+      nombre: 'BHD', concepto: 'TINTIN',
       monto: 11024.45, saldo: 358939.90, vence: '2026-08-29',
       metodo: 'débito_automático', tasa: 21.35,
-      oldMatches: ['PRÉSTAMO_TINTIN','PRÉSTAMO-X','PRÉSTAMO UNO']
+      oldMatches: ['PRÉSTAMO_TINTIN','PRÉSTAMO-X','PRÉSTAMO UNO','TINTIN']
     },
     PRESTAMO_PILY: {
-      nombre: 'BHD', concepto: 'PRÉSTAMO_PILY · Línea de crédito personal (CrediClick)',
+      nombre: 'BHD', concepto: 'PILY',
       monto: 14534.10, saldo: 360361.08, vence: '2026-08-21',
       metodo: 'débito_automático', tasa: 23.70,
-      oldMatches: ['PRÉSTAMO_PILY','PRÉSTAMO-Z','PRÉSTAMO DOS','CREDICLICK']
+      oldMatches: ['PRÉSTAMO_PILY','PRÉSTAMO-Z','PRÉSTAMO DOS','CREDICLICK','PILY']
     }
   };
 
@@ -4259,7 +4259,7 @@ function renderBalanceGeneral(){
   const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
   const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>{
     const c=(p.concepto||'').trim().toUpperCase();
-    return (c.includes('PRÉSTAMO_TINTIN')||c.includes('PRÉSTAMO_PILY'))&&p.estado!=='pagada';
+    return (c.includes('TINTIN')||c.includes('PILY'))&&p.estado!=='pagada';
   }).reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
   const capitalTitular = totalActivosFijos + saldosInicialesCuentas - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial, menos deuda que ya existía en ese momento
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
