@@ -921,6 +921,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
+      <!-- Tipo de Venta -->
+      <div class="form-group" style="width:230px;flex-shrink:0;">
+        <label>Tipo de Venta</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;">🏪 Directa Taller</button>
+          <button type="button" id="cxc-tv-corp" onclick="setTipoVenta('cxc','corporativa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">🏢 Corporativa</button>
+        </div>
+        <input type="hidden" id="cxc-tipoventa" value="corporativa">
+      </div>
     </div>
     <!-- Row 2: Fecha · Condiciones · Vencimiento · Subtotal · ITBIS · Total -->
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:4px;flex-wrap:wrap;">
@@ -990,7 +999,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>N° Factura</th><th>Cliente</th><th>Descripción</th><th>Creación</th><th>Vencimiento</th><th>Total RD$</th><th>Estado</th><th></th>
+        <th>N° Factura</th><th>Cliente</th><th>Descripción</th><th>Tipo</th><th>Creación</th><th>Vencimiento</th><th>Total RD$</th><th>Estado</th><th></th>
       </tr></thead>
       <tbody id="cxc-tbody"></tbody>
     </table></div>
@@ -1206,6 +1215,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Monto (RD$)</label>
         <input autocomplete="off" type="text" inputmode="decimal" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
+      <div class="form-group" style="width:230px;flex-shrink:0;">
+        <label>Tipo de Venta</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <button type="button" id="ing-tv-directa" onclick="setTipoVenta('ing','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;">🏪 Directa Taller</button>
+          <button type="button" id="ing-tv-corp" onclick="setTipoVenta('ing','corporativa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">🏢 Corporativa</button>
+        </div>
+        <input type="hidden" id="ing-tipoventa" value="corporativa">
+      </div>
     </div>
     <!-- Row 2: Descripción · Método · Cuenta -->
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
@@ -1259,7 +1276,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="document.getElementById('ing-filter-mes').value='';document.getElementById('ing-filter-cat').value='';renderIngresos()">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Tipo Venta</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
       <tbody id="ing-tbody"></tbody>
     </table></div>
   </div>
@@ -1297,6 +1314,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Monto (RD$)</label>
         <input autocomplete="off" type="text" inputmode="decimal" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
+      <div class="form-group" style="width:230px;flex-shrink:0;">
+        <label>Tipo de Venta</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;">🏪 Directa Taller</button>
+          <button type="button" id="rec-tv-corp" onclick="setTipoVenta('rec','corporativa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;">🏢 Corporativa</button>
+        </div>
+        <input type="hidden" id="rec-tipoventa" value="corporativa">
+      </div>
     </div>
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
       <div class="form-group" style="flex:1;min-width:200px;">
@@ -1326,7 +1351,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="transactions-section">
     <h3>Historial de Recibos</h3>
     <div class="table-wrap"><table>
-      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
+      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Cliente</th><th>Concepto</th><th>Categoría</th><th>Tipo Venta</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
       <tbody id="rec-tbody"></tbody>
     </table></div>
   </div>
@@ -1337,6 +1362,16 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <div class="panel" id="panel-egresos">
   <div class="account-top">
     <div class="account-name-area"><h2 style="color:#ef4444;">Egresos</h2><p>Gastos operativos · ICG Creatividad</p></div>
+  </div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px;" id="egrSubTabs">
+    <button class="acct-tab active" id="egr-tab-manual"  onclick="switchEgresosView('manual')">Egresos Manuales</button>
+    <button class="acct-tab"        id="egr-tab-recibos" onclick="switchEgresosView('recibos')">Recibos de Egreso</button>
+  </div>
+
+  <!-- EGRESOS MANUALES VIEW -->
+  <div id="egrView-manual">
+  <div class="account-top">
     <div class="balance-cards">
       <div class="bcard" style="border-color:rgba(239,68,68,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value negative" id="egr-mes">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value negative" id="egr-anio">RD$0.00</div></div>
@@ -1467,6 +1502,74 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <tbody id="egr-tbody"></tbody>
     </table></div>
   </div>
+  </div>
+
+  <!-- RECIBOS DE EGRESO VIEW -->
+  <div id="egrView-recibos" style="display:none;">
+  <div class="account-top">
+    <div class="balance-cards">
+      <div class="bcard" style="border-color:rgba(239,68,68,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value negative" id="recegr-mes">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value negative" id="recegr-anio">RD$0.00</div></div>
+      <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value negative" id="recegr-total">RD$0.00</div></div>
+    </div>
+  </div>
+  <div class="add-form">
+    <h3>Nuevo Recibo de Egreso</h3>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 12px;">Para pagos donde quieres dejar un comprobante formal (numerado e imprimible) además del registro en Egresos — se conecta igual con Estado de Resultados, Balance General y Flujo de Caja.</p>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input autocomplete="off" type="date" id="recegr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Beneficiario</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="recegr-suplidor" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"><option value="">— Seleccionar suplidor —</option></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickBeneficiario()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
+        </div>
+      </div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Categoría</label>
+        <select id="recegr-categoria" style="font-size:15px;height:44px;box-sizing:border-box;width:100%;"></select>
+      </div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input autocomplete="off" type="text" inputmode="decimal" id="recegr-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Concepto</label>
+        <input autocomplete="off" type="text" id="recegr-concepto" placeholder="Ej: Pago de materiales, mano de obra..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Forma de Pago</label>
+        <select id="recegr-metodo" onchange="onRecEgrMetodoChange(this)" style="height:44px;box-sizing:border-box;">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="cheque">Cheque</option>
+          <option value="debito">Tarjeta de Débito</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:200px;flex-shrink:0;" id="recegr-cuenta-wrap">
+        <label>Cuenta</label>
+        <select id="recegr-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Referencia (opcional)</label>
+        <input autocomplete="off" type="text" id="recegr-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div class="form-actions"><button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addReciboEgreso()">Registrar Recibo</button></div>
+  </div>
+  <div class="transactions-section">
+    <h3>Historial de Recibos de Egreso</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Beneficiario</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
+      <tbody id="recegr-tbody"></tbody>
+    </table></div>
+  </div>
+  </div>
 </div>
 
 <!-- ══ CLIENTES ══ -->
@@ -1533,6 +1636,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <thead id="rent-thead"></thead>
       <tbody id="rent-tbody"></tbody>
     </table></div>
+  </div>
+
+  <!-- Tipo de Venta breakdown -->
+  <div class="add-form" style="margin-top:20px;margin-bottom:0;">
+    <h3>Ingresos por Tipo de Venta</h3>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 12px;">Venta Directa Taller (walk-in) vs. Venta Corporativa (B2B) — año seleccionado arriba.</p>
+    <div id="rent-tipoventa"></div>
   </div>
 
   <!-- Category breakdown -->
@@ -2449,6 +2559,23 @@ function methodBadge(m){
   return `<span class="badge badge-cash">${esc(m||'—')}</span>`;
 }
 
+// ══════════════════ TIPO DE VENTA (Directa Taller vs Corporativa) ══════════════════
+// Interruptor reutilizable para CxC (facturas), Ingresos Manuales y Recibos de Ingreso.
+// "corporativa" es el default porque la clientela de ICG es predominantemente B2B.
+function setTipoVenta(prefix, val){
+  const hidden=document.getElementById(`${prefix}-tipoventa`); if(hidden) hidden.value=val;
+  const dBtn=document.getElementById(`${prefix}-tv-directa`);
+  const cBtn=document.getElementById(`${prefix}-tv-corp`);
+  const activeCss='flex:1;height:44px;box-sizing:border-box;background:rgba(129,140,248,.22);border-color:#818cf8;color:#818cf8;font-weight:700;';
+  const idleCss='flex:1;height:44px;box-sizing:border-box;';
+  if(dBtn) dBtn.style.cssText = val==='directa' ? activeCss : idleCss;
+  if(cBtn) cBtn.style.cssText = val==='corporativa' ? activeCss : idleCss;
+}
+function tipoVentaBadge(tv){
+  if(tv==='directa') return `<span class="badge" style="background:rgba(253,201,1,.15);color:#fdc901;" title="Venta Directa Taller">🏪 Directa</span>`;
+  return `<span class="badge" style="background:rgba(129,140,248,.15);color:#818cf8;" title="Venta Corporativa">🏢 Corp.</span>`;
+}
+
 // ══════════════════ INIT ══════════════════
 function init(){
   ensureEstadoIntegro();
@@ -2666,7 +2793,7 @@ function _activateTabReal(idx){
     if(idx==='cxc') renderCXC();
     if(idx==='cxp') renderCXP();
     if(idx==='ingresos') switchIngresosView(_ingresosView);
-    if(idx==='egresos') renderEgresos();
+    if(idx==='egresos') switchEgresosView(_egresosView);
     if(idx==='clientes') renderClientes();
     if(idx==='suplidores') renderSuplidores();
     if(idx==='rentabilidad') renderRentabilidad();
@@ -3256,6 +3383,7 @@ function editCXC(id){
   if(itbisGuardado) setMontoValue('cxc-itbis',itbisGuardado); else document.getElementById('cxc-itbis').value='';
   if(x.amount) setMontoValue('cxc-amount',x.amount); else document.getElementById('cxc-amount').value='';
   document.getElementById('cxc-days').value    = x.creditDays||'30';
+  setTipoVenta('cxc', x.tipoVenta||'corporativa');
   // Set client in select
   const sel = document.getElementById('cxc-client');
   const opt = [...sel.options].find(o=>o.text===x.client||o.value===String(x.clientId));
@@ -3288,6 +3416,7 @@ function cancelEditCXC(){
   document.getElementById('cxc-itbis').value='';
   document.getElementById('cxc-amount').value='';
   document.getElementById('cxc-client').selectedIndex=0;
+  setTipoVenta('cxc','corporativa');
   const inv=document.getElementById('cxc-invoice');
   if(inv){inv.style.borderColor='';inv.style.boxShadow='';}
   const dd=document.getElementById('cxc-due-display');
@@ -3334,7 +3463,7 @@ function addCXC(){
         notify('error','Monto Inválido',`Esta factura ya tiene ${fmt(yaAbonado)} cobrado en abonos — el nuevo monto no puede ser menor a eso.`);
         return;
       }
-      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount, subtotal, itbis};
+      S.cuentasCobrar[idx] = {...existing, invoice, client, clientId, desc, categoria, issued, due, creditDays:days, amount, subtotal, itbis, tipoVenta:document.getElementById('cxc-tipoventa')?.value||'corporativa'};
     }
     save(); renderCXC(); cancelEditCXC();
     notify('success','Factura Actualizada',`La factura ${invoice} ha sido actualizada correctamente.`);
@@ -3349,7 +3478,7 @@ function addCXC(){
   }
 
   const procederConCreacionCxC=()=>{
-    const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[]};
+    const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[],tipoVenta:document.getElementById('cxc-tipoventa')?.value||'corporativa'};
 
     const anticipo=parseFloat(document.getElementById('cxc-anticipo')?.value)||0;
     if(anticipo>0){
@@ -3378,6 +3507,7 @@ function addCXC(){
     document.getElementById('cxc-itbis').value='';
     document.getElementById('cxc-amount').value='';
     document.getElementById('cxc-anticipo').value='';
+    setTipoVenta('cxc','corporativa');
     const dd=document.getElementById('cxc-due-display');if(dd){dd.textContent='—';dd.dataset.raw='';}
     refreshCxCCatSelect('');
   };
@@ -3638,7 +3768,7 @@ function renderCXC(){
     // If same number or non-numeric, sort alphabetically
     return (a.invoice||'').localeCompare(b.invoice||'');
   });
-  if(!items.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state">Sin facturas registradas.</div></td></tr>`;return;}
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">Sin facturas registradas.</div></td></tr>`;return;}
 
   tbody.innerHTML=items.map(x=>{
     const isOverdue=x._st==='vencida';
@@ -3680,6 +3810,7 @@ function renderCXC(){
       <td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.invoice)}</td>
       <td><strong>${esc(x.client)}</strong></td>
       <td style="color:#9ca3af;font-size:16px;max-width:180px;">${esc(x.desc)||'—'}</td>
+      <td>${tipoVentaBadge(x.tipoVenta)}</td>
       <td class="td-mono">${fmtDate(x.issued)}<br><span style="font-size:18px;color:#9ca3af;">${x.creditDays||30} días</span></td>
       <td class="td-mono" style="color:${isOverdue?'#ef4444':isPaid?'#818cf8':'#818cf8'}">${fmtDate(x.due)}</td>
       <td class="td-mono" style="color:#818cf8;font-weight:700;font-size:19px;">${fmt(x.amount)}</td>
@@ -4942,11 +5073,12 @@ function addIngreso(auto=false,data={}){
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
   const esHistorico=!auto&&cuentaSelVal==='none';
   const cuentaIdx=auto?data.cuentaIdx:(esHistorico?null:(parseInt(cuentaSelVal)||0));
+  const tipoVenta=auto?(data.tipoVenta||'corporativa'):(document.getElementById('ing-tipoventa')?.value||'corporativa');
   if(!fecha||monto<=0){if(!auto)notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.');return;}
 
   const guardar=()=>{
     const cliente=S.clientes.find(x=>x.id===clienteId);
-    S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null,tipoVenta});
     S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
     if(!auto){
       if(!esHistorico){
@@ -4960,6 +5092,7 @@ function addIngreso(auto=false,data={}){
       document.getElementById('ing-monto').value='';
       document.getElementById('ing-desc').value='';
       document.getElementById('ing-ref').value='';
+      setTipoVenta('ing','corporativa');
     }
   };
 
@@ -5001,13 +5134,14 @@ function addRecibo(){
   const esHistorico=cuentaSelVal==='none';
   const cuentaIdx=esHistorico?null:(parseInt(cuentaSelVal)||0);
   const ref=document.getElementById('rec-ref').value.trim();
+  const tipoVenta=document.getElementById('rec-tipoventa')?.value||'corporativa';
   if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
   const cliente=S.clientes.find(x=>x.id===clienteId);
 
   S.recibosCounter=(S.recibosCounter||0)+1;
   const numero=`REC-${String(S.recibosCounter).padStart(4,'0')}`;
   const recId=Date.now()+Math.random();
-  S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
+  S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref,tipoVenta});
 
   // Igual que un Ingreso manual: acredita la cuenta (Caja General si es efectivo, o la
   // cuenta bancaria elegida — salvo que sea Histórico) y cuenta en el Estado de Resultados.
@@ -5018,12 +5152,13 @@ function addRecibo(){
     renderTx(cuentaIdx);
   }
   addIngreso(true,{fecha,clienteId,clienteNombre:cliente?.nombre||'',categoria:cat,monto,itbis:0,
-    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,metodo,cuentaIdx,esHistorico,fuente:'recibo',fuenteId:recId});
+    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,metodo,cuentaIdx,esHistorico,fuente:'recibo',fuenteId:recId,tipoVenta});
 
   save(); renderRecibos();
   document.getElementById('rec-monto').value='';
   document.getElementById('rec-concepto').value='';
   document.getElementById('rec-ref').value='';
+  setTipoVenta('rec','corporativa');
   notify('success','Recibo Registrado',`${numero} · ${fmt(monto)}`);
 }
 
@@ -5050,8 +5185,8 @@ function renderRecibos(){
   document.getElementById('rec-tbody').innerHTML=items.length?items.map(x=>{
     const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria;
     const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
-    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
-  }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
+    return `<tr><td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(catLbl)}</span></td><td>${tipoVentaBadge(x.tipoVenta)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${acct}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirRecibo(${x.id})">🖨</button><button class="del-btn" onclick="delRecibo(${x.id})">×</button></td></tr>`;
+  }).join(''):`<tr><td colspan="10"><div class="empty-state">Sin recibos registrados todavía.</div></td></tr>`;
 }
 const ICG_LOGO_DATAURI='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDEyNS4wOSAxNzkuNjYiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICM0MTE0NWY7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZkYzMwMDsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjMzZhOWUxOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMTIpOwogICAgICB9CiAgICA8L3N0eWxlPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJEZWdyYWRhZG9fc2luX25vbWJyZV8xMiIgZGF0YS1uYW1lPSJEZWdyYWRhZG8gc2luIG5vbWJyZSAxMiIgeDE9IjY4LjM0IiB5MT0iMTQwLjA0IiB4Mj0iNjcuNTIiIHkyPSIxOTguNDciIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIuMjgiIHN0b3AtY29sb3I9IiNlNjJjNjUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDkiIHN0b3AtY29sb3I9IiNjMzE5NDkiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNjgiIHN0b3AtY29sb3I9IiNlMzA3MzIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTEwNy45Niw4Mi4xMWMtMi43Ny00LjExLTcuMi02LjY2LTEyLjE0LTYuOTktNC45Ni0uMzMtOS42OSwxLjYxLTEyLjk4LDUuMzMtMi44MSwzLjE2LTYuODksNC45OC0xMS4xOSw0Ljk4LTguMTMsMC0xNC43NC02LjQtMTQuNzQtMTQuMjZzNi42MS0xNC4yNywxNC43NC0xNC4yN2MzLjE3LDAsNi4xNy45NSw4LjcxLDIuNzZsMS40NSwxLjIuMjUuMjdjMy4yLDMuMzUsNy42OSw1LjE1LDEyLjMyLDQuOTYsNC42My0uMiw4Ljk1LTIuMzgsMTEuODUtNS45OGw4LjEzLTEwLjA5YzEuMDEtMS4yNSwxLjgtMi42LDIuMzgtNC4wMSwxLjI2LS44NiwyLjM5LTEuOTEsMy4zNi0zLjEybDEuNDktMS44NWM1LjE1LTYuMzksNC41My0xNS44My0xLjQyLTIxLjQ4LS4yNy0uMjUtLjU0LS41MS0uODEtLjc1bC0yLjE1LTEuODktLjU1LS40OGMtLjE0LS4xMi0uMzEtLjI2LS41LS40MUM5OS4zNSwyLjI4LDc3LjMzLTIuOTcsNTUuNzEsMS42MiwzMS4zNyw2Ljc5LDcuOCwyOS43MywyLjA0LDUzLjg1Yy01LjIsMjEuNzgtLjM4LDQ0LjE2LDEzLjIzLDYxLjM5LDYuMTUsNy44LDEzLjcsMTQuMDgsMjIuMTUsMTguNjMtMi4yMSwyLjQ1LTMuNDMsNS41Ny0zLjQzLDguODcsMCwyLjE4LjU0LDQuMjQsMS40Nyw2LjA1LS45NCwxLjgyLTEuNDcsMy44Ny0xLjQ3LDYuMDUsMCw2LjU0LDQuNzYsMTEuOTgsMTEsMTMuMDYuNzYsNi42LDYuMzgsMTEuNzQsMTMuMTgsMTEuNzRoMTguODdjMy41NCwwLDYuODctMS4zOCw5LjM4LTMuODkuOTItLjkxLDEuNjktMS45NSwyLjMxLTMuMDlsLjA1LS4wOWMuNzctMS40NiwxLjI1LTMuMDUsMS40NS00LjY3LDYuMjQtMS4wOCwxMS02LjUyLDExLTEzLjA2LDAtMi4xOC0uNTQtNC4yMy0xLjQ3LTYuMDUuOTYtMS44NywxLjQ3LTMuOTQsMS40Ny02LjA2LDAtMi4yOS0uNTgtNC40NC0xLjYxLTYuMzIsNy4xLTMuMSwxMy43MS03LjM2LDE5LjU0LTEyLjY5LDUuOTQtNS40Miw3LjAzLTE0LjU0LDIuNTMtMjEuMjJsLTEzLjczLTIwLjRaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTA0LjcsMTAyLjAzbC0zLjEtNC42aDBzLTUuMTgtNy43LTUuMTgtNy43Yy0uNjQtLjk1LTIuMDEtMS4wNC0yLjc3LS4xNy01LjI1LDUuOTItMTIuOTgsOS42Ni0yMS41OSw5LjY2LTE1LjgyLDAtMjguNjUtMTIuNjItMjguNjUtMjguMTdzMTIuODMtMjguMTgsMjguNjUtMjguMThjNi40OCwwLDEyLjQ2LDIuMTIsMTcuMjYsNS43bDIuMywxLjkxcy4xMi4xMi4xNy4xNmwuNzMuNzdjLjguODQsMi4xNy43OCwyLjktLjEybDEuOTctMi40NCwzLjc3LTQuNjhzMCwwLDAsMGwyLjMzLTIuODljLjYzLS43OC41Ni0xLjktLjE2LTIuNi0xLjE4LTEuMTYtMi40My0yLjI1LTMuNzMtMy4yOGgwczAsMCwwLDBjLTguMTItNi4zOS0xOC40Ny0xMC4wNi0yOS42OC05LjY2LTI0LjE2Ljg3LTQzLjU5LDIwLjk4LTQzLjY5LDQ1LjE1LS4wOSwyNS4xMiwyMC4yNSw0NS41Miw0NS4zNiw0NS41Miw4LjQ2LDAsMTYuMzctMi4zMiwyMy4xNC02LjM1LjUzLS4zMi43LTEuMDIuMzgtMS41NWwtMS42My0yLjY3Yy0uMzItLjUyLTEtLjY5LTEuNTMtLjM4LTYuNTksMy45MS0xNC40LDUuOTktMjIuNzIsNS41MS0yMC40My0xLjE4LTM2Ljg1LTE3Ljk3LTM3LjYtMzguNDItLjgzLTIyLjc2LDE3LjM4LTQxLjQ3LDM5Ljk2LTQxLjQ3LDksMCwxNy4yOSwyLjk4LDIzLjk2LDcuOTkuMzkuMjkuNDYuODUuMTYsMS4yNGwtMi42LDMuMjhjLS4yOS4zNy0uODIuNDQtMS4yLjE2LTcuOC01LjgyLTE4LjE4LTguMzktMjkuMTEtNS42NC0xMS45OCwzLjAxLTIxLjM0LDEyLjQ2LTI0LjI1LDI0LjQ2LTUuNDQsMjIuNDgsMTEuNDUsNDIuNTUsMzMuMDMsNDIuNTUsNy44NSwwLDE1LjA3LTIuNjYsMjAuODMtNy4xMy43OS0uNjIsMS45LS40NSwyLjQ3LjM5bDEuMzQsMS45Nyw1LjA1LDcuNDMuOCwxLjE3Yy42OC45OS40NSwyLjM1LS41MiwzLjA2LTguNCw2LjE2LTE4Ljc1LDkuODEtMjkuOTYsOS44MS0yNy43NywwLTUwLjMzLTIyLjI5LTUwLjc2LTQ5Ljk1LS40My0yNy43NiwyMS44OS01MC45Nyw0OS42NS01MS41NiwxMi41OC0uMjcsMjQuMTUsNC4wNCwzMy4xNCwxMS4zOCwxLjA1Ljg1LDIuMDYsMS43NSwzLjA0LDIuNjguNzMuNywxLjg5LjYzLDIuNTItLjE2bDEuNDgtMS44NGMuNTYtLjcuNS0xLjcxLS4xNS0yLjMyLS4yMS0uMTktLjQxLS4zOS0uNjItLjU4bC0uMDQtLjAzLTEuODgtMS42NS0uMTQtLjEyLS4yMS0uMTdjLS4wNi0uMDUtLjEyLS4xLS4xOC0uMTUtMTIuNjYtMTAuNC0yOS45MS0xNS40LTQ4LjI2LTExLjUxLTE4LjgyLDQtMzguMDEsMjIuNi00Mi40OCw0MS4zMi04Ljg5LDM3LjI1LDE5LjEyLDcwLjQ1LDU0Ljg5LDcwLjQ1LDE0LjY4LDAsMjguMDYtNS42LDM4LjExLTE0Ljc4LjgtLjczLjk0LTEuOTQuMzMtMi44NGwtNS4zMy03LjkyczAsMCwwLDBoMFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik05My44LDE0Mi4zNWMwLC44OC0uMjQsMS43LS42NSwyLjQxLS4xOC4zMy0uNDEuNjQtLjY3LjkxLS44Mi44NS0xLjk0LDEuMzctMy4xOCwxLjM3aC00Mi4zOGMtMi40NywwLTQuNS0yLjExLTQuNS00LjY4LDAtMS4yOC41MS0yLjQ1LDEuMzItMy4zLjgyLS44NSwxLjk0LTEuMzcsMy4xOC0xLjM3aDQyLjM4YzIuNDgsMCw0LjUsMi4xMSw0LjUsNC42OCIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTQ2LjkzLDE1MS4wMWMtMi40OCwwLTQuNSwyLjExLTQuNSw0LjY4czIuMDMsNC42OCw0LjUsNC42OGg0Mi4zOGMyLjQ4LDAsNC41LTIuMTEsNC41LTQuNjhzLTIuMDMtNC42OC00LjUtNC42OGgtNDIuMzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNODIuMjcsMTY4LjI4YzAsLjgxLS4xOCwxLjUzLS41MiwyLjIyLS4yMi4zOC0uNDguNzctLjgxLDEuMDctLjgxLjg0LTEuOTIsMS4zOC0zLjE4LDEuMzhoLTE5LjU1Yy0yLjQ4LDAtNC41NS0yLjExLTQuNTUtNC42OCwwLS4zMS4wNC0uNjEuMTEtLjkyLjE1LS45Mi42My0xLjczLDEuMjYtMi4zOC40OC0uNTQsMS4xNS0uOTYsMS44NS0xLjE5LjQxLS4xMi44OS0uMTksMS4zMy0uMTloMTkuNTVjMi4xOCwwLDMuOTksMS42MSw0LjQ0LDMuNzYuMDQuMjcuMDcuNjEuMDcuOTJaIi8+Cjwvc3ZnPg==';
 
@@ -6312,6 +6447,15 @@ function switchIngresosView(view){
   document.getElementById('ingView-recibos').style.display=view==='recibos'?'':'none';
   if(view==='recibos') renderRecibos(); else renderIngresos();
 }
+let _egresosView='manual';
+function switchEgresosView(view){
+  _egresosView=view;
+  document.getElementById('egr-tab-manual').classList.toggle('active',view==='manual');
+  document.getElementById('egr-tab-recibos').classList.toggle('active',view==='recibos');
+  document.getElementById('egrView-manual').style.display=view==='manual'?'':'none';
+  document.getElementById('egrView-recibos').style.display=view==='recibos'?'':'none';
+  if(view==='recibos') renderRecibosEgreso(); else renderEgresos();
+}
 function renderIngresos(){
   refreshIngresoSelects();
   const mSel=document.getElementById('ing-metodo');
@@ -6331,8 +6475,8 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
-  }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${tipoVentaBadge(x.tipoVenta)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+  }).join(''):`<tr><td colspan="10"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
 // ══════════════════ EGRESOS ══════════════════
@@ -6366,6 +6510,17 @@ function refreshEgresoSelects(){
     const curVal=egrCatSel.value;
     egrCatSel.innerHTML=getSelectableEgrCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
     if(curVal && egrCatSel.querySelector(`option[value="${curVal}"]`)) egrCatSel.value=curVal;
+  }
+  // Recibos de Egreso usa los mismos suplidores/cuentas/categorías
+  const recSel=document.getElementById('recegr-suplidor');
+  if(recSel) recSel.innerHTML=`<option value="">— Seleccionar suplidor —</option>`+[...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+  const recCs=document.getElementById('recegr-cuenta');
+  if(recCs) recCs.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
+  const recCatSel=document.getElementById('recegr-categoria');
+  if(recCatSel){
+    const curVal=recCatSel.value;
+    recCatSel.innerHTML=getSelectableEgrCats().map(c=>`<option value="${c.key}">${c.label}</option>`).join('');
+    if(curVal && recCatSel.querySelector(`option[value="${curVal}"]`)) recCatSel.value=curVal;
   }
 }
 function addEgreso(auto=false,data={}){
@@ -6437,7 +6592,7 @@ function delEgreso(id){
   const x=S.egresos.find(e=>e.id===id);
   if(!x) return Promise.resolve(false);
   if(x.fuente && x.fuente!=='manual'){
-    icgAlert('Este egreso viene de un pago de CxP — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a CxP para corregirlo desde la fuente.','No se Puede Eliminar Aquí');
+    icgAlert(`Este egreso viene de ${x.fuente==='cxp'?'un pago de CxP':x.fuente==='reciboEgreso'?'un Recibo de Egreso':'otro registro automático'} — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a ${x.fuente==='cxp'?'CxP':x.fuente==='reciboEgreso'?'Recibos de Egreso':'el origen correspondiente'} para corregirlo desde la fuente.`,'No se Puede Eliminar Aquí');
     return Promise.resolve(false);
   }
   const cargoVinculado = x.metodo==='tarjeta' ? S.creditCard.transactions.find(t=>t.egresoRef===id) : null;
@@ -6452,6 +6607,147 @@ function delEgreso(id){
     return true;
   });
 }
+
+// ══════════════════ RECIBOS DE EGRESO ══════════════════
+// Para pagos donde quieres dejar un comprobante formal, numerado e imprimible, además del
+// registro normal en Egresos. Cada recibo debita la cuenta correspondiente Y se registra como
+// Egreso real — se conecta automáticamente con Estado de Resultados, Balance General y Flujo de
+// Caja, exactamente igual que un Egreso manual, pero con su propia numeración de recibo.
+function onRecEgrMetodoChange(sel){
+  const isEfectivo = sel.value === 'efectivo';
+  const cs = document.getElementById('recegr-cuenta');
+  if(isEfectivo && cs) cs.value = String(cajaGeneralIdx());
+}
+
+function addReciboEgreso(){
+  const fecha=document.getElementById('recegr-fecha').value;
+  const suplidorId=parseInt(document.getElementById('recegr-suplidor').value)||null;
+  const cat=document.getElementById('recegr-categoria').value;
+  const monto=numVal('recegr-monto')||0;
+  const concepto=document.getElementById('recegr-concepto').value.trim();
+  const metodo=document.getElementById('recegr-metodo').value;
+  const cuentaSelVal=document.getElementById('recegr-cuenta').value;
+  const esHistorico=cuentaSelVal==='none';
+  const cuentaIdx=esHistorico?null:(parseInt(cuentaSelVal)||0);
+  const ref=document.getElementById('recegr-ref').value.trim();
+  if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
+  const suplidor=S.suplidores.find(x=>x.id===suplidorId);
+
+  S.recibosEgresoCounter=(S.recibosEgresoCounter||0)+1;
+  const numero=`EGR-REC-${String(S.recibosEgresoCounter).padStart(4,'0')}`;
+  const recId=Date.now()+Math.random();
+  S.recibosEgreso.push({id:recId,numero,fecha,suplidorId,suplidorNombre:suplidor?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
+
+  // Igual que un Egreso manual: debita la cuenta (Caja General si es efectivo, o la cuenta
+  // bancaria elegida — salvo que sea Histórico) y cuenta en el Estado de Resultados.
+  if(!esHistorico){
+    const txMethod = ['cheque','efectivo','debito','retiro','debito_directo'].includes(metodo)?metodo:'transferencia';
+    pushTx(cuentaIdx,{id:Date.now()+1,date:fecha,type:'egreso',method:txMethod,amount:monto,ref,
+      desc:`Recibo ${numero}: ${suplidor?.nombre||''}${concepto?' – '+concepto:''}`});
+    renderTx(cuentaIdx);
+  }
+  addEgreso(true,{fecha,suplidorId,suplidorNombre:suplidor?.nombre||'',categoria:cat,monto,
+    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,metodo,cuentaIdx,esHistorico,fuente:'reciboEgreso',fuenteId:recId});
+
+  save(); renderRecibosEgreso();
+  document.getElementById('recegr-monto').value='';
+  document.getElementById('recegr-concepto').value='';
+  document.getElementById('recegr-ref').value='';
+  notify('success','Recibo de Egreso Registrado',`${numero} · ${fmt(monto)}`);
+}
+
+function delReciboEgreso(id){
+  icgConfirm('¿Eliminar este recibo? El egreso y el movimiento bancario ya registrados no se revertirán automáticamente.','Eliminar Recibo','Eliminar').then(ok=>{
+    if(!ok)return;
+    S.recibosEgreso=S.recibosEgreso.filter(x=>x.id!==id);
+    save(); renderRecibosEgreso();
+  });
+}
+
+function renderRecibosEgreso(){
+  refreshEgresoSelects();
+  if(!document.getElementById('recegr-fecha').value) document.getElementById('recegr-fecha').value=today();
+  const cy=new Date().getFullYear().toString(), cm=today().slice(0,7);
+  const mes=S.recibosEgreso.filter(x=>x.fecha.startsWith(cm)).reduce((s,x)=>s+x.monto,0);
+  const anio=S.recibosEgreso.filter(x=>x.fecha.startsWith(cy)).reduce((s,x)=>s+x.monto,0);
+  const total=S.recibosEgreso.reduce((s,x)=>s+x.monto,0);
+  document.getElementById('recegr-mes').textContent=fmt(mes);
+  document.getElementById('recegr-anio').textContent=fmt(anio);
+  document.getElementById('recegr-total').textContent=fmt(total);
+
+  const items=[...S.recibosEgreso].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  document.getElementById('recegr-tbody').innerHTML=items.length?items.map(x=>{
+    const catLbl=getAllEgrCats().find(c=>c.key===x.categoria)?.label||x.categoria;
+    const acct=x.esHistorico?'📋 Histórico':x.metodo==='efectivo'?'—':(S.accounts[x.cuentaIdx]?.name||'—');
+    return `<tr><td class="td-mono" style="font-weight:600;color:#ef4444;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td style="max-width:200px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(catLbl)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${acct}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" style="color:#818cf8;" title="Imprimir recibo" onclick="imprimirReciboEgreso(${x.id})">🖨</button><button class="del-btn" onclick="delReciboEgreso(${x.id})">×</button></td></tr>`;
+  }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin recibos de egreso registrados todavía.</div></td></tr>`;
+}
+
+function imprimirReciboEgreso(id){
+  const x=S.recibosEgreso.find(r=>r.id===id);
+  if(!x){notify('error','No Encontrado','Este recibo ya no existe.');return;}
+  const catLbl=getAllEgrCats().find(c=>c.key===x.categoria)?.label||x.categoria||'—';
+  const metodoLbl={transferencia:'Transferencia',cheque:'Cheque',efectivo:'Efectivo',tarjeta:'Tarjeta',debito:'Tarjeta de Débito'}[x.metodo]||x.metodo;
+  const acct=x.esHistorico?'Histórico (sin cuenta)':x.metodo==='efectivo'?'Efectivo':(S.accounts[x.cuentaIdx]?.name||'—');
+  const w=window.open('','_blank');
+  if(!w){notify('error','Bloqueado','El navegador bloqueó la ventana de impresión. Permite ventanas emergentes para este sitio.');return;}
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recibo ${esc(x.numero)}</title>
+  <style>
+    @media print{ @page{ margin:14mm; } }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;padding:36px;font-size:13px;}
+    .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #3F2364;padding-bottom:16px;margin-bottom:24px;}
+    .head-left{display:flex;gap:14px;align-items:center;}
+    .head-left img{width:44px;height:auto;}
+    .biz-name{font-size:18px;font-weight:800;color:#3F2364;letter-spacing:.02em;}
+    .biz-sub{font-size:11px;color:#555;margin-top:2px;line-height:1.5;}
+    .doc-title{text-align:right;}
+    .doc-title .t{font-size:20px;font-weight:800;color:#c31949;letter-spacing:.06em;}
+    .doc-title .n{font-size:15px;font-weight:700;color:#c31949;font-family:'Courier New',monospace;margin-top:4px;}
+    .doc-title .d{font-size:11px;color:#666;margin-top:4px;}
+    .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #eee;}
+    .row .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;}
+    .row .val{font-size:13px;font-weight:600;text-align:right;}
+    .amount-box{margin:26px 0;padding:18px 20px;background:#fff5f5;border:1.5px solid #c31949;border-radius:6px;display:flex;justify-content:space-between;align-items:center;}
+    .amount-box .lbl{font-size:11px;color:#c31949;text-transform:uppercase;letter-spacing:.1em;font-weight:700;}
+    .amount-box .val{font-size:26px;font-weight:800;color:#c31949;font-family:'Courier New',monospace;}
+    .letras{font-size:11px;color:#444;font-style:italic;margin-bottom:24px;padding:0 2px;}
+    .sign{margin-top:64px;display:flex;justify-content:space-between;gap:40px;}
+    .sign div{flex:1;text-align:center;border-top:1px solid #999;padding-top:6px;font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.06em;}
+    .ft{margin-top:36px;font-size:9px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:10px;}
+  </style>
+  </head><body>
+  <div class="head">
+    <div class="head-left">
+      <img src="${ICG_LOGO_DATAURI}" alt="ICG">
+      <div>
+        <div class="biz-name">ICG Creatividad</div>
+        <div class="biz-sub">Av. 25 de Febrero 255, Villa Olímpica · Santo Domingo Este, RD<br>WhatsApp/Tel: 809-933-8888 &nbsp;·&nbsp; IG: @icg_creatividad</div>
+      </div>
+    </div>
+    <div class="doc-title">
+      <div class="t">RECIBO DE EGRESO</div>
+      <div class="n">${esc(x.numero)}</div>
+      <div class="d">${fmtDate(x.fecha)}</div>
+    </div>
+  </div>
+  <div class="row"><span class="lbl">Pagado a</span><span class="val">${esc(x.suplidorNombre)||'Beneficiario al contado'}</span></div>
+  <div class="row"><span class="lbl">Concepto</span><span class="val">${esc(x.concepto)||'—'}</span></div>
+  <div class="row"><span class="lbl">Categoría</span><span class="val">${esc(catLbl)}</span></div>
+  <div class="row"><span class="lbl">Forma de Pago</span><span class="val">${esc(metodoLbl)}</span></div>
+  <div class="row"><span class="lbl">Cuenta / Origen</span><span class="val">${esc(acct)}</span></div>
+  <div class="amount-box"><span class="lbl">Monto Pagado</span><span class="val">${fmt(x.monto)}</span></div>
+  <div class="letras">${esc(montoEnLetras(x.monto))}</div>
+  <div class="sign">
+    <div>Entregado por</div>
+    <div>Recibido por</div>
+  </div>
+  <div class="ft">Este recibo no constituye un comprobante fiscal (NCF) &nbsp;·&nbsp; ICG Creatividad · Sistema Financiero Integral</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},600);
+}
+
 function renderEgresos(){
   refreshEgresoSelects();
   // Sync Debitar de Cuenta visibility with current method selection
@@ -6530,6 +6826,23 @@ function renderRentabilidad(){
   document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8','ingreso',year);
   const egrLabelsAll={...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
   document.getElementById('rent-cat-egr').innerHTML=catBar(egrY,egrLabelsAll,'#ef4444','egreso',year);
+  // Desglose por Tipo de Venta (Directa Taller vs Corporativa)
+  const tvDirecta=ingY.filter(x=>x.tipoVenta==='directa').reduce((s,x)=>s+x.monto,0);
+  const tvCorp=ingY.filter(x=>(x.tipoVenta||'corporativa')==='corporativa').reduce((s,x)=>s+x.monto,0);
+  const tvTot=tvDirecta+tvCorp||1;
+  document.getElementById('rent-tipoventa').innerHTML=`
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;">🏪 Directa Taller</span><span style="font-family:var(--mono);color:#fdc901;font-weight:600;">${fmt(tvDirecta)}</span></div>
+        <div style="background:var(--surface3);border-radius:3px;height:8px;"><div style="background:#fdc901;height:100%;border-radius:3px;width:${(tvDirecta/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:14px;color:#6b7a99;margin-top:3px;">${(tvDirecta/tvTot*100).toFixed(1)}% del total</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;">🏢 Corporativa</span><span style="font-family:var(--mono);color:#818cf8;font-weight:600;">${fmt(tvCorp)}</span></div>
+        <div style="background:var(--surface3);border-radius:3px;height:8px;"><div style="background:#818cf8;height:100%;border-radius:3px;width:${(tvCorp/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:14px;color:#6b7a99;margin-top:3px;">${(tvCorp/tvTot*100).toFixed(1)}% del total</div>
+      </div>
+    </div>`;
 }
 // Abre el detalle de una categoría del Estado de Resultados — para ver de un vistazo
 // qué registros concretos componen ese total, en vez de tener que adivinar o ir a la consola.
@@ -6712,7 +7025,7 @@ function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,mo
   const base = montoBruto!=null ? montoBruto : netAmount;
   const itbisFactura = parseFloat(x.itbis)||0;
   const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(base/x.amount) : 0;
-  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,ref,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico});save();
+  addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,ref,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico,tipoVenta:x.tipoVenta||'corporativa'});save();
 }
 function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null,pagoId=null,ref=''){
   const fId = pagoId!=null ? pagoId : item.id;
@@ -6939,13 +7252,14 @@ let _repSection='cxc', _repData=[];
 const REP_CONFIGS={
   cxc:{
     label:'Cuentas por Cobrar',
-    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div>`,
-    headers:['N° Factura','Cliente','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
-    generate(d,h,f1,f2){
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Directa Taller</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
+    headers:['N° Factura','Cliente','Tipo Venta','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
+    generate(d,h,f1,f2,f3){
       let items=[...S.cuentasCobrar];
       if(d) items=items.filter(x=>x.issued>=d);
       if(h) items=items.filter(x=>x.issued<=h);
       if(f1) items=items.filter(x=>(x.client||x.clienteNombre||'')===(f1));
+      if(f3) items=items.filter(x=>(x.tipoVenta||'corporativa')===f3);
       // Filter by estado - 'pendientes' includes both por_cobrar and vencida
       if(f2==='pendientes') items=items.filter(x=>cxcSt(x)!=='pagada');
       else if(f2) items=items.filter(x=>cxcSt(x)===f2);
@@ -6954,7 +7268,7 @@ const REP_CONFIGS={
       return items.map(x=>{
         const st=cxcSt(x),stC=st==='pagada'?'#818cf8':st==='vencida'?'#ef4444':st==='parcial'?'#4f46e5':'#b0bbcf';
         const paid=cxcPaidSoFar(x), pend=cxcPending(x);
-        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,paid>0?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:paid,pendiente:pend}};
+        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',tipoVentaBadge(x.tipoVenta),fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,paid>0?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:paid,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),cob=rows.reduce((s,r)=>s+r.totals.cobrado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Facturado',val:fmt(tot),color:'#818cf8'},{label:'Total Cobrado',val:fmt(cob),color:'#818cf8'},{label:'Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Documentos',val:rows.length,color:'#b0bbcf'}];}
@@ -6985,16 +7299,17 @@ const REP_CONFIGS={
   },
   ingresos:{
     label:'Ingresos',
-    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div>`,
-    headers:['Fecha','Cliente','Categoría','Descripción','Método','Monto RD$'],
-    generate(d,h,f1,f2){
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Directa Taller</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
+    headers:['Fecha','Cliente','Categoría','Tipo Venta','Descripción','Método','Monto RD$'],
+    generate(d,h,f1,f2,f3){
       let items=[...S.ingresos];
       if(d) items=items.filter(x=>x.fecha>=d);
       if(h) items=items.filter(x=>x.fecha<=h);
       if(f1) items=items.filter(x=>(x.clienteNombre||'')===(f1));
       if(f2) items=items.filter(x=>x.categoria===f2);
+      if(f3) items=items.filter(x=>(x.tipoVenta||'corporativa')===f3);
       items.sort((a,b)=>b.fecha.localeCompare(a.fecha));
-      return items.map(x=>({cells:[fmtDate(x.fecha),esc(x.clienteNombre)||'—',({...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,esc(x.desc)||'—',x.metodo||'—',`<span style="color:#818cf8;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
+      return items.map(x=>({cells:[fmtDate(x.fecha),esc(x.clienteNombre)||'—',({...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria,tipoVentaBadge(x.tipoVenta),esc(x.desc)||'—',x.metodo||'—',`<span style="color:#818cf8;font-weight:500;">${fmt(x.monto)}</span>`],totals:{total:x.monto}}));
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0);return[{label:'Total Ingresos',val:fmt(tot),color:'#818cf8'},{label:'Registros',val:rows.length,color:'#b0bbcf'},{label:'Promedio',val:fmt(rows.length?tot/rows.length:0),color:'#818cf8'}];}
   },
@@ -7060,7 +7375,8 @@ function generateReport(){
   const h=document.getElementById('rep-hasta')?.value||'';
   const f1=document.getElementById('rep-f1')?.value||'';
   const f2=document.getElementById('rep-f2')?.value||'';
-  _repData=cfg.generate(d,h,f1,f2);
+  const f3=document.getElementById('rep-f3')?.value||'';
+  _repData=cfg.generate(d,h,f1,f2,f3);
   document.getElementById('rep-summary').innerHTML=cfg.summary(_repData).map(s=>`<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">${s.label}</div><div class="bcard-value" style="color:${s.color};font-size:20px;">${s.val}</div></div>`).join('');
   if(!_repData.length){document.getElementById('rep-results').innerHTML='<div class="empty-state" style="padding:48px;">Sin resultados para el período y filtros seleccionados.</div>';return;}
   const colTotal=_repData.reduce((s,r)=>s+r.totals.total,0);
@@ -7753,6 +8069,8 @@ function ensureEstadoIntegro(){
   if(!S.activosFijos) S.activosFijos=[];
   if(!S.recibos) S.recibos=[];
   if(S.recibosCounter===undefined) S.recibosCounter=0;
+  if(!S.recibosEgreso) S.recibosEgreso=[];
+  if(S.recibosEgresoCounter===undefined) S.recibosEgresoCounter=0;
   // Categorías reservadas de nómina del titular — deben existir siempre
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
    {key:'aporte_tss',label:'Aporte Patronal TSS'},
@@ -7807,6 +8125,7 @@ function loadFromFirebase(){
       _appInitialized = true;
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local) S = local;
+      _lastAppliedTs = Date.now();
       init();
       showConnectionError();
     }
@@ -7815,11 +8134,20 @@ function loadFromFirebase(){
   // ── STEP 1: Force a SERVER read first (never trust empty local cache) ──
   window.ICG_DOC.get({source:'server'}).then(doc => {
     clearTimeout(timeoutGuard);
+    // Si el guard de 10s ya inicializó la app (respuesta tardía por conexión lenta/Altice),
+    // esta respuesta llega "tarde": no repetimos init() ni el listener — solo fusionamos los
+    // datos si son más nuevos que lo que ya está en pantalla, igual que hace el listener en
+    // tiempo real, para no pisar cambios que el usuario ya haya hecho mientras esperaba.
+    const yaInicializada = _appInitialized;
     if(doc.exists){
-      applyFirebaseData(doc.data());
-      _lastAppliedTs = doc.data()._ts || Date.now();
-      notify('success','Datos Cargados','Sincronizado con la nube ☁');
-    } else {
+      const incomingTs = doc.data()._ts || 0;
+      if(!yaInicializada || incomingTs > _lastAppliedTs){
+        applyFirebaseData(doc.data());
+        _lastAppliedTs = incomingTs || Date.now();
+        if(yaInicializada) reRenderAll();
+      }
+      if(!yaInicializada) notify('success','Datos Cargados','Sincronizado con la nube ☁');
+    } else if(!yaInicializada) {
       const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
       if(local){
         S = local;
@@ -7831,40 +8159,58 @@ function loadFromFirebase(){
         notify('info','Nuevo Sistema','Bienvenido a ICG Financial PRO');
       }
     }
-    showLoadingOverlay(false);
-    _appInitialized = true;
-    init();
+    if(!yaInicializada){
+      showLoadingOverlay(false);
+      _appInitialized = true;
+      init();
+    }
     attachRealtimeListener();
   }).catch(err => {
     clearTimeout(timeoutGuard);
     console.error('Firebase server read error:', err);
+    const yaInicializada = _appInitialized;
     // Fallback: try cache/local before giving up
     window.ICG_DOC.get().then(doc=>{
       if(doc.exists){
-        applyFirebaseData(doc.data());
-        notify('info','Datos en Caché','Conexión limitada — usando última versión sincronizada.');
-      } else {
+        const incomingTs = doc.data()._ts || 0;
+        if(!yaInicializada || incomingTs > _lastAppliedTs){
+          applyFirebaseData(doc.data());
+          _lastAppliedTs = incomingTs || Date.now();
+          if(yaInicializada) reRenderAll();
+        }
+        if(!yaInicializada) notify('info','Datos en Caché','Conexión limitada — usando última versión sincronizada.');
+      } else if(!yaInicializada) {
         const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
         if(local) S = local;
+        _lastAppliedTs = Date.now();
       }
-      showLoadingOverlay(false);
-      _appInitialized = true;
-      init();
+      if(!yaInicializada){
+        showLoadingOverlay(false);
+        _appInitialized = true;
+        init();
+        showConnectionError();
+      }
       attachRealtimeListener();
-      showConnectionError();
     }).catch(()=>{
-      showLoadingOverlay(false);
-      const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-      if(local) S = local;
-      _appInitialized = true;
-      init();
-      showConnectionError();
+      if(!yaInicializada){
+        showLoadingOverlay(false);
+        const local = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+        if(local) S = local;
+        _lastAppliedTs = Date.now();
+        _appInitialized = true;
+        init();
+        showConnectionError();
+      }
     });
   });
 }
 
+
 // ── STEP 2: After initial load, attach live listener for cross-device sync ──
+let _listenerAttached = false; // evita adjuntar el listener de Firestore más de una vez
 function attachRealtimeListener(){
+  if(_listenerAttached) return; // ya hay un listener activo — nunca duplicar
+  _listenerAttached = true;
   window.ICG_DOC.onSnapshot(doc => {
     if(!doc.exists) return;
     const incomingTs = doc.data()._ts || 0;
