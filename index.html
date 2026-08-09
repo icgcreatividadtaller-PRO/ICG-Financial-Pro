@@ -404,8 +404,10 @@ tbody td{padding:13px 16px;vertical-align:middle;font-size:19px;color:var(--text
   box-shadow:0 0 30px rgba(129,140,248,.07);
   transform:translateY(-2px);
 }
-.consolidated-card h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;letter-spacing:.08em;}
-.cc-row-c{display:flex;justify-content:space-between;font-size:18px;padding:3px 0;}
+.consolidated-card h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;letter-spacing:.08em;}
+.cc-row-c{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;column-gap:10px;font-size:18px;padding:3px 0;}
+.cc-row-c>span:first-child{min-width:0;}
+.cc-row-c>span:last-child{white-space:nowrap;margin-left:auto;}
 .cc-sep{border-top:1px solid var(--border);margin:8px 0;}
 .cc-total{font-size:20px;font-weight:700;font-family:var(--mono);}
 
@@ -1031,9 +1033,6 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <button class="acct-tab"        id="cxp-tab-serviciosFijos" onclick="switchCXP('serviciosFijos')">Servicios Fijos</button>
     <button class="acct-tab"        id="cxp-tab-prestamos"      onclick="switchCXP('prestamos')">Préstamos</button>
     <button class="acct-tab"        id="cxp-tab-otros"          onclick="switchCXP('otros')">Otros</button>
-    <button id="btn-sync-prestamos" onclick="syncPrestamosTintinPily()" class="btn btn-secondary" style="display:none;border-color:rgba(129,140,248,.3);color:#818cf8;padding:10px 18px;font-size:15px;">
-      🔧 Sincronizar Préstamos
-    </button>
   </div>
 
   <!-- ADD FORM -->
@@ -1084,20 +1083,24 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <p id="cxpPayInfo" style="font-size:18px;color:#9ca3af;margin-bottom:14px;"></p>
 
     <!-- Resumen de saldos -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 10px;text-align:center;flex:1 1 130px;min-width:0;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total</div>
-        <div id="cxp-pay-total" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#4f46e5;"></div>
+        <div id="cxp-pay-total" style="font-family:var(--mono);font-size:17px;font-weight:600;color:#4f46e5;white-space:nowrap;"></div>
       </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 10px;text-align:center;flex:1 1 130px;min-width:0;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pagado</div>
-        <div id="cxp-pay-paid" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;"></div>
+        <div id="cxp-pay-paid" style="font-family:var(--mono);font-size:17px;font-weight:600;color:#818cf8;white-space:nowrap;"></div>
       </div>
-      <div style="background:var(--surface2);border:1px solid rgba(79,70,229,.4);border-radius:8px;padding:10px 14px;text-align:center;">
+      <div style="background:var(--surface2);border:1px solid rgba(79,70,229,.4);border-radius:8px;padding:10px 10px;text-align:center;flex:1 1 130px;min-width:0;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pendiente</div>
-        <div id="cxp-pay-pending" style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;"></div>
+        <div id="cxp-pay-pending" style="font-family:var(--mono);font-size:17px;font-weight:700;color:#818cf8;white-space:nowrap;"></div>
       </div>
     </div>
+    <!-- Nota: se usa flex-wrap con flex-basis, no una cuadrícula rígida de 3 columnas —
+         así, si el modal queda angosto, la tercera tarjeta baja a una fila nueva en vez
+         de recortarse. white-space:nowrap dentro de cada tarjeta evita que el número se
+         parta a la mitad; es la tarjeta la que se mueve, no el texto el que se rompe. -->
 
     <!-- Tipo de pago -->
     <div style="display:flex;gap:10px;margin-bottom:16px;">
@@ -1210,6 +1213,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <input autocomplete="off" type="text" inputmode="decimal" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
     </div>
+    <!-- Tipo de Venta: Directa Taller vs Corporativa — para poder desglosarlo en Reportes -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <span style="font-size:15px;color:#8899bb;text-transform:uppercase;letter-spacing:.06em;margin-right:4px;">Tipo de Venta</span>
+      <button type="button" class="btn btn-primary" id="ing-tipoventa-directa" style="font-size:13px;padding:8px 16px;" onclick="setIngTipoVenta('directa')">Directa Taller</button>
+      <button type="button" class="btn btn-secondary" id="ing-tipoventa-corporativa" style="font-size:13px;padding:8px 16px;" onclick="setIngTipoVenta('corporativa')">Corporativa</button>
+      <input type="hidden" id="ing-tipoventa" value="directa">
+    </div>
     <!-- Row 2: Descripción · Método · Cuenta -->
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
       <div class="form-group" style="flex:1;">
@@ -1301,6 +1311,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <input autocomplete="off" type="text" inputmode="decimal" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
     </div>
+    <!-- Tipo de Venta: Directa Taller vs Corporativa — para poder desglosarlo en Reportes -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <span style="font-size:15px;color:#8899bb;text-transform:uppercase;letter-spacing:.06em;margin-right:4px;">Tipo de Venta</span>
+      <button type="button" class="btn btn-primary" id="rec-tipoventa-directa" style="font-size:13px;padding:8px 16px;" onclick="setRecTipoVenta('directa')">Directa Taller</button>
+      <button type="button" class="btn btn-secondary" id="rec-tipoventa-corporativa" style="font-size:13px;padding:8px 16px;" onclick="setRecTipoVenta('corporativa')">Corporativa</button>
+      <input type="hidden" id="rec-tipoventa" value="directa">
+    </div>
     <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
       <div class="form-group" style="flex:1;min-width:200px;">
         <label>Concepto / Proyecto</label>
@@ -1346,6 +1363,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value negative" id="egr-total">RD$0.00</div></div>
     </div>
   </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px;" id="egrSubTabs">
+    <button class="acct-tab active" id="egr-tab-manual"  onclick="switchEgresosView('manual')">Egresos Manuales</button>
+    <button class="acct-tab"        id="egr-tab-recibos" onclick="switchEgresosView('recibos')">Recibos de Egreso</button>
+  </div>
+
+  <!-- EGRESOS MANUALES VIEW -->
+  <div id="egrView-manual">
   <div class="add-form">
     <h3>Registrar Egreso</h3>
     <!-- Row 1: Fecha · Beneficiario · Categoría · Monto -->
@@ -1470,6 +1494,71 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <tbody id="egr-tbody"></tbody>
     </table></div>
   </div>
+  </div>
+
+  <!-- RECIBOS DE EGRESO VIEW -->
+  <div id="egrView-recibos" style="display:none;">
+  <div class="add-form">
+    <h3>Nuevo Recibo de Egreso</h3>
+    <p style="font-size:15px;color:#6b7a99;margin-bottom:14px;">Para pagos donde entregas o firmas un comprobante propio (caja chica, pagos en efectivo sin volante bancario, etc.) — genera un número de recibo formal y registra el Egreso real al mismo tiempo.</p>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+      <div class="form-group" style="width:140px;flex-shrink:0;">
+        <label>Fecha</label>
+        <input autocomplete="off" type="date" id="egrrec-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Beneficiario</label>
+        <div style="display:flex;gap:6px;height:44px;">
+          <select id="egrrec-suplidor" style="flex:1;min-width:0;height:44px;box-sizing:border-box;"><option value="">— Seleccionar suplidor —</option></select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickBeneficiario()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
+        </div>
+      </div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Categoría</label>
+        <select id="egrrec-categoria" style="font-size:15px;height:44px;box-sizing:border-box;width:100%;"></select>
+      </div>
+      <div class="form-group" style="width:190px;flex-shrink:0;">
+        <label>Monto (RD$)</label>
+        <input autocomplete="off" type="text" inputmode="decimal" id="egrrec-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:200px;">
+        <label>Concepto</label>
+        <input autocomplete="off" type="text" id="egrrec-concepto" placeholder="Ej: Caja chica — materiales varios..." style="height:44px;box-sizing:border-box;">
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;">
+        <label>Forma de Pago</label>
+        <select id="egrrec-metodo" onchange="onEgrRecMetodoChange(this)" style="height:44px;box-sizing:border-box;">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="cheque">Cheque</option>
+          <option value="debito">Tarjeta de Débito</option>
+          <option value="retiro">Retiro</option>
+          <option value="debito_directo">Débito Directo</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:220px;flex-shrink:0;" id="egrrec-cuenta-wrap">
+        <label>Cuenta Bancaria</label>
+        <select id="egrrec-cuenta" style="height:44px;box-sizing:border-box;"></select>
+      </div>
+      <div class="form-group" style="width:160px;flex-shrink:0;">
+        <label>Referencia</label>
+        <input autocomplete="off" type="text" id="egrrec-ref" placeholder="N° transferencia..." style="height:44px;box-sizing:border-box;">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" style="background:#ef4444;color:#fff;font-weight:600;" onclick="addReciboEgreso()">Generar Recibo</button>
+    </div>
+  </div>
+  <div class="transactions-section">
+    <h3>Historial de Recibos de Egreso</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>N° Recibo</th><th>Fecha</th><th>Beneficiario</th><th>Concepto</th><th>Categoría</th><th>Método</th><th>Cuenta</th><th>Monto</th><th></th></tr></thead>
+      <tbody id="egrrec-tbody"></tbody>
+    </table></div>
+  </div>
+  </div>
 </div>
 
 <!-- ══ CLIENTES ══ -->
@@ -1548,6 +1637,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <h3>Egresos por Categoría</h3>
       <div id="rent-cat-egr"></div>
     </div>
+  </div>
+  <div class="add-form" style="margin-top:18px;">
+    <h3>Ventas: Directa Taller vs. Corporativa</h3>
+    <div id="rent-tipoventa"></div>
   </div>
 </div>
 
@@ -1821,10 +1914,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 <!-- ══ PAYMENT MODAL CxC ══ -->
 <div class="modal-overlay" id="paymentModal" style="z-index:300;">
-  <div class="modal" style="max-width:600px;border:2px solid rgba(129,140,248,.4);">
+  <div class="modal" style="max-width:520px;border:2px solid rgba(129,140,248,.4);">
     <button class="modal-close" onclick="closePayModal()">×</button>
     <h2 style="color:#818cf8;font-size:19px;letter-spacing:.05em;">Registrar Cobro</h2>
-    <p id="payModalSubtitle" style="margin-bottom:16px;font-size:19px;color:#c8d0e0;font-weight:600;text-transform:none;letter-spacing:.02em;"></p>
+    <p id="payModalSubtitle" style="margin-bottom:16px;font-size:15px;color:#c8d0e0;font-weight:600;text-transform:none;letter-spacing:.02em;"></p>
 
     <!-- Monto factura -->
     <div style="background:rgba(129,140,248,.06);border:2px solid rgba(129,140,248,.25);border-radius:8px;padding:12px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
@@ -1840,7 +1933,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <input autocomplete="off" type="text" inputmode="decimal" id="pay-monto-ahora" placeholder="0.00" min="0" step="0.01"
         style="width:100%;border-color:rgba(79,70,229,.4);font-family:var(--mono);font-size:18px;font-weight:600;height:44px;box-sizing:border-box;"
         oninput="formatMontoInput(this);calcPayNet()">
-      <div style="font-size:12px;line-height:1.35;color:#6b7a99;margin-top:4px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
+      <div style="font-size:15px;color:#6b7a99;margin-top:6px;">Puede ser el total pendiente o un abono parcial — la factura solo se marca "Pagada" cuando esto llega a cubrir todo el saldo.</div>
     </div>
 
     <!-- Método + Banco + Fecha + Referencia -->
@@ -2552,6 +2645,7 @@ let _pendingTabTarget = null;
 let _pinGateMode = 'enter'; // 'enter' | 'create' | 'change'
 
 function activateTab(idx){
+  if(window._closeCDP) window._closeCDP();
   const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes','flujocaja','balancegeneral'].includes(idx);
   if(esProtegida && !_pinUnlockedThisSession){
     _pendingTabTarget = idx;
@@ -2661,6 +2755,7 @@ function _activateTabReal(idx){
     if(idx==='cxc') renderCXC();
     if(idx==='cxp') renderCXP();
     if(idx==='ingresos') switchIngresosView(_ingresosView);
+    if(idx==='egresos') switchEgresosView(_egresosView);
     if(idx==='egresos') renderEgresos();
     if(idx==='clientes') renderClientes();
     if(idx==='suplidores') renderSuplidores();
@@ -3458,6 +3553,7 @@ function ncfGapCancelar(){
 // ── Payment Modal ──
 let _payId=null;
 function openPayModal(id){
+  if(window._closeCDP) window._closeCDP();
   const x=S.cuentasCobrar.find(i=>i.id===id); if(!x)return;
   _payId=id;
   document.getElementById('payModalSubtitle').innerHTML=
@@ -3771,8 +3867,6 @@ function switchCXP(section){
   if(sBtn){sBtn.style.background='transparent';sBtn.style.borderColor='rgba(129,140,248,.3)';}
   document.querySelectorAll('#cxpSubTabs .acct-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById(`cxp-tab-${section}`).classList.add('active');
-  const syncBtn=document.getElementById('btn-sync-prestamos');
-  if(syncBtn) syncBtn.style.display = (section==='prestamos') ? '' : 'none';
   const addForm=document.getElementById('cxpAddForm');
   if(addForm) addForm.style.display='';
   buildCXPForm(section);
@@ -3864,68 +3958,10 @@ function addCXP(){
   });
 }
 
-// Herramienta temporal de una sola vez — sincroniza los dos préstamos BHD (identificados por
-// concepto como PRÉSTAMO_TINTIN y PRÉSTAMO_PILY) con los datos reales al 07/08/2026. La Entidad
-// queda como "BHD"; el identificador único vive en el campo Concepto/Descripción. Busca por
-// nombre o concepto existente (incl. los nombres viejos "CREDICLICK" y una corrida anterior que
-// puso el identificador en Entidad por error) para actualizar en vez de duplicar.
-// Se puede quitar de una futura entrega una vez confirmado que ambos quedaron bien.
-function syncPrestamosTintinPily(){
-  if(!confirm('Esto va a crear/actualizar PRÉSTAMO_TINTIN y PRÉSTAMO_PILY con los datos actuales al 07/08/2026. ¿Continuar?')) return;
-
-  // Quita acentos/diacríticos para que la comparación no falle por diferencias de codificación
-  const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
-
-  const datos = {
-    PRESTAMO_TINTIN: {
-      nombre: 'BHD', concepto: 'TINTIN',
-      monto: 11024.45, saldo: 358939.90, vence: '2026-08-29',
-      metodo: 'débito_automático', tasa: 21.35,
-      oldMatches: ['PRÉSTAMO_TINTIN','PRÉSTAMO-X','PRÉSTAMO UNO','TINTIN']
-    },
-    PRESTAMO_PILY: {
-      nombre: 'BHD', concepto: 'PILY',
-      monto: 14534.10, saldo: 360361.08, vence: '2026-08-21',
-      metodo: 'débito_automático', tasa: 23.70,
-      oldMatches: ['PRÉSTAMO_PILY','PRÉSTAMO-Z','PRÉSTAMO DOS','CREDICLICK','PILY','LÍNEA DE CRÉDITO PERSONAL (CREDICLICK)','LINEA DE CREDITO PERSONAL']
-    }
-  };
-
-  let creados = [], actualizados = [];
-  Object.values(datos).forEach(d=>{
-    const existente = S.cuentasPagar.prestamos.find(p =>
-      d.oldMatches.some(n => {
-        const nu = norm(n);
-        return norm(p.nombre)===nu || norm(p.concepto).includes(nu);
-      })
-    );
-    if(existente){
-      existente.nombre = d.nombre; existente.concepto = d.concepto;
-      existente.monto = d.monto; existente.saldo = d.saldo;
-      existente.vence = d.vence; existente.metodo = d.metodo; existente.tasa = d.tasa;
-      actualizados.push(d.concepto);
-    } else {
-      S.cuentasPagar.prestamos.push({
-        id: Date.now() + Math.floor(Math.random()*1000), estado: 'pendiente',
-        paidDate: null, payMethod: null, payAccountIdx: null, payRef: null,
-        nombre: d.nombre, concepto: d.concepto, monto: d.monto, saldo: d.saldo,
-        fecha: today(), vence: d.vence, metodo: d.metodo, tasa: d.tasa
-      });
-      creados.push(d.concepto);
-    }
-  });
-
-  save(); renderCXP();
-  let msg = '';
-  if(creados.length) msg += `Creados: ${creados.join(', ')}. `;
-  if(actualizados.length) msg += `Actualizados: ${actualizados.join(', ')}.`;
-  notify('success','Préstamos Sincronizados', msg || 'Sin cambios.');
-}
-
 function editCXPItem(section,id){
-  switchCXP(section);
-  const item = S.cuentasPagar[section].find(x=>x.id===id);
+  const item = S.cuentasPagar[section]?.find(x=>x.id===id);
   if(!item){ notify('error','No Encontrado','Este registro ya no existe.'); return; }
+  if(_cxpSection!==section) switchCXP(section);
   _editingCXPId = id;
   _editingCXPSection = section;
   const cfg = CXP_CONFIG[section];
@@ -4260,10 +4296,7 @@ function renderBalanceGeneral(){
 
   // ── CAPITAL ──
   const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
-  const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>{
-    const c=(p.concepto||'').trim().toUpperCase();
-    return (c.includes('TINTIN')||c.includes('PILY'))&&p.estado!=='pagada';
-  }).reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
+  const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>(p.nombre==='PRÉSTAMO UNO'||p.nombre==='PRÉSTAMO DOS')&&p.estado!=='pagada').reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
   const capitalTitular = totalActivosFijos + saldosInicialesCuentas - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial, menos deuda que ya existía en ese momento
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
   const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
@@ -4310,6 +4343,7 @@ function renderBalanceGeneral(){
 }
 
 function openCXPPayModal(section, id){
+  if(window._closeCDP) window._closeCDP();
   _cxpPaySection = section;
   _cxpPayId = id;
   const item = S.cuentasPagar[section].find(x=>x.id===id); if(!item)return;
@@ -4482,7 +4516,7 @@ function renderConsolidated(){
     const trE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='transferencia').reduce((s,t)=>s+t.amount,0);
     const cE=acc.transactions.filter(t=>t.type==='egreso'&&t.method==='efectivo').reduce((s,t)=>s+t.amount,0);
     return `<div class="consolidated-card" onclick="activateTab(${i})">
-      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;"></span>${esc(acc.name)}<span style="margin-left:auto;font-size:18px;color:#9ca3af;">${acc.transactions.length} movs.</span></h3>
+      <h3><span style="width:8px;height:8px;border-radius:50%;background:${colors[i%colors.length]};display:inline-block;flex-shrink:0;"></span><span>${esc(acc.name)}</span><span style="margin-left:auto;font-size:18px;color:#9ca3af;white-space:nowrap;">${acc.transactions.length} movs.</span></h3>
       <div class="cc-row-c"><span style="color:#818cf8;">Balance Inicial</span><span style="color:#818cf8;font-family:var(--mono)">${fmt(init)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Transf.</span><span style="color:#818cf8">${fmt(trI)}</span></div>
       <div class="cc-row-c"><span style="color:#6b7280">↑ Efectivo</span><span style="color:#818cf8">${fmt(cI)}</span></div>
@@ -4938,12 +4972,23 @@ function cajaGeneralIdx(){
   return idx>=0 ? idx : 0;
 }
 
+function setIngTipoVenta(tipo){
+  const el=document.getElementById('ing-tipoventa'); if(el) el.value=tipo;
+  const d=document.getElementById('ing-tipoventa-directa'); if(d) d.className=`btn ${tipo==='directa'?'btn-primary':'btn-secondary'}`;
+  const c=document.getElementById('ing-tipoventa-corporativa'); if(c) c.className=`btn ${tipo==='corporativa'?'btn-primary':'btn-secondary'}`;
+}
+function setRecTipoVenta(tipo){
+  const el=document.getElementById('rec-tipoventa'); if(el) el.value=tipo;
+  const d=document.getElementById('rec-tipoventa-directa'); if(d) d.className=`btn ${tipo==='directa'?'btn-primary':'btn-secondary'}`;
+  const c=document.getElementById('rec-tipoventa-corporativa'); if(c) c.className=`btn ${tipo==='corporativa'?'btn-primary':'btn-secondary'}`;
+}
 function addIngreso(auto=false,data={}){
   const fecha=auto?data.fecha:document.getElementById('ing-fecha').value;
   const clienteId=auto?data.clienteId:parseInt(document.getElementById('ing-cliente').value)||null;
   const cat=auto?data.categoria:document.getElementById('ing-categoria').value;
   const monto=auto?data.monto:numVal('ing-monto')||0;
   const desc=auto?data.desc:document.getElementById('ing-desc').value.trim();
+  const tipoVenta=auto?(data.tipoVenta||''):document.getElementById('ing-tipoventa').value;
   const metodo=auto?data.metodo:document.getElementById('ing-metodo').value;
   const ref=auto?(data.ref||''):document.getElementById('ing-ref').value.trim();
   const cuentaSelVal=auto?null:document.getElementById('ing-cuenta').value;
@@ -4953,7 +4998,7 @@ function addIngreso(auto=false,data={}){
 
   const guardar=()=>{
     const cliente=S.clientes.find(x=>x.id===clienteId);
-    S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    S.ingresos.push({id:Date.now()+Math.random(),fecha,clienteId,clienteNombre:cliente?.nombre||data.clienteNombre||'',categoria:cat,monto,itbis:auto?(parseFloat(data.itbis)||0):0,desc,tipoVenta,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
     S.ingresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
     if(!auto){
       if(!esHistorico){
@@ -4967,6 +5012,7 @@ function addIngreso(auto=false,data={}){
       document.getElementById('ing-monto').value='';
       document.getElementById('ing-desc').value='';
       document.getElementById('ing-ref').value='';
+      setIngTipoVenta('directa');
     }
   };
 
@@ -5003,6 +5049,7 @@ function addRecibo(){
   const cat=document.getElementById('rec-categoria').value;
   const monto=numVal('rec-monto')||0;
   const concepto=document.getElementById('rec-concepto').value.trim();
+  const tipoVenta=document.getElementById('rec-tipoventa').value;
   const metodo=document.getElementById('rec-metodo').value;
   const cuentaSelVal=document.getElementById('rec-cuenta').value;
   const esHistorico=cuentaSelVal==='none';
@@ -5014,7 +5061,7 @@ function addRecibo(){
   S.recibosCounter=(S.recibosCounter||0)+1;
   const numero=`REC-${String(S.recibosCounter).padStart(4,'0')}`;
   const recId=Date.now()+Math.random();
-  S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
+  S.recibos.push({id:recId,numero,fecha,clienteId,clienteNombre:cliente?.nombre||'',concepto,categoria:cat,monto,tipoVenta,metodo,cuentaIdx,esHistorico,ref});
 
   // Igual que un Ingreso manual: acredita la cuenta (Caja General si es efectivo, o la
   // cuenta bancaria elegida — salvo que sea Histórico) y cuenta en el Estado de Resultados.
@@ -5025,12 +5072,13 @@ function addRecibo(){
     renderTx(cuentaIdx);
   }
   addIngreso(true,{fecha,clienteId,clienteNombre:cliente?.nombre||'',categoria:cat,monto,itbis:0,
-    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,metodo,cuentaIdx,esHistorico,fuente:'recibo',fuenteId:recId});
+    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,tipoVenta,metodo,cuentaIdx,esHistorico,fuente:'recibo',fuenteId:recId});
 
   save(); renderRecibos();
   document.getElementById('rec-monto').value='';
   document.getElementById('rec-concepto').value='';
   document.getElementById('rec-ref').value='';
+  setRecTipoVenta('directa');
   notify('success','Recibo Registrado',`${numero} · ${fmt(monto)}`);
 }
 
@@ -6319,6 +6367,116 @@ function switchIngresosView(view){
   document.getElementById('ingView-recibos').style.display=view==='recibos'?'':'none';
   if(view==='recibos') renderRecibos(); else renderIngresos();
 }
+
+// ══════════════════ RECIBOS DE EGRESO (mismo espíritu que Recibos de Ingreso) ══════════════════
+let _egresosView='manual';
+function switchEgresosView(view){
+  _egresosView=view;
+  document.getElementById('egr-tab-manual').classList.toggle('active',view==='manual');
+  document.getElementById('egr-tab-recibos').classList.toggle('active',view==='recibos');
+  document.getElementById('egrView-manual').style.display=view==='manual'?'':'none';
+  document.getElementById('egrView-recibos').style.display=view==='recibos'?'':'none';
+  if(view==='recibos') renderRecibosEgreso(); else renderEgresos();
+}
+function refreshReciboEgresoSelects(){
+  const supSel=document.getElementById('egrrec-suplidor');
+  if(supSel){
+    const val=supSel.value;
+    supSel.innerHTML='<option value="">— Seleccionar suplidor —</option>'+
+      [...S.suplidores].sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(s=>`<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+    if(val) supSel.value=val;
+  }
+  const catSel=document.getElementById('egrrec-categoria');
+  if(catSel){
+    const val=catSel.value;
+    catSel.innerHTML=getSelectableEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+    if(val) catSel.value=val;
+  }
+  const cuentaSel=document.getElementById('egrrec-cuenta');
+  if(cuentaSel){
+    const val=cuentaSel.value;
+    cuentaSel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${esc(a.name)}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
+    if(val) cuentaSel.value=val;
+  }
+}
+function onEgrRecMetodoChange(sel){
+  const wrap=document.getElementById('egrrec-cuenta-wrap');
+  if(wrap) wrap.style.display = sel.value==='tarjeta' ? 'none' : '';
+}
+function addReciboEgreso(){
+  const fecha=document.getElementById('egrrec-fecha').value;
+  const suplidorId=parseInt(document.getElementById('egrrec-suplidor').value)||null;
+  const cat=document.getElementById('egrrec-categoria').value;
+  const monto=numVal('egrrec-monto')||0;
+  const concepto=document.getElementById('egrrec-concepto').value.trim();
+  const metodo=document.getElementById('egrrec-metodo').value;
+  const cuentaSelVal=document.getElementById('egrrec-cuenta').value;
+  const esHistorico=cuentaSelVal==='none';
+  const cuentaIdx=esHistorico?null:(parseInt(cuentaSelVal)||0);
+  const ref=document.getElementById('egrrec-ref').value.trim();
+  if(!fecha||monto<=0){ notify('error','Campos Requeridos','Completa la Fecha y el Monto para continuar.'); return; }
+  if(!cat){ notify('error','Falta la Categoría','Elige una categoría antes de continuar.'); return; }
+  const suplidor=S.suplidores.find(x=>x.id===suplidorId);
+
+  if(!S.recibosEgreso) S.recibosEgreso=[];
+  S.recibosEgresoCounter=(S.recibosEgresoCounter||0)+1;
+  const numero=`EGR-REC-${String(S.recibosEgresoCounter).padStart(4,'0')}`;
+  const recId=Date.now()+Math.random();
+  S.recibosEgreso.push({id:recId,numero,fecha,suplidorId,suplidorNombre:suplidor?.nombre||'',concepto,categoria:cat,monto,metodo,cuentaIdx,esHistorico,ref});
+
+  addEgreso(true,{fecha,suplidorId,suplidorNombre:suplidor?.nombre||'',categoria:cat,monto,
+    desc:`Recibo ${numero}${concepto?' – '+concepto:''}`,numFactura:numero,metodo,ref,cuentaIdx,esHistorico,fuente:'recibo_egreso',fuenteId:recId});
+
+  save(); renderRecibosEgreso();
+  document.getElementById('egrrec-monto').value='';
+  document.getElementById('egrrec-concepto').value='';
+  document.getElementById('egrrec-ref').value='';
+  notify('success','Recibo de Egreso Registrado',`${numero} · ${fmt(monto)}`);
+}
+function renderRecibosEgreso(){
+  refreshReciboEgresoSelects();
+  const mSel=document.getElementById('egrrec-metodo');
+  if(mSel) onEgrRecMetodoChange(mSel);
+  const tbody=document.getElementById('egrrec-tbody'); if(!tbody) return;
+  const lista=[...(S.recibosEgreso||[])].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  tbody.innerHTML = lista.length ? lista.map(x=>{
+    const acct = x.esHistorico ? '📋 Histórico' : (S.accounts[x.cuentaIdx]?.name||'—');
+    const catLabel = getAllEgrCats().find(c=>c.key===x.categoria)?.label || x.categoria;
+    return `<tr><td class="td-mono" style="color:#818cf8;">${esc(x.numero)}</td><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td style="max-width:180px;">${esc(x.concepto)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(catLabel)}</span></td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td style="white-space:nowrap;"><button class="del-btn" title="Imprimir" onclick="imprimirReciboEgreso(${x.id})">🖨</button><button class="del-btn" onclick="delReciboEgreso(${x.id})">×</button></td></tr>`;
+  }).join('') : `<tr><td colspan="9"><div class="empty-state">Todavía no has generado ningún recibo de egreso.</div></td></tr>`;
+}
+function delReciboEgreso(id){
+  icgConfirm('¿Eliminar este recibo? El egreso y el movimiento bancario ya registrados no se revertirán automáticamente.','Eliminar Recibo','Eliminar').then(ok=>{
+    if(!ok)return;
+    S.recibosEgreso=(S.recibosEgreso||[]).filter(x=>x.id!==id);
+    save(); renderRecibosEgreso();
+  });
+}
+function imprimirReciboEgreso(id){
+  const x=(S.recibosEgreso||[]).find(r=>r.id===id); if(!x) return;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${esc(x.numero)}</title><meta charset="utf-8">
+    <style>@media print{ @page{ margin:14mm; } } body{font-family:Arial,sans-serif;color:#111;padding:24px;max-width:640px;margin:0 auto;}
+    .hdr{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #ef4444;padding-bottom:16px;margin-bottom:24px;}
+    .hdr img{height:48px;} h1{font-size:20px;margin:0;color:#ef4444;} .num{font-size:15px;color:#666;}
+    table{width:100%;border-collapse:collapse;margin-top:16px;} td{padding:8px 0;border-bottom:1px solid #eee;font-size:14px;}
+    td:first-child{color:#666;width:160px;} .monto{font-size:24px;font-weight:700;color:#ef4444;margin-top:20px;text-align:right;}
+    .letras{font-size:13px;color:#666;text-align:right;margin-top:4px;} .firma{margin-top:60px;border-top:1px solid #333;width:240px;text-align:center;padding-top:6px;font-size:13px;color:#666;}
+    </style></head><body>
+    <div class="hdr"><img src="${ICG_LOGO_DATAURI}"><div style="text-align:right;"><h1>RECIBO DE EGRESO</h1><div class="num">${esc(x.numero)}</div></div></div>
+    <table>
+      <tr><td>Fecha</td><td>${fmtDate(x.fecha)}</td></tr>
+      <tr><td>Pagado a</td><td>${esc(x.suplidorNombre)||'—'}</td></tr>
+      <tr><td>Concepto</td><td>${esc(x.concepto)||'—'}</td></tr>
+      <tr><td>Referencia</td><td>${esc(x.ref)||'—'}</td></tr>
+    </table>
+    <div class="monto">${fmt(x.monto)}</div>
+    <div class="letras">${montoEnLetras(x.monto)}</div>
+    <div class="firma">Firma de quien recibe</div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},600);
+}
 function renderIngresos(){
   refreshIngresoSelects();
   const mSel=document.getElementById('ing-metodo');
@@ -6338,7 +6496,8 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+    const tipoVentaIcon = x.tipoVenta==='corporativa' ? `<span title="Venta Corporativa" style="margin-right:4px;">🏢</span>` : x.tipoVenta==='directa' ? `<span title="Venta Directa Taller" style="margin-right:4px;">🏪</span>` : '';
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${tipoVentaIcon}${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin ingresos registrados.</div></td></tr>`;
 }
 
@@ -6444,7 +6603,9 @@ function delEgreso(id){
   const x=S.egresos.find(e=>e.id===id);
   if(!x) return Promise.resolve(false);
   if(x.fuente && x.fuente!=='manual'){
-    icgAlert('Este egreso viene de un pago de CxP — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a CxP para corregirlo desde la fuente.','No se Puede Eliminar Aquí');
+    const origen = x.fuente==='recibo_egreso' ? 'un Recibo de Egreso' : 'un pago de CxP';
+    const destino = x.fuente==='recibo_egreso' ? 'Recibos de Egreso' : 'CxP';
+    icgAlert(`Este egreso viene de ${origen} — no se puede eliminar directamente desde aquí, porque quedaría desincronizado. Ve a ${destino} para corregirlo desde la fuente.`,'No se Puede Eliminar Aquí');
     return Promise.resolve(false);
   }
   const cargoVinculado = x.metodo==='tarjeta' ? S.creditCard.transactions.find(t=>t.egresoRef===id) : null;
@@ -6478,7 +6639,9 @@ function renderEgresos(){
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
     const egrDescConFactura = x.numFactura ? `<strong style="color:#8899bb;">Fact. ${esc(x.numFactura)}</strong>${egrDesc!=='—'?' – '+esc(egrDesc):''}` : esc(egrDesc);
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    const egrFuenteLabel = x.fuente==='cxp' ? 'CxP' : x.fuente==='recibo_egreso' ? 'Recibo' : 'Manual';
+    const egrFuenteBadgeCls = x.fuente==='cxp'||x.fuente==='recibo_egreso' ? 'badge-transfer' : 'badge-overdue';
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${egrFuenteBadgeCls}">${egrFuenteLabel}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos registrados.</div></td></tr>`;
 }
 
@@ -6537,6 +6700,17 @@ function renderRentabilidad(){
   document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8','ingreso',year);
   const egrLabelsAll={...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
   document.getElementById('rent-cat-egr').innerHTML=catBar(egrY,egrLabelsAll,'#ef4444','egreso',year);
+
+  // Ventas: Directa Taller vs. Corporativa — mismo estilo de barra que las categorías,
+  // pero agrupado por tipoVenta en vez de categoria. Los ingresos sin clasificar (de
+  // antes de que existiera este campo, o de CxC) se muestran aparte como "Sin clasificar".
+  const tvLabels={directa:'Directa Taller',corporativa:'Corporativa'};
+  const tvCount={}; ingY.forEach(x=>{ const k=x.tipoVenta||'sin_clasificar'; tvCount[k]=(tvCount[k]||0)+x.monto; });
+  const tvTot=Object.values(tvCount).reduce((s,v)=>s+v,0)||1;
+  document.getElementById('rent-tipoventa').innerHTML = Object.entries(tvCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const label = tvLabels[k] || 'Sin Clasificar';
+    return `<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${label}</span><span style="font-family:var(--mono);color:#818cf8;font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:#818cf8;height:100%;border-radius:3px;width:${(v/tvTot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`;
+  }).join('') || `<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;
 }
 // Abre el detalle de una categoría del Estado de Resultados — para ver de un vistazo
 // qué registros concretos componen ese total, en vez de tener que adivinar o ir a la consola.
@@ -7392,6 +7566,11 @@ function playIntroThenLoad(){
 window._fbSaveTimer = null;
 window.ICG_DOC = null;
 window.db = null;
+let _firebaseInitStarted = false; // Evita que .settings() y el listener de auth se registren
+                                    // dos veces — initFirebase() se llama tanto directamente
+                                    // como en DOMContentLoaded, y sin esta bandera la segunda
+                                    // llamada reconfiguraba Firestore encima de la primera
+                                    // (de ahí el warning "You are overriding the original host").
 
 function initFirebase(attempt){
   attempt = attempt || 0;
@@ -7405,6 +7584,8 @@ function initFirebase(attempt){
     }
     return;
   }
+  if(_firebaseInitStarted) return;
+  _firebaseInitStarted = true;
   try {
     const firebaseConfig = {
       apiKey: "AIzaSyB9EGPx0bdtoskiBoDpQt2qsWkYbVsVs5Y",
@@ -7416,6 +7597,13 @@ function initFirebase(attempt){
     };
     if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     window.db = firebase.firestore();
+    // Fix Altice/redes restrictivas: Firestore usa WebSocket por defecto para sus
+    // conexiones en tiempo real, y varios ISPs y redes corporativas en RD (Altice
+    // incluido) lo bloquean o interfieren con él — aunque el resto de internet
+    // funcione normal. Esto fuerza "long polling" (conexiones tipo HTTP normal),
+    // mucho más compatible con ese tipo de redes. Debe llamarse antes de cualquier
+    // otra operación sobre window.db.
+    window.db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     window.ICG_DOC = window.db.collection('icgfinancial').doc('data');
     console.log('✅ Firebase inicializado correctamente');
     // Acceso restringido: solo se carga la base de datos si hay una sesión válida
@@ -7669,6 +7857,7 @@ function cdpOpen(input, e){
 
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCDP();});
   window._openCDP=openCDP;
+  window._closeCDP=closeCDP;
 })();
 
 // Month inputs still use native picker
@@ -7753,6 +7942,8 @@ function ensureEstadoIntegro(){
   if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
   if(!S.activosFijos) S.activosFijos=[];
   if(!S.recibos) S.recibos=[];
+  if(!S.recibosEgreso) S.recibosEgreso=[];
+  if(S.recibosEgresoCounter===undefined) S.recibosEgresoCounter=0;
   if(S.recibosCounter===undefined) S.recibosCounter=0;
   // Categorías reservadas de nómina del titular — deben existir siempre
   [{key:'salario_titular',label:'Salario del Titular (bruto)'},
