@@ -892,6 +892,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="bcard"><div class="bcard-label">Cobrado</div><div class="bcard-value positive" id="cxcPaid">RD$0.00</div></div>
     </div>
   </div>
+  <div class="add-form" style="margin-bottom:24px;">
+    <h3>Antigüedad de Saldos (CxC)</h3>
+    <div id="cxc-aging"></div>
+  </div>
   <div class="add-form">
     <h3>Nueva Factura</h3>
     <!-- Row 1: NCF · Cliente · Descripción · Categoría -->
@@ -1038,6 +1042,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <div class="bcard-value positive" id="cxpPaid">RD$0.00</div>
       </div>
     </div>
+  </div>
+  <div class="add-form" style="margin-bottom:24px;">
+    <h3>Antigüedad de Saldos (CxP)</h3>
+    <div id="cxp-aging"></div>
   </div>
 
   <!-- Sub-tabs -->
@@ -2620,6 +2628,7 @@ function init(){
   activateTab('ingresos');
   startAutoSaveTimer();
   markSavedAt();
+  setTimeout(checkVencimientosProximos, 2500);
 }
 
 // ══════════════════ TABS ══════════════════
@@ -3764,6 +3773,7 @@ function delCXC(id){
 
 function renderCXC(){
   refreshCxCClientSelect();
+  renderCxCAging();
   // Solo repoblar el select si sigue vacío (no editando) — para no perder la selección
   // en curso si el usuario ya escogió una categoría antes de que algo dispare un re-render.
   const catSel=document.getElementById('cxc-categoria');
@@ -4057,6 +4067,95 @@ function allCXPItems(){
   return ['proveedores','serviciosFijos','prestamos','otros'].flatMap(k=>S.cuentasPagar[k]);
 }
 
+// ══════════════════ ANTIGÜEDAD DE SALDOS (AGING) ══════════════════
+// Agrupa los saldos pendientes en tramos según cuántos días llevan vencidos (o por vencer).
+// Estándar contable: Corriente (no vencida) · 1-30 · 31-60 · 61-90 · 90+ días.
+function bucketAntiguedad(items, dueField, pendingFn){
+  const hoy = new Date(today()+'T00:00:00');
+  const buckets = {corriente:0, d1_30:0, d31_60:0, d61_90:0, d90mas:0};
+  items.forEach(x=>{
+    const pend = pendingFn(x);
+    if(pend<=0) return;
+    const due = x[dueField];
+    if(!due){ buckets.corriente += pend; return; }
+    const dias = Math.floor((hoy - new Date(due+'T00:00:00')) / 86400000);
+    if(dias<=0)      buckets.corriente += pend;
+    else if(dias<=30) buckets.d1_30 += pend;
+    else if(dias<=60) buckets.d31_60 += pend;
+    else if(dias<=90) buckets.d61_90 += pend;
+    else               buckets.d90mas += pend;
+  });
+  return buckets;
+}
+function renderAgingWidget(elId, buckets){
+  const total = buckets.corriente+buckets.d1_30+buckets.d31_60+buckets.d61_90+buckets.d90mas;
+  const tramos = [
+    {label:'Corriente', val:buckets.corriente, color:'#4ade80'},
+    {label:'1-30 días',  val:buckets.d1_30,     color:'#fdc901'},
+    {label:'31-60 días', val:buckets.d31_60,    color:'#f97316'},
+    {label:'61-90 días', val:buckets.d61_90,    color:'#ef4444'},
+    {label:'90+ días',   val:buckets.d90mas,    color:'#b91c1c'},
+  ];
+  document.getElementById(elId).innerHTML = total<=0
+    ? `<div class="empty-state">Sin saldos pendientes.</div>`
+    : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">${tramos.map(t=>`
+      <div style="text-align:center;padding:12px 8px;background:var(--surface3);border-radius:8px;border-top:3px solid ${t.color};">
+        <div style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${t.label}</div>
+        <div style="font-family:var(--mono);font-size:17px;font-weight:600;color:${t.color};">${fmt(t.val)}</div>
+        <div style="font-size:12px;color:#6b7a99;margin-top:2px;">${total>0?(t.val/total*100).toFixed(0):0}%</div>
+      </div>`).join('')}</div>`;
+}
+function renderCxCAging(){
+  const pendientes = S.cuentasCobrar.filter(x=>cxcSt(x)!=='pagada');
+  const buckets = bucketAntiguedad(pendientes, 'due', cxcPending);
+  renderAgingWidget('cxc-aging', buckets);
+}
+function renderCxPAging(){
+  const pendientes = allCXPItems().filter(x=>x.estado!=='pagada');
+  const buckets = bucketAntiguedad(pendientes, 'vence', cxpPending);
+  renderAgingWidget('cxp-aging', buckets);
+}
+
+
+// Revisa CxC y CxP en busca de obligaciones que vencen en los próximos 7 días (o ya vencidas) y
+// avisa con un solo mensaje consolidado al abrir el sistema — para no depender de que el usuario
+// entre a revisar cada módulo manualmente.
+function checkVencimientosProximos(){
+  const hoy = today();
+  const limite = new Date(); limite.setDate(limite.getDate()+7);
+  const limiteStr = limite.toISOString().slice(0,10);
+
+  // CxC: facturas por cobrar que vencen pronto o ya vencidas
+  const cxcProximas = S.cuentasCobrar.filter(x=>{
+    const st = cxcSt(x);
+    return st!=='pagada' && x.due && x.due<=limiteStr;
+  });
+  const cxcVencidasYa = cxcProximas.filter(x=>x.due<hoy);
+  const cxcPorVencer = cxcProximas.filter(x=>x.due>=hoy);
+  const totalCxCProximo = cxcProximas.reduce((s,x)=>s+cxcPending(x),0);
+
+  // CxP: todo lo que se debe pagar pronto (proveedores, servicios fijos, préstamos, otros)
+  const cxpProximas = allCXPItems().filter(x=>{
+    const st = cxpStatus(x);
+    return st!=='pagada' && x.vence && x.vence<=limiteStr;
+  });
+  const cxpVencidasYa = cxpProximas.filter(x=>x.vence<hoy);
+  const cxpPorVencer = cxpProximas.filter(x=>x.vence>=hoy);
+  const totalCxPProximo = cxpProximas.reduce((s,x)=>s+cxpPending(x),0);
+
+  const totalItems = cxcProximas.length + cxpProximas.length;
+  if(totalItems===0) return;
+
+  const totalVencidasYa = cxcVencidasYa.length + cxpVencidasYa.length;
+  const partes = [];
+  if(cxpProximas.length) partes.push(`<b>${cxpProximas.length}</b> por pagar (${fmt(totalCxPProximo)})`);
+  if(cxcProximas.length) partes.push(`<b>${cxcProximas.length}</b> por cobrar (${fmt(totalCxCProximo)})`);
+  let msg = partes.join(' · ');
+  if(totalVencidasYa>0) msg += `<br><span style="color:#ef4444;">⚠ ${totalVencidasYa} ya vencidas</span>`;
+
+  notify(totalVencidasYa>0?'error':'info', '📅 Vencimientos en los Próximos 7 Días', msg);
+}
+
 function renderCXPCards(){
   const all = allCXPItems();
   // TOTAL = saldo real pendiente en todas las obligaciones (lo que realmente se debe aún)
@@ -4071,6 +4170,7 @@ function renderCXPCards(){
   document.getElementById('cxpPending').textContent  = fmt(pend);
   document.getElementById('cxpOverdue').textContent  = fmt(venc);
   document.getElementById('cxpPaid').textContent     = fmt(paid);
+  renderCxPAging();
 }
 
 function renderCXP(){
@@ -4744,7 +4844,7 @@ function togglePayRetenciones(){
 function exportData(){
   const a=document.createElement('a');
   a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({version:3,exportedAt:new Date().toISOString(),...S},null,2));
-  a.download=`banca_balance_${today()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  a.download=`ICG_Financial_PRO_Respaldo_${today()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   const t=document.getElementById('autoSaveText');
   if(t){
     const previo=t.textContent;
@@ -4763,17 +4863,16 @@ function handleImportFile(event){
     icgConfirm(`¿Importar "${file.name}"? Esto reemplazará todos los datos actuales.`,'Importar Datos','Importar',false).then(ok=>{
       if(!ok)return;
       if(Array.isArray(data)){
+        // Formato antiguo: solo un array de cuentas — se conserva por compatibilidad hacia atrás.
         S.accounts=data;
       } else {
-        if(data.accounts)      S.accounts      = data.accounts;
-        if(data.creditCard)    S.creditCard    = data.creditCard;
-        if(data.cuentasCobrar) S.cuentasCobrar = data.cuentasCobrar;
-        if(data.cuentasPagar)  S.cuentasPagar  = data.cuentasPagar;
-        if(data.clientes)      S.clientes      = data.clientes;
-        if(data.suplidores)    S.suplidores    = data.suplidores;
-        if(data.ingresos)      S.ingresos      = data.ingresos;
-        if(data.egresos)       S.egresos       = data.egresos;
+        // Respaldo completo (exportData() incluye TODO el estado con ...S): se restaura tal cual,
+        // reemplazando el objeto entero — así ningún módulo nuevo que se agregue en el futuro
+        // vuelve a quedar fuera de la restauración por una lista de campos desactualizada.
+        const {version, exportedAt, ...datosCompletos} = data;
+        S = datosCompletos;
       }
+      S.accounts=S.accounts||[];
       S.accounts.forEach(a=>{if(a.initialBalance===undefined)a.initialBalance=0;});
       if(!S.cuentasPagar) S.cuentasPagar={proveedores:[],serviciosFijos:[],prestamos:[],otros:[]};
       ['proveedores','serviciosFijos','prestamos','otros'].forEach(k=>{if(!S.cuentasPagar[k])S.cuentasPagar[k]=[];});
@@ -5332,6 +5431,22 @@ let _comp = {};
 // ══════════════════ CARGAR FACTURA DE COMPRA (PDF → Egresos o CxP) ══════════════════
 let _fc = {};
 
+// Autocompleta ITBIS (18% del Subtotal) y Total mientras el usuario corrige a mano los montos
+// que el OCR no pudo leer bien de la factura. Si ya editó el ITBIS manualmente, no se lo pisa.
+function calcFCTotales(itbisEditadoAMano){
+  const subEl=document.getElementById('fc-subtotal');
+  const itbisEl=document.getElementById('fc-itbis');
+  const totalEl=document.getElementById('fc-total');
+  if(!subEl||!itbisEl||!totalEl) return;
+  const sub=numVal(subEl)||0;
+  if(!itbisEditadoAMano){
+    if(sub>0) setMontoValue(itbisEl,sub*0.18); else itbisEl.value='';
+  }
+  const itbis=numVal(itbisEl)||0;
+  const total=sub+itbis;
+  if(total>0) setMontoValue(totalEl,total); else totalEl.value='';
+}
+
 function closeFacturaCompraModal(){
   document.getElementById('cargarFacturaCompraModal').classList.remove('open');
 }
@@ -5435,8 +5550,8 @@ function renderRevisionFacturaCompra(){
       <div class="form-group"><label>Fecha Vencimiento</label><input autocomplete="off" type="date" id="fc-fecha-vencimiento" value="${esc(p.fechaVencimiento||p.fechaEmision||today())}"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="fc-desc" value=""></div>
       <div class="form-group"><label>Categoría</label><select id="fc-categoria"><option value="">— Elegir —</option>${getSelectableEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this)"></div>
-      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this)"></div>
+      <div class="form-group"><label>Subtotal (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-subtotal" value="${fmtInputNum(p.subtotal)}" oninput="formatMontoInput(this);calcFCTotales(false)"></div>
+      <div class="form-group"><label>ITBIS (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-itbis" value="${fmtInputNum(p.itbis)}" oninput="formatMontoInput(this);calcFCTotales(true)"></div>
       <div class="form-group"><label>Total (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="fc-total" value="${fmtInputNum(p.total)}" oninput="formatMontoInput(this)"></div>
     </div>
 
