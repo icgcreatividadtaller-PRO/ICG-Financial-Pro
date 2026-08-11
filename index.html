@@ -4907,19 +4907,19 @@ function renderComparativo(){
 
   const maxVal=Math.max(1,...filas.map(f=>Math.max(f.ing,f.egr)));
   document.getElementById('comp-bars').innerHTML=`
-    <div style="display:grid;grid-template-columns:120px 1fr 1fr 130px;gap:14px;padding:0 0 8px;font-size:12px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);">
+    <div style="display:grid;grid-template-columns:120px 200px 200px 130px;gap:14px;padding:0 0 8px;font-size:17px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);">
       <div>Período</div><div>Ingresos</div><div>Egresos</div><div style="text-align:right;">Neto</div>
     </div>
-    ${filas.map(f=>`
-    <div style="display:grid;grid-template-columns:120px 1fr 1fr 130px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border2);">
+    ${[...filas].reverse().map(f=>`
+    <div style="display:grid;grid-template-columns:120px 200px 200px 130px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border2);">
       <div style="font-size:16px;color:#c0c6d8;">${f.label}</div>
       <div>
-        <div style="background:var(--s3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#4ade80;height:100%;width:${(f.ing/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
-        <div style="font-size:16px;color:#4ade80;margin-top:2px;font-family:var(--mono);">${fmt(f.ing)}</div>
+        <div style="background:var(--s3);border-radius:4px;height:10px;overflow:hidden;max-width:110px;"><div style="background:#4ade80;height:100%;width:${(f.ing/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:16px;color:#4ade80;margin-top:3px;font-family:var(--mono);">${fmt(f.ing)}</div>
       </div>
       <div>
-        <div style="background:var(--s3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#ef4444;height:100%;width:${(f.egr/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
-        <div style="font-size:16px;color:#ef4444;margin-top:2px;font-family:var(--mono);">${fmt(f.egr)}</div>
+        <div style="background:var(--s3);border-radius:4px;height:10px;overflow:hidden;max-width:110px;"><div style="background:#ef4444;height:100%;width:${(f.egr/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:16px;color:#ef4444;margin-top:3px;font-family:var(--mono);">${fmt(f.egr)}</div>
       </div>
       <div style="text-align:right;">
         <span style="display:inline-block;padding:4px 10px;border-radius:5px;background:${f.color}22;color:${f.color};font-family:var(--mono);font-weight:700;font-size:17px;">${f.conActividad?(f.neto>=0?'+':'')+fmt(f.neto):'—'}</span>
