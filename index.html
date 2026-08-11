@@ -935,7 +935,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:230px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
           <button type="button" id="cxc-tv-corp" onclick="setTipoVenta('cxc','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="cxc-tipoventa" value="corporativa">
@@ -1105,15 +1105,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
     <!-- Resumen de saldos -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Total</div>
         <div id="cxp-pay-total" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#4f46e5;"></div>
       </div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pagado</div>
         <div id="cxp-pay-paid" style="font-family:var(--mono);font-size:20px;font-weight:600;color:#818cf8;"></div>
       </div>
-      <div style="background:var(--surface2);border:1px solid rgba(79,70,229,.4);border-radius:8px;padding:10px 14px;text-align:center;">
+      <div style="background:var(--s2);border:1px solid rgba(79,70,229,.4);border-radius:8px;padding:10px 14px;text-align:center;">
         <div style="font-size:15px;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Pendiente</div>
         <div id="cxp-pay-pending" style="font-family:var(--mono);font-size:20px;font-weight:700;color:#818cf8;"></div>
       </div>
@@ -1126,7 +1126,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         Pago Total
       </button>
       <button id="cxp-btn-partial" onclick="setCXPPayType('partial')"
-        style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;">
+        style="flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--s2);color:#9ca3af;">
         Pago Parcial
       </button>
     </div>
@@ -1195,22 +1195,22 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="add-form">
     <h3>Registrar Ingreso</h3>
     <!-- Row 1: Fecha · Cliente · Categoría · Monto -->
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Fecha</label>
         <input autocomplete="off" type="date" id="ing-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:240px;flex-shrink:0;">
+      <div class="form-group" style="flex:2;min-width:280px;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="ing-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group" style="width:190px;flex-shrink:0;">
+      <div class="form-group" style="flex:2;min-width:250px;">
         <label>Categoría</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="ing-categoria" style="font-size:15px;flex:1;height:44px;box-sizing:border-box;">
+          <select id="ing-categoria" style="font-size:15px;flex:1;min-width:0;height:44px;box-sizing:border-box;">
             <option value="offset">Impresión Offset</option>
             <option value="rot_vehicular">Rotulación Vehicular</option>
             <option value="senaletica">Señalética</option>
@@ -1229,11 +1229,11 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Monto (RD$)</label>
         <input autocomplete="off" type="text" inputmode="decimal" id="ing-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
-      <div class="form-group" style="width:230px;flex-shrink:0;">
+      <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="ing-tv-directa" onclick="setTipoVenta('ing','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
-          <button type="button" id="ing-tv-corp" onclick="setTipoVenta('ing','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
+          <button type="button" id="ing-tv-directa" onclick="setTipoVenta('ing','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="ing-tv-corp" onclick="setTipoVenta('ing','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="ing-tipoventa" value="corporativa">
       </div>
@@ -1331,7 +1331,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:230px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
           <button type="button" id="rec-tv-corp" onclick="setTipoVenta('rec','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="rec-tipoventa" value="corporativa">
@@ -1591,7 +1591,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div><h2 style="font-family:var(--font);font-size:35px;color:#818cf8;">Clientes</h2><p style="font-size:18px;color:#9ca3af;">Directorio exclusivo de clientes · solo aparecen en Ingresos y CxC</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input autocomplete="off" type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="cli-search" oninput="renderClientes()" placeholder="Buscar..." style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
       <button class="btn btn-primary" onclick="openClienteModal()">Nuevo Cliente</button>
     </div>
   </div>
@@ -1606,7 +1606,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div><h2 style="font-family:var(--font);font-size:35px;color:#4f46e5;">Suplidores</h2><p style="font-size:18px;color:#9ca3af;">Directorio exclusivo de suplidores · solo aparecen en Egresos y CxP</p></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <input autocomplete="off" type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
+      <input autocomplete="off" type="text" id="sup-search" oninput="renderSuplidores()" placeholder="Buscar..." style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:8px 12px;font-size:18px;outline:none;width:200px;">
       <button class="btn" style="background:#4f46e5;color:#1a0800;font-weight:600;" onclick="openSuplidorModal()">Nuevo Suplidor</button>
     </div>
   </div>
@@ -1622,13 +1622,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="account-name-area"><h2 style="color:#818cf8;">Rentabilidad</h2><p>P&L · ICG Creatividad · Análisis de utilidad</p></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Período</label>
-        <select id="rent-period" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;">
+        <select id="rent-period" onchange="renderRentabilidad()" style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;">
           <option value="mensual">Mensual</option>
           <option value="trimestral">Trimestral</option>
         </select>
       </div>
       <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Año</label>
-        <select id="rent-year" onchange="renderRentabilidad()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;"></select>
+        <select id="rent-year" onchange="renderRentabilidad()" style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;"></select>
       </div>
     </div>
   </div>
@@ -2645,8 +2645,9 @@ function setTipoVenta(prefix, val){
   const hidden=document.getElementById(`${prefix}-tipoventa`); if(hidden) hidden.value=val;
   const dBtn=document.getElementById(`${prefix}-tv-directa`);
   const cBtn=document.getElementById(`${prefix}-tv-corp`);
-  const activeCss='flex:1;height:44px;box-sizing:border-box;background:rgba(129,140,248,.22);border-color:#818cf8;color:#818cf8;font-weight:700;display:flex;align-items:center;justify-content:center;';
-  const idleCss='flex:1;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;';
+  const base='flex:1;height:44px;box-sizing:border-box;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;';
+  const activeCss=base+'border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;font-weight:700;';
+  const idleCss=base+'border:2px solid var(--border);background:var(--s2);color:#9ca3af;';
   if(dBtn){ dBtn.style.cssText = val==='directa' ? activeCss : idleCss; dBtn.classList.toggle('tv-btn-active', val==='directa'); }
   if(cBtn){ cBtn.style.cssText = val==='corporativa' ? activeCss : idleCss; cBtn.classList.toggle('tv-btn-active', val==='corporativa'); }
 }
@@ -4179,7 +4180,7 @@ function renderAgingWidget(elId, buckets, tipo){
     : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">${AGING_TRAMOS.map(t=>{
         const b=buckets[t.key];
         const clickable = b.total>0;
-        return `<div onclick="${clickable?`openAgingModal('${tipo}','${t.key}')`:''}" style="text-align:center;padding:12px 8px;background:var(--surface3);border-radius:8px;border-top:3px solid ${t.color};${clickable?'cursor:pointer;transition:transform .12s,background .12s;':'opacity:.55;'}" ${clickable?`onmouseover="this.style.background='rgba(255,255,255,.05)';this.style.transform='translateY(-2px)';" onmouseout="this.style.background='var(--surface3)';this.style.transform='none';"`:''}>
+        return `<div onclick="${clickable?`openAgingModal('${tipo}','${t.key}')`:''}" style="text-align:center;padding:12px 8px;background:var(--s3);border-radius:8px;border-top:3px solid ${t.color};${clickable?'cursor:pointer;transition:transform .12s,background .12s;':'opacity:.55;'}" ${clickable?`onmouseover="this.style.background='rgba(255,255,255,.05)';this.style.transform='translateY(-2px)';" onmouseout="this.style.background='var(--s3)';this.style.transform='none';"`:''}>
         <div style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${t.label}</div>
         <div style="font-family:var(--mono);font-size:17px;font-weight:600;color:${t.color};">${fmt(b.total)}</div>
         <div style="font-size:12px;color:#6b7a99;margin-top:2px;">${total>0?(b.total/total*100).toFixed(0):0}% ${clickable?'· Ver detalle':''}</div>
@@ -4668,14 +4669,14 @@ function setCXPPayType(type){
 
   if(type === 'full'){
     btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.2);color:#4f46e5;';
-    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
+    btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--s2);color:#9ca3af;';
     // Set amount to pending balance
     const item = S.cuentasPagar[_cxpPaySection].find(x=>x.id===_cxpPayId);
     if(item) amountInput.value = cxpPending(item).toFixed(2);
     amountInput.readOnly = true;
     amountInput.style.opacity = '0.7';
   } else {
-    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:#9ca3af;';
+    btnFull.style.cssText    = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid var(--border);background:var(--s2);color:#9ca3af;';
     btnPartial.style.cssText = 'flex:1;padding:10px;border-radius:8px;font-weight:700;font-size:18px;cursor:pointer;border:2px solid #4f46e5;background:rgba(79,70,229,.15);color:#818cf8;';
     amountInput.readOnly = false;
     amountInput.style.opacity = '1';
@@ -4913,11 +4914,11 @@ function renderComparativo(){
     <div style="display:grid;grid-template-columns:120px 1fr 1fr 130px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border2);">
       <div style="font-size:16px;color:#c0c6d8;">${f.label}</div>
       <div>
-        <div style="background:var(--surface3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#4ade80;height:100%;width:${(f.ing/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="background:var(--s3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#4ade80;height:100%;width:${(f.ing/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
         <div style="font-size:16px;color:#4ade80;margin-top:2px;font-family:var(--mono);">${fmt(f.ing)}</div>
       </div>
       <div>
-        <div style="background:var(--surface3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#ef4444;height:100%;width:${(f.egr/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="background:var(--s3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#ef4444;height:100%;width:${(f.egr/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
         <div style="font-size:16px;color:#ef4444;margin-top:2px;font-family:var(--mono);">${fmt(f.egr)}</div>
       </div>
       <div style="text-align:right;">
@@ -7219,7 +7220,7 @@ function renderRentabilidad(){
   document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos (sin ITBIS)</th><th>ITBIS Cobrado</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
   document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono" style="color:#fdc901;">${fmt(p.itbis)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono" style="color:#fdc901;font-weight:700;">${fmt(totItbis)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
   // Category bars
-  const catBar=(items,labels,col,tipo,year)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;cursor:pointer;" onclick="verDetalleCategoria('${tipo}','${k}',${year})" title="Ver el detalle de esta categoría"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--surface3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
+  const catBar=(items,labels,col,tipo,year)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;cursor:pointer;" onclick="verDetalleCategoria('${tipo}','${k}',${year})" title="Ver el detalle de esta categoría"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--s3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
   const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString()));
   const egrY=S.egresos.filter(x=>x.fecha.startsWith(year.toString()));
   const ingLabelsAll={...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))};
@@ -7234,12 +7235,12 @@ function renderRentabilidad(){
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
         <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;display:inline-flex;align-items:center;"><span class="tv-icon tv-icon-taller tv-icon-lg" style="filter:invert(78%) sepia(58%) saturate(1000%) hue-rotate(3deg) brightness(103%);"></span>Directa Taller</span><span style="font-family:var(--mono);color:#fdc901;font-weight:600;">${fmt(tvDirecta)}</span></div>
-        <div style="background:var(--surface3);border-radius:3px;height:8px;"><div style="background:#fdc901;height:100%;border-radius:3px;width:${(tvDirecta/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="background:var(--s3);border-radius:3px;height:8px;"><div style="background:#fdc901;height:100%;border-radius:3px;width:${(tvDirecta/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
         <div style="font-size:14px;color:#6b7a99;margin-top:3px;">${(tvDirecta/tvTot*100).toFixed(1)}% del total</div>
       </div>
       <div style="flex:1;min-width:200px;">
         <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;display:inline-flex;align-items:center;"><span class="tv-icon tv-icon-corp tv-icon-lg" style="filter:invert(59%) sepia(78%) saturate(1665%) hue-rotate(215deg) brightness(101%);"></span>Corporativa</span><span style="font-family:var(--mono);color:#818cf8;font-weight:600;">${fmt(tvCorp)}</span></div>
-        <div style="background:var(--surface3);border-radius:3px;height:8px;"><div style="background:#818cf8;height:100%;border-radius:3px;width:${(tvCorp/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="background:var(--s3);border-radius:3px;height:8px;"><div style="background:#818cf8;height:100%;border-radius:3px;width:${(tvCorp/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
         <div style="font-size:14px;color:#6b7a99;margin-top:3px;">${(tvCorp/tvTot*100).toFixed(1)}% del total</div>
       </div>
     </div>`;
