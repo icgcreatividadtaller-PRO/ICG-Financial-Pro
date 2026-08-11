@@ -2972,7 +2972,7 @@ function accountHTML(i){
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="clearF(${i})">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Descripción</th><th>Tipo</th><th>Método</th><th>Ingreso</th><th>Egreso</th><th>Balance</th><th></th></tr></thead>
+      <thead><tr><th onclick="toggleTxSort(${i})" style="cursor:pointer;user-select:none;" title="Clic para cambiar el orden">Fecha <span id="tx-sort-icon-${i}">▼</span></th><th>Descripción</th><th>Tipo</th><th>Método</th><th>Ingreso</th><th>Egreso</th><th>Balance</th><th></th></tr></thead>
       <tbody id="tbody-${i}"></tbody>
     </table></div>
   </div>`;
@@ -3113,6 +3113,12 @@ function clearF(i){
   renderTx(i);
 }
 
+let _txSortDir={}; // por cuenta: 'asc' (más vieja arriba) o 'desc' (más reciente arriba, default)
+function toggleTxSort(i){
+  const cur=_txSortDir[i]||'desc';
+  _txSortDir[i]=cur==='desc'?'asc':'desc';
+  renderTx(i);
+}
 function renderTx(i){
   const tbody=document.getElementById(`tbody-${i}`); if(!tbody)return;
   const from=document.getElementById(`f-from-${i}`)?.value||'';
@@ -3122,10 +3128,20 @@ function renderTx(i){
     if(from&&t.date<from)return false; if(to&&t.date>to)return false;
     if(ftype&&t.type!==ftype)return false; return true;
   });
+  // El balance corrido SIEMPRE se calcula en orden cronológico real (más vieja primero),
+  // sin importar en qué orden se vaya a mostrar la tabla — solo se invierte al final para mostrar.
+  const dir=_txSortDir[i]||'desc';
+  const txsAsc=[...txs].sort((a,b)=> a.date===b.date ? (a.id-b.id) : (a.date<b.date?-1:1));
   let run=S.accounts[i].initialBalance||0;
   if(from) S.accounts[i].transactions.forEach(t=>{if(t.date<from)run+=t.type==='ingreso'?t.amount:-t.amount;});
-  tbody.innerHTML=txs.length?txs.map(t=>{
+  const conBalance=txsAsc.map(t=>{
     run+=t.type==='ingreso'?t.amount:-t.amount;
+    return {t, run};
+  });
+  const paraMostrar = dir==='desc' ? [...conBalance].reverse() : conBalance;
+  const sortIcon=document.getElementById(`tx-sort-icon-${i}`);
+  if(sortIcon) sortIcon.textContent = dir==='desc' ? '▼' : '▲';
+  tbody.innerHTML=paraMostrar.length?paraMostrar.map(({t,run})=>{
     const esSalida = t.type==='egreso'||t.type==='impuesto';
     const tipoLabel = t.type==='ingreso'?'↑ Ingreso':t.type==='impuesto'?'🏦 Impuesto':'↓ Egreso';
     return `<tr>
