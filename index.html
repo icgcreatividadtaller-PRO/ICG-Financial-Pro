@@ -1804,6 +1804,45 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="consolidated-grid" id="consolidatedGrid"></div>
 </div>
 
+<!-- ══ COMPARATIVO INGRESOS VS EGRESOS ══ -->
+<div class="panel" id="panel-comparativo">
+  <div class="account-top">
+    <div class="account-name-area"><h2 style="color:#818cf8;">Comparativo Ingresos vs Egresos</h2><p>Cada peso que entra y sale — ¿ganaste o perdiste hoy, esta semana, este mes?</p></div>
+  </div>
+
+  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;">
+    <div>
+      <div style="font-size:13px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Período</div>
+      <div style="display:flex;gap:6px;" id="comp-periodo-tabs">
+        <button class="acct-tab active" onclick="setCompPeriodo('diario')">Diario</button>
+        <button class="acct-tab" onclick="setCompPeriodo('semanal')">Semanal</button>
+        <button class="acct-tab" onclick="setCompPeriodo('quincenal')">Quincenal</button>
+        <button class="acct-tab" onclick="setCompPeriodo('mensual')">Mensual</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:13px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Base de Cálculo</div>
+      <div style="display:flex;gap:6px;" id="comp-base-tabs">
+        <button class="acct-tab active" onclick="setCompBase('ventareal')" title="Reconoce el ingreso el día que se facturó/realizó la venta, no cuando se cobró — evita que una factura corporativa cobrada semanas después distorsione el día que realmente se ganó.">🎯 Venta Real</button>
+        <button class="acct-tab" onclick="setCompBase('efectivo')" title="Reconoce el ingreso el día exacto en que el dinero entró al banco (igual que Flujo de Caja).">💵 Efectivo</button>
+      </div>
+    </div>
+  </div>
+  <p id="comp-base-explicacion" style="font-size:14px;color:#6b7a99;margin:-10px 0 20px;max-width:720px;"></p>
+
+  <div class="balance-cards" style="margin-bottom:20px;">
+    <div class="bcard"><div class="bcard-label">Total Ingresos</div><div class="bcard-value positive" id="comp-total-ing">RD$0.00</div></div>
+    <div class="bcard"><div class="bcard-label">Total Egresos</div><div class="bcard-value negative" id="comp-total-egr">RD$0.00</div></div>
+    <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Neto</div><div class="bcard-value" id="comp-total-neto">RD$0.00</div></div>
+    <div class="bcard"><div class="bcard-label">Períodos en Verde</div><div class="bcard-value" id="comp-dias-positivos" style="color:#4ade80;">0 / 0</div></div>
+  </div>
+
+  <div class="transactions-section">
+    <h3 id="comp-tabla-title">Detalle por Día</h3>
+    <div id="comp-bars"></div>
+  </div>
+</div>
+
 <!-- ══ CONTABILIDAD — PLAN DE CUENTAS ══ -->
 <div class="panel" id="panel-contabilidad">
   <div class="account-top">
@@ -2344,6 +2383,32 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
 </div>
 
+<!-- ══ ANTIGÜEDAD DE SALDOS — DETALLE (modal de consulta) ══ -->
+<div class="modal-overlay" id="agingModalOverlay">
+  <div class="modal" id="agingModalBox" style="max-width:760px;border-width:2px;border-color:#818cf8;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+      <div>
+        <h2 style="font-size:17px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span id="agingModalDot" style="width:12px;height:12px;border-radius:50%;display:inline-block;background:#818cf8;"></span>
+          <span id="agingModalTitle">Detalle</span>
+        </h2>
+        <p id="agingModalSubtitle" style="font-size:13px;color:#8899bb;margin:0;"></p>
+      </div>
+      <button class="modal-close" onclick="closeAgingModal()">✕</button>
+    </div>
+    <div class="table-wrap" style="max-height:420px;overflow-y:auto;">
+      <table>
+        <thead id="agingModalTableHead"></thead>
+        <tbody id="agingModalTableBody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border2);">
+      <span style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;">Total del tramo:</span>
+      <span id="agingModalTotal" style="font-family:var(--mono);font-size:22px;font-weight:700;">RD$0.00</span>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="comprobanteModal">
   <div class="modal" style="max-width:560px;border-color:rgba(129,140,248,.4);">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -2649,6 +2714,7 @@ const NAV_BLOCKS={
   finanzas:{label:'🔒 Finanzas',locked:true,default:'cuentas',tabs:[
     {id:'tab-cuentas',cls:'',label:'Cuentas',t:'cuentas'},
     {id:'tab-con',cls:'nav-indigo',label:'Consolidado',t:'consolidated'},
+    {id:'tab-comp',cls:'',label:'Comparativo',t:'comparativo'},
     {id:'tab-rep',cls:'',label:'Reportes',t:'reportes'},
     {id:'tab-rent',cls:'nav-indigo',label:'Estado de Resultados',t:'rentabilidad'},
     {id:'tab-flujo',cls:'nav-indigo',label:'Flujo de Caja',t:'flujocaja'},
@@ -2712,7 +2778,7 @@ let _pendingTabTarget = null;
 let _pinGateMode = 'enter'; // 'enter' | 'create' | 'change'
 
 function activateTab(idx){
-  const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes','flujocaja','balancegeneral'].includes(idx);
+  const esProtegida = (typeof idx==='number') || ['cuentas','rentabilidad','consolidated','reportes','flujocaja','balancegeneral','comparativo'].includes(idx);
   if(esProtegida && !_pinUnlockedThisSession){
     _pendingTabTarget = idx;
     openPinGate(S.securityPin ? 'enter' : 'create');
@@ -2829,6 +2895,7 @@ function _activateTabReal(idx){
     if(idx==='rentabilidad') renderRentabilidad();
     if(idx==='reportes') renderReportes();
     if(idx==='consolidated') renderConsolidated();
+    if(idx==='comparativo') renderComparativo();
     if(idx==='contabilidad') renderContabilidad();
     if(idx==='flujocaja') renderFlujoCaja();
     if(idx==='balancegeneral') renderBalanceGeneral();
@@ -4070,50 +4137,105 @@ function allCXPItems(){
 // ══════════════════ ANTIGÜEDAD DE SALDOS (AGING) ══════════════════
 // Agrupa los saldos pendientes en tramos según cuántos días llevan vencidos (o por vencer).
 // Estándar contable: Corriente (no vencida) · 1-30 · 31-60 · 61-90 · 90+ días.
+// ══════════════════ ANTIGÜEDAD DE SALDOS (AGING) — con detalle clickeable ══════════════════
+let _agingData = { cxc:null, cxp:null }; // guarda los ítems de cada tramo para poder abrir el modal
+
 function bucketAntiguedad(items, dueField, pendingFn){
   const hoy = new Date(today()+'T00:00:00');
-  const buckets = {corriente:0, d1_30:0, d31_60:0, d61_90:0, d90mas:0};
+  const buckets = {
+    corriente:{total:0, items:[]}, d1_30:{total:0, items:[]}, d31_60:{total:0, items:[]},
+    d61_90:{total:0, items:[]}, d90mas:{total:0, items:[]}
+  };
   items.forEach(x=>{
     const pend = pendingFn(x);
     if(pend<=0) return;
     const due = x[dueField];
-    if(!due){ buckets.corriente += pend; return; }
-    const dias = Math.floor((hoy - new Date(due+'T00:00:00')) / 86400000);
-    if(dias<=0)      buckets.corriente += pend;
-    else if(dias<=30) buckets.d1_30 += pend;
-    else if(dias<=60) buckets.d31_60 += pend;
-    else if(dias<=90) buckets.d61_90 += pend;
-    else               buckets.d90mas += pend;
+    let dias = 0, tramo = 'corriente';
+    if(due){
+      dias = Math.floor((hoy - new Date(due+'T00:00:00')) / 86400000);
+      if(dias<=0) tramo='corriente';
+      else if(dias<=30) tramo='d1_30';
+      else if(dias<=60) tramo='d31_60';
+      else if(dias<=90) tramo='d61_90';
+      else tramo='d90mas';
+    }
+    buckets[tramo].total += pend;
+    buckets[tramo].items.push({item:x, pend, dias, due});
   });
   return buckets;
 }
-function renderAgingWidget(elId, buckets){
-  const total = buckets.corriente+buckets.d1_30+buckets.d31_60+buckets.d61_90+buckets.d90mas;
-  const tramos = [
-    {label:'Corriente', val:buckets.corriente, color:'#4ade80'},
-    {label:'1-30 días',  val:buckets.d1_30,     color:'#fdc901'},
-    {label:'31-60 días', val:buckets.d31_60,    color:'#f97316'},
-    {label:'61-90 días', val:buckets.d61_90,    color:'#ef4444'},
-    {label:'90+ días',   val:buckets.d90mas,    color:'#b91c1c'},
-  ];
+const AGING_TRAMOS = [
+  {key:'corriente', label:'Corriente', color:'#4ade80'},
+  {key:'d1_30',     label:'1-30 días', color:'#fdc901'},
+  {key:'d31_60',    label:'31-60 días',color:'#f97316'},
+  {key:'d61_90',    label:'61-90 días',color:'#ef4444'},
+  {key:'d90mas',    label:'90+ días',  color:'#b91c1c'},
+];
+function renderAgingWidget(elId, buckets, tipo){
+  const total = AGING_TRAMOS.reduce((s,t)=>s+buckets[t.key].total,0);
   document.getElementById(elId).innerHTML = total<=0
     ? `<div class="empty-state">Sin saldos pendientes.</div>`
-    : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">${tramos.map(t=>`
-      <div style="text-align:center;padding:12px 8px;background:var(--surface3);border-radius:8px;border-top:3px solid ${t.color};">
+    : `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">${AGING_TRAMOS.map(t=>{
+        const b=buckets[t.key];
+        const clickable = b.total>0;
+        return `<div onclick="${clickable?`openAgingModal('${tipo}','${t.key}')`:''}" style="text-align:center;padding:12px 8px;background:var(--surface3);border-radius:8px;border-top:3px solid ${t.color};${clickable?'cursor:pointer;transition:transform .12s,background .12s;':'opacity:.55;'}" ${clickable?`onmouseover="this.style.background='rgba(255,255,255,.05)';this.style.transform='translateY(-2px)';" onmouseout="this.style.background='var(--surface3)';this.style.transform='none';"`:''}>
         <div style="font-size:13px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">${t.label}</div>
-        <div style="font-family:var(--mono);font-size:17px;font-weight:600;color:${t.color};">${fmt(t.val)}</div>
-        <div style="font-size:12px;color:#6b7a99;margin-top:2px;">${total>0?(t.val/total*100).toFixed(0):0}%</div>
-      </div>`).join('')}</div>`;
+        <div style="font-family:var(--mono);font-size:17px;font-weight:600;color:${t.color};">${fmt(b.total)}</div>
+        <div style="font-size:12px;color:#6b7a99;margin-top:2px;">${total>0?(b.total/total*100).toFixed(0):0}% ${clickable?'· Ver detalle':''}</div>
+      </div>`;}).join('')}</div>`;
 }
 function renderCxCAging(){
   const pendientes = S.cuentasCobrar.filter(x=>cxcSt(x)!=='pagada');
   const buckets = bucketAntiguedad(pendientes, 'due', cxcPending);
-  renderAgingWidget('cxc-aging', buckets);
+  _agingData.cxc = buckets;
+  renderAgingWidget('cxc-aging', buckets, 'cxc');
 }
 function renderCxPAging(){
   const pendientes = allCXPItems().filter(x=>x.estado!=='pagada');
   const buckets = bucketAntiguedad(pendientes, 'vence', cxpPending);
-  renderAgingWidget('cxp-aging', buckets);
+  _agingData.cxp = buckets;
+  renderAgingWidget('cxp-aging', buckets, 'cxp');
+}
+
+const CXP_TIPO_LABELS = {proveedores:'Proveedor', serviciosFijos:'Servicio Fijo', prestamos:'Préstamo', otros:'Otro'};
+function cxpItemTipo(item){
+  for(const k of ['proveedores','serviciosFijos','prestamos','otros']){
+    if(S.cuentasPagar[k].includes(item)) return CXP_TIPO_LABELS[k];
+  }
+  return '—';
+}
+function openAgingModal(tipo, tramoKey){
+  const bucket = _agingData[tipo] && _agingData[tipo][tramoKey];
+  if(!bucket || !bucket.items.length) return;
+  const tramo = AGING_TRAMOS.find(t=>t.key===tramoKey);
+  const rows = [...bucket.items].sort((a,b)=>b.dias-a.dias);
+
+  const headerCells = tipo==='cxc'
+    ? '<th>N° Factura</th><th>Cliente</th><th>Vencimiento</th><th>Días</th><th>Pendiente</th>'
+    : '<th>Entidad</th><th>Concepto</th><th>Tipo</th><th>Vencimiento</th><th>Días</th><th>Pendiente</th>';
+
+  const bodyRows = rows.map(r=>{
+    const diasTxt = r.dias<=0 ? '<span style="color:#4ade80;">al día</span>' : `<span style="color:${tramo.color};">${r.dias}d</span>`;
+    if(tipo==='cxc'){
+      return `<tr><td class="td-mono" style="color:#818cf8;">${esc(r.item.invoice)||'—'}</td><td>${esc(r.item.client||r.item.clienteNombre)||'—'}</td><td class="td-mono">${fmtDate(r.due)}</td><td>${diasTxt}</td><td class="td-mono" style="font-weight:600;">${fmt(r.pend)}</td></tr>`;
+    } else {
+      return `<tr><td>${esc(r.item.nombre)||'—'}</td><td style="max-width:180px;">${esc(r.item.concepto)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${cxpItemTipo(r.item)}</span></td><td class="td-mono">${fmtDate(r.due)}</td><td>${diasTxt}</td><td class="td-mono" style="font-weight:600;">${fmt(r.pend)}</td></tr>`;
+    }
+  }).join('');
+
+  document.getElementById('agingModalTitle').textContent = `${tipo==='cxc'?'Cuentas por Cobrar':'Cuentas por Pagar'} · ${tramo.label}`;
+  document.getElementById('agingModalSubtitle').textContent = `${rows.length} ${rows.length===1?'documento':'documentos'} · Total: ${fmt(bucket.total)}`;
+  document.getElementById('agingModalTotal').textContent = fmt(bucket.total);
+  document.getElementById('agingModalTotal').style.color = tramo.color;
+  document.getElementById('agingModalTableHead').innerHTML = `<tr>${headerCells}</tr>`;
+  document.getElementById('agingModalTableBody').innerHTML = bodyRows;
+  const modalBox = document.getElementById('agingModalBox');
+  modalBox.style.borderColor = tramo.color;
+  document.getElementById('agingModalDot').style.background = tramo.color;
+  document.getElementById('agingModalOverlay').classList.add('open');
+}
+function closeAgingModal(){
+  document.getElementById('agingModalOverlay').classList.remove('open');
 }
 
 
@@ -4668,6 +4790,143 @@ function confirmCXPPayment(){
 
 
 // ══════════════════ CONSOLIDATED ══════════════════
+// ══════════════════ COMPARATIVO INGRESOS VS EGRESOS ══════════════════
+// "Venta Real" reconoce el ingreso el día que se facturó (issued), no el día que se cobró —
+// evita que una factura corporativa cobrada semanas después distorsione el día real de la venta.
+// Los egresos siempre usan su fecha real de pago en ambos modos (ahí no hay distorsión que corregir).
+let _compPeriodo='diario', _compBase='ventareal';
+
+function getIngresosFlatComp(base){
+  if(base==='efectivo') return S.ingresos.map(x=>({fecha:x.fecha, monto:x.monto}));
+  const arr=[];
+  S.cuentasCobrar.forEach(x=>{ if(x.issued) arr.push({fecha:x.issued, monto:x.amount}); });
+  S.ingresos.filter(x=>x.fuente!=='cxc').forEach(x=>arr.push({fecha:x.fecha, monto:x.monto}));
+  return arr;
+}
+function getEgresosFlatComp(){ return S.egresos.map(x=>({fecha:x.fecha, monto:x.monto})); }
+
+function stepBackHalfMonth(h){
+  if(h.second) return {y:h.y, m:h.m, second:false};
+  let m=h.m-1, y=h.y; if(m<0){m=11;y--;}
+  return {y, m, second:true};
+}
+const MESES_CORTOS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function bucketByPeriodoComp(periodo){
+  const now=new Date(today()+'T00:00:00');
+  const buckets=[];
+  if(periodo==='diario'){
+    for(let i=29;i>=0;i--){
+      const d=new Date(now); d.setDate(d.getDate()-i);
+      const ds=d.toISOString().slice(0,10);
+      buckets.push({label:fmtDate(ds), start:ds, end:ds});
+    }
+  } else if(periodo==='semanal'){
+    const dow=(now.getDay()+6)%7; // 0=lunes
+    const thisMonday=new Date(now); thisMonday.setDate(now.getDate()-dow);
+    for(let i=11;i>=0;i--){
+      const start=new Date(thisMonday); start.setDate(thisMonday.getDate()-7*i);
+      const end=new Date(start); end.setDate(start.getDate()+6);
+      const ss=start.toISOString().slice(0,10), es=end.toISOString().slice(0,10);
+      buckets.push({label:`${fmtDate(ss)} – ${fmtDate(es)}`, start:ss, end:es});
+    }
+  } else if(periodo==='quincenal'){
+    let cur={y:now.getFullYear(), m:now.getMonth(), second:now.getDate()>15};
+    const halves=[cur];
+    for(let i=0;i<5;i++){ cur=stepBackHalfMonth(cur); halves.unshift(cur); }
+    halves.forEach(h=>{
+      const lastDay=new Date(h.y,h.m+1,0).getDate();
+      const mm=String(h.m+1).padStart(2,'0');
+      const start=h.second?`${h.y}-${mm}-16`:`${h.y}-${mm}-01`;
+      const end=h.second?`${h.y}-${mm}-${lastDay}`:`${h.y}-${mm}-15`;
+      buckets.push({label:`${h.second?'16':'1'}-${h.second?lastDay:'15'} ${MESES_CORTOS[h.m]}`, start, end});
+    });
+  } else if(periodo==='mensual'){
+    for(let i=11;i>=0;i--){
+      const d=new Date(now.getFullYear(), now.getMonth()-i, 1);
+      const y=d.getFullYear(), m=d.getMonth(), lastDay=new Date(y,m+1,0).getDate();
+      const mm=String(m+1).padStart(2,'0');
+      buckets.push({label:`${MESES_CORTOS[m]} ${y}`, start:`${y}-${mm}-01`, end:`${y}-${mm}-${lastDay}`});
+    }
+  }
+  return buckets;
+}
+function sumInRangeComp(flat,start,end){ return flat.filter(x=>x.fecha>=start&&x.fecha<=end).reduce((s,x)=>s+x.monto,0); }
+
+function setCompPeriodo(p){
+  _compPeriodo=p;
+  document.querySelectorAll('#comp-periodo-tabs .acct-tab').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderComparativo();
+}
+function setCompBase(b){
+  _compBase=b;
+  document.querySelectorAll('#comp-base-tabs .acct-tab').forEach(btn=>btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderComparativo();
+}
+
+function renderComparativo(){
+  document.getElementById('comp-base-explicacion').textContent = _compBase==='ventareal'
+    ? 'Mostrando "Venta Real": cada venta cuenta el día que se facturó, sin importar cuándo se cobró. Los egresos siempre cuentan el día que se pagaron.'
+    : 'Mostrando "Efectivo": cada movimiento cuenta el día exacto en que el dinero entró o salió del banco — igual que Flujo de Caja.';
+
+  const ingFlat=getIngresosFlatComp(_compBase), egrFlat=getEgresosFlatComp();
+  const buckets=bucketByPeriodoComp(_compPeriodo);
+  const filas=buckets.map(b=>{
+    const ing=sumInRangeComp(ingFlat,b.start,b.end);
+    const egr=sumInRangeComp(egrFlat,b.start,b.end);
+    const neto=ing-egr;
+    const conActividad = ing>0||egr>0;
+    let color='#4a5578'; // sin actividad
+    if(conActividad){
+      if(neto<0) color='#ef4444';
+      else if(ing<=0 || neto/ing<0.15) color='#fdc901';
+      else color='#4ade80';
+    }
+    return {...b, ing, egr, neto, conActividad, color};
+  });
+
+  const totalIng=filas.reduce((s,f)=>s+f.ing,0);
+  const totalEgr=filas.reduce((s,f)=>s+f.egr,0);
+  const totalNeto=totalIng-totalEgr;
+  const conActividadArr=filas.filter(f=>f.conActividad);
+  const positivos=conActividadArr.filter(f=>f.color!=='#ef4444').length;
+
+  document.getElementById('comp-total-ing').textContent=fmt(totalIng);
+  document.getElementById('comp-total-egr').textContent=fmt(totalEgr);
+  const netoEl=document.getElementById('comp-total-neto');
+  netoEl.textContent=(totalNeto>=0?'+':'')+fmt(totalNeto);
+  netoEl.className='bcard-value '+(totalNeto>=0?'positive':'negative');
+  document.getElementById('comp-dias-positivos').textContent=`${positivos} / ${conActividadArr.length}`;
+
+  const tituloMap={diario:'Detalle por Día',semanal:'Detalle por Semana',quincenal:'Detalle por Quincena',mensual:'Detalle por Mes'};
+  document.getElementById('comp-tabla-title').textContent=tituloMap[_compPeriodo];
+
+  const maxVal=Math.max(1,...filas.map(f=>Math.max(f.ing,f.egr)));
+  document.getElementById('comp-bars').innerHTML=`
+    <div style="display:grid;grid-template-columns:120px 1fr 1fr 130px;gap:14px;padding:0 0 8px;font-size:12px;color:#6b7a99;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border2);">
+      <div>Período</div><div>Ingresos</div><div>Egresos</div><div style="text-align:right;">Neto</div>
+    </div>
+    ${filas.map(f=>`
+    <div style="display:grid;grid-template-columns:120px 1fr 1fr 130px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border2);">
+      <div style="font-size:13px;color:#c0c6d8;">${f.label}</div>
+      <div>
+        <div style="background:var(--surface3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#4ade80;height:100%;width:${(f.ing/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:12px;color:#4ade80;margin-top:2px;font-family:var(--mono);">${fmt(f.ing)}</div>
+      </div>
+      <div>
+        <div style="background:var(--surface3);border-radius:4px;height:16px;overflow:hidden;"><div style="background:#ef4444;height:100%;width:${(f.egr/maxVal*100).toFixed(1)}%;opacity:.85;"></div></div>
+        <div style="font-size:12px;color:#ef4444;margin-top:2px;font-family:var(--mono);">${fmt(f.egr)}</div>
+      </div>
+      <div style="text-align:right;">
+        <span style="display:inline-block;padding:4px 10px;border-radius:5px;background:${f.color}22;color:${f.color};font-family:var(--mono);font-weight:700;font-size:13px;">${f.conActividad?(f.neto>=0?'+':'')+fmt(f.neto):'—'}</span>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+
 function renderConsolidated(){
   const gt=document.getElementById('globalTotals');
   const grid=document.getElementById('consolidatedGrid');
