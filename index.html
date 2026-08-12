@@ -844,7 +844,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <option value="materiales">Materiales</option>
             <option value="nomina">Nómina & Salarios</option>
             <option value="alquiler">Alquiler</option>
-            <option value="luz">Luz / Electricidad</option>
+            <option value="luz">Electricidad</option>
             <option value="internet">Internet</option>
             <option value="telefono">Teléfono</option>
             <option value="combustible">Combustible</option>
@@ -1416,7 +1416,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
             <option value="materiales">Materiales & Suministros</option>
             <option value="nomina">Nómina & Salarios</option>
             <option value="alquiler">Alquiler & Local</option>
-            <option value="luz">Luz / Electricidad</option>
+            <option value="luz">Electricidad</option>
             <option value="internet">Internet</option>
             <option value="telefono">Teléfono</option>
             <option value="combustible">Combustible</option>
@@ -1498,7 +1498,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="materiales">Materiales</option>
           <option value="nomina">Nómina</option>
           <option value="alquiler">Alquiler</option>
-          <option value="luz">Luz / Electricidad</option>
+          <option value="luz">Electricidad</option>
           <option value="internet">Internet</option>
           <option value="telefono">Teléfono</option>
           <option value="combustible">Combustible</option>
@@ -3964,7 +3964,7 @@ const CXP_CONFIG = {
       {id:'vence',     label:'Fecha Vencimiento',       type:'date',  span:1},
       {id:'metodo',    label:'Forma de Pago',           type:'select',span:1, options:['Transferencia','Efectivo','Cheque','Tarjeta de Crédito']},
       {id:'referencia',label:'RNC / Referencia',        type:'text',  span:2, placeholder:'RNC del proveedor o referencia...'},
-      {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Materiales','Nómina','Alquiler','Luz / Electricidad','Internet','Teléfono','Combustible','Equipos','Subcontratación','Publicidad','Impuestos','Contabilidad','Transportación','Otros']},
+      {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Materiales','Nómina','Alquiler','Electricidad','Internet','Teléfono','Combustible','Equipos','Subcontratación','Publicidad','Impuestos','Contabilidad','Transportación','Otros']},
     ],
     headers: ['Proveedor','Concepto','Categoría','Monto','Fecha','Método','Cuenta','Estado',''],
   },
@@ -3980,7 +3980,7 @@ const CXP_CONFIG = {
       {id:'fecha',     label:'Fecha del Período',        type:'date',  span:1},
       {id:'vence',     label:'Fecha Vencimiento',        type:'date',  span:1},
       {id:'metodo',    label:'Forma de Pago',            type:'select',span:1, options:['Transferencia','Efectivo','Tarjeta de Crédito','Débito Automático']},
-      {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Luz / Electricidad','Internet','Teléfono','Alquiler','Combustible','Materiales','Nómina','Impuestos','Otros']},
+      {id:'categoriaEgreso',label:'Categoría de Egreso',type:'select',span:2, options:['Electricidad','Internet','Teléfono','Alquiler','Combustible','Materiales','Nómina','Impuestos','Otros']},
     ],
     headers: ['Servicio','N° Cuenta','Descripción','Categoría','Monto','Período','Vencimiento','Método','Cuenta Pago','Estado',''],
   },
@@ -4052,6 +4052,16 @@ function buildCXPForm(section){
       input = `<select id="cxp-f-${f.id}">${opts.map(o=>`<option value="${o.toLowerCase().replace(/ /g,'_')}">${o}</option>`).join('')}</select>`;
     } else if(f.type==='date'){
       input = `<input autocomplete="off" type="date" id="cxp-f-${f.id}" value="${today()}" onclick="cdpOpen(this,event)">`;
+    } else if(f.type==='number' && (f.id==='monto'||f.id==='saldo')){
+      // Monto/Saldo: campo de texto con formato de coma de miles (igual que el resto del sistema) —
+      // un <input type="number"> nativo ni siquiera permite escribir la coma.
+      input = `<input autocomplete="off" type="text" inputmode="decimal" id="cxp-f-${f.id}" placeholder="${f.placeholder||''}" oninput="formatMontoInput(this)">`;
+    } else if(f.type==='text' && f.id==='nombre'){
+      // Recuerda nombres ya usados (ej. "EDEESTE") para no tener que volver a escribirlos —
+      // se autogenera de lo que ya está registrado en esta misma sección de CxP.
+      const nombresPrevios=[...new Set(S.cuentasPagar[section].map(x=>x.nombre).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+      input = `<input autocomplete="off" type="text" id="cxp-f-${f.id}" list="cxp-nombre-datalist" placeholder="${f.placeholder||''}">
+        <datalist id="cxp-nombre-datalist">${nombresPrevios.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
     } else {
       input = `<input autocomplete="off" type="${f.type}" id="cxp-f-${f.id}" placeholder="${f.placeholder||''}" min="0" step="${f.type==='number'?'0.01':''}">`;
     }
@@ -4091,7 +4101,8 @@ function addCXP(){
   const fieldsData = {};
   cfg.fields.forEach(f=>{
     const el = document.getElementById(`cxp-f-${f.id}`);
-    fieldsData[f.id] = f.type==='number' ? (parseFloat(el?.value)||0) : (el?.value||'');
+    if(f.type==='number' && (f.id==='monto'||f.id==='saldo')) fieldsData[f.id] = numVal(el)||0;
+    else fieldsData[f.id] = f.type==='number' ? (parseFloat(el?.value)||0) : (el?.value||'');
   });
   if(!fieldsData.nombre || !fieldsData.monto){ notify('error','Campos Requeridos','Completa al menos Nombre y Monto.'); return; }
 
@@ -4130,7 +4141,9 @@ function editCXPItem(section,id){
   const cfg = CXP_CONFIG[section];
   cfg.fields.forEach(f=>{
     const el = document.getElementById(`cxp-f-${f.id}`);
-    if(el) el.value = item[f.id] ?? '';
+    if(!el) return;
+    if(f.type==='number' && (f.id==='monto'||f.id==='saldo')) setMontoValue(el, item[f.id]||0);
+    else el.value = item[f.id] ?? '';
   });
   document.getElementById('cxpFormTitle').textContent = `Editando: ${item.nombre}`;
   renderCxpFormActions();
@@ -4739,7 +4752,7 @@ function confirmCXPPayment(){
 
   // Check if fully paid now
   const newPending = cxpPending(item);
-  let prestamoRolledOver = false, prestamoSaldado = false, capitalAbonado = 0;
+  let prestamoRolledOver = false, prestamoSaldado = false, capitalAbonado = 0, servicioRolledOver = false;
   if(newPending <= 0.009) {
     if(_cxpPaySection === 'prestamos'){
       // Piloto automático de préstamos: al saldar la cuota, calcula el interés del
@@ -4763,6 +4776,20 @@ function confirmCXPPayment(){
         item.pagos = []; // arranca limpio el próximo ciclo de cuota
         prestamoRolledOver = true;
       }
+    } else if(_cxpPaySection === 'serviciosFijos'){
+      // Piloto automático de Servicios Fijos: al pagar, pregunta (sin bloquear) el monto del
+      // próximo período y deja el registro listo para el siguiente ciclo. Si todavía no llega
+      // la factura, se puede dejar vacío — igual avanza, usando el mismo monto por ahora, y se
+      // corrige después con el botón ✏️ Editar cuando se sepa el monto real.
+      const respuesta = prompt(`¿Ya sabes el monto de "${item.nombre}" para el próximo período? (déjalo vacío si aún no llega la factura — se puede corregir después con Editar)`, '');
+      const montoIngresado = respuesta!=null ? (numVal({value:respuesta})||0) : 0;
+      item.monto = montoIngresado>0 ? montoIngresado : item.monto;
+      item.vence = advanceOneMonth(item.vence);
+      if(item.fecha) item.fecha = advanceOneMonth(item.fecha);
+      item.estado = 'pendiente';
+      item.paidDate = null;
+      item.pagos = [];
+      servicioRolledOver = true;
     } else {
       item.estado = 'pagada';
       item.paidDate = date;
@@ -4802,10 +4829,12 @@ function confirmCXPPayment(){
     pdetail += `<br>🎉 Préstamo saldado por completo.`;
   } else if(prestamoRolledOver){
     pdetail += `<br>Capital abonado: <strong>${fmt(capitalAbonado)}</strong> · Nuevo saldo: <strong>${fmt(item.saldo)}</strong> · Próximo vencimiento: <strong>${fmtDate(item.vence)}</strong>`;
+  } else if(servicioRolledOver){
+    pdetail += `<br>Próximo período: <strong>${fmt(item.monto)}</strong> · Vence: <strong>${fmtDate(item.vence)}</strong>`;
   } else {
     pdetail += `<br>Factura completamente saldada`;
   }
-  notify(isPartial?'info':'success', isPartial?'Abono Registrado':(prestamoRolledOver?'Cuota Pagada · Ciclo Renovado':'Pago Completo'), pdetail);
+  notify(isPartial?'info':'success', isPartial?'Abono Registrado':(prestamoRolledOver?'Cuota Pagada · Ciclo Renovado':servicioRolledOver?'Pagado · Próximo Período Listo':'Pago Completo'), pdetail);
 }
 
 
@@ -5320,7 +5349,7 @@ function renderSuplidores(){
 
 // ══════════════════ INGRESOS ══════════════════
 const ING_CAT_LABELS={offset:'Impresión Offset',rot_vehicular:'Rotulación Vehicular',senaletica:'Señalética',rotulos_gen:'Rótulos Genéricos',diseño:'Diseño & Branding',exterior:'Publicidad Exterior',rotulos3d:'Rótulos 3D PVC',cristales:'Rotulación Cristales y Murales',acrilicas:'Placas Acrílicas',otros:'Otros'};
-const EGR_CAT_LABELS={materiales:'Materiales',nomina:'Nómina',alquiler:'Alquiler',luz:'Luz / Electricidad',internet:'Internet',telefono:'Teléfono',combustible:'Combustible',equipos:'Equipos',subcontratacion:'Subcontratación',publicidad:'Publicidad',impuestos:'Impuestos',contabilidad:'Contabilidad',transporte:'Transportación',impresion_offset:'Impresión Offset',impresion_gran_formato:'Gran Formato',impresion_digital:'Impresión Digital',rotulacion_egr:'Rotulación',instalacion:'Instalación',otros:'Otros'};
+const EGR_CAT_LABELS={materiales:'Materiales',nomina:'Nómina',alquiler:'Alquiler',luz:'Electricidad',internet:'Internet',telefono:'Teléfono',combustible:'Combustible',equipos:'Equipos',subcontratacion:'Subcontratación',publicidad:'Publicidad',impuestos:'Impuestos',contabilidad:'Contabilidad',transporte:'Transportación',impresion_offset:'Impresión Offset',impresion_gran_formato:'Gran Formato',impresion_digital:'Impresión Digital',rotulacion_egr:'Rotulación',instalacion:'Instalación',otros:'Otros'};
 
 // ══════════════════ PLAN DE CUENTAS ══════════════════
 // Categorías reservadas cuyo código contable NUNCA se remapea desde la UI
@@ -5406,7 +5435,7 @@ function getCatLabel(key,list){
   return found?found.label:key||'—';
 }
 // Traduce categoriaEgreso de un ítem de CxP (guardado como lo normaliza el <select>,
-// ej. 'luz_/_electricidad') a su etiqueta legible ('Luz / Electricidad'). Antes esta
+// ej. 'luz_/_electricidad') a su etiqueta legible ('Electricidad'). Antes esta
 // función se llamaba en la tabla de CxP pero nunca se había definido — rompía el
 // renderizado silenciosamente y por eso la columna Categoría nunca se veía.
 function catLabel(x){
@@ -5958,7 +5987,7 @@ function _procederConFacturaCompra(proveedorSelVal,proveedorNombre,ncf,numFactur
     const nombreSel=document.getElementById('cxp-f-nombre');
     if(nombreSel) nombreSel.value=proveedorNombre;
     document.getElementById('cxp-f-concepto').value=desc||`Fact. ${numFactura||ncf||''}`;
-    document.getElementById('cxp-f-monto').value=total.toFixed(2);
+    setMontoValue('cxp-f-monto',total);
     document.getElementById('cxp-f-fecha').value=fechaEmision;
     document.getElementById('cxp-f-vence').value=fechaVencimiento||fechaEmision;
     document.getElementById('cxp-f-referencia').value=[ncf,numFactura].filter(Boolean).join(' · ');
