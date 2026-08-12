@@ -1721,6 +1721,15 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <div id="bg-cuadre" style="margin-bottom:24px;"></div>
 
+  <div class="add-form" style="margin-bottom:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleBgDiagnostico()">
+      <h3 style="margin:0;">🔍 Diagnóstico Detallado</h3>
+      <span id="bg-diag-toggle-icon" style="color:#818cf8;font-size:20px;">▸</span>
+    </div>
+    <p style="font-size:14px;color:#6b7a99;margin:6px 0 0;">Cada número que compone Activos, Pasivos y Capital — útil para comparar día a día si algo se movió inesperadamente.</p>
+    <div id="bg-diagnostico" style="display:none;margin-top:16px;"></div>
+  </div>
+
   <div class="add-form">
     <h3>Activos Fijos — Maquinaria y Equipo (1040)</h3>
     <p style="font-size:15px;color:#9ca3af;margin:6px 0 16px;">Estas máquinas forman parte de tu Capital de Apertura (3010), junto con el Saldo Inicial que le pusiste a tus cuentas bancarias — ambos representan valor que ya existía antes de este sistema.</p>
@@ -4617,11 +4626,23 @@ function renderBalanceGeneral(){
 
   // ── CAPITAL ──
   const saldosInicialesCuentas = S.accounts.reduce((s,acc)=>s+(acc.initialBalance||0),0);
+  // "Corte de Balance" ajusta el saldo real de una cuenta sin pasar por Ingresos/Egresos — sin
+  // esto, ese ajuste queda flotando en Activos sin contraparte en Capital, descuadrando el
+  // Balance. Se trata como lo que realmente es: un nuevo punto de partida de capital, igual que
+  // los Saldos Iniciales de Cuentas.
+  let ajustesDeCorte=0;
+  S.accounts.forEach(acc=>{
+    (acc.transactions||[]).forEach(t=>{
+      if((t.desc||'').startsWith('Ajuste de corte')){
+        ajustesDeCorte += t.type==='ingreso' ? t.amount : -t.amount;
+      }
+    });
+  });
   const prestamosAperturaBHD = S.cuentasPagar.prestamos.filter(p=>{
     const c=(p.concepto||'').trim().toUpperCase();
     return (c.includes('TINTIN')||c.includes('PILY'))&&p.estado!=='pagada';
   }).reduce((s,p)=>s+(parseFloat(p.saldo)||0),0);
-  const capitalTitular = totalActivosFijos + saldosInicialesCuentas - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial, menos deuda que ya existía en ese momento
+  const capitalTitular = totalActivosFijos + saldosInicialesCuentas + ajustesDeCorte - prestamosAperturaBHD; // Balance de apertura: máquinas + efectivo inicial + ajustes de corte, menos deuda que ya existía en ese momento
   const ingresosNetosHistoricos = S.ingresos.reduce((s,x)=>s+x.monto-( x.itbis||0),0);
   const egresosHistoricos = S.egresos.reduce((s,x)=>s+x.monto,0);
   const utilidadesRetenidas = ingresosNetosHistoricos - egresosHistoricos;
@@ -4649,7 +4670,7 @@ function renderBalanceGeneral(){
     <div class="add-form" style="margin-bottom:0;">
       <h3 style="color:#818cf8;">CAPITAL</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3010 Capital del Titular</span><span class="td-mono">${fmt(capitalTitular)}</span></div>
-      <div style="padding:0 0 8px 12px;font-size:15px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)} − Préstamos de Apertura: ${fmt(prestamosAperturaBHD)}</div>
+      <div style="padding:0 0 8px 12px;font-size:15px;color:#6b7a99;border-bottom:1px solid var(--border2);">Máquinas y Equipo: ${fmt(totalActivosFijos)} + Saldos Iniciales de Cuentas: ${fmt(saldosInicialesCuentas)}${ajustesDeCorte!==0?` ${ajustesDeCorte>=0?'+':'−'} Ajustes de Corte de Balance: ${fmt(Math.abs(ajustesDeCorte))}`:''} − Préstamos de Apertura: ${fmt(prestamosAperturaBHD)}</div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3020 Utilidades Retenidas</span><span class="td-mono">${fmt(utilidadesRetenidas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>3030 Distribuciones (−)</span><span class="td-mono negative">−${fmt(distribucionesHistoricas)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
@@ -4658,12 +4679,73 @@ function renderBalanceGeneral(){
   const cuadra = Math.abs(diferencia) < 0.01;
   document.getElementById('bg-cuadre').innerHTML = cuadra
     ? `<div style="border:2px solid rgba(74,222,128,.4);border-radius:12px;padding:16px;text-align:center;color:#4ade80;font-weight:600;">✅ El Balance cuadra — Activos = Pasivos + Capital</div>`
-    : `<div style="border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:16px;text-align:center;color:#ef4444;font-weight:600;">⚠️ Diferencia de cuadre: ${fmt(diferencia)} — revisa los montos manuales (Activos Fijos) o si falta registrar algún movimiento histórico.</div>`;
+    : `<div style="border:2px solid rgba(239,68,68,.4);border-radius:12px;padding:16px;text-align:center;color:#ef4444;font-weight:600;">⚠️ Diferencia de cuadre: ${fmt(diferencia)} — revisa los montos manuales (Activos Fijos), movimientos marcados como "Histórico", o ajustes de "Corte de Balance".</div>`;
 
   document.getElementById('bg-af-tbody').innerHTML = S.activosFijos.length ? S.activosFijos.map(x=>
     `<tr><td>${esc(x.nombre)}</td><td class="td-mono">${x.fecha?fmtDate(x.fecha):'—'}</td><td class="td-mono">${fmt(x.monto)}</td><td><button class="del-btn" onclick="delActivoFijo(${x.id})">×</button></td></tr>`
   ).join('') : `<tr><td colspan="4"><div class="empty-state">Sin activos fijos registrados.</div></td></tr>`;
   document.getElementById('bg-af-total').textContent = fmt(totalActivosFijos);
+
+  // ── DIAGNÓSTICO DETALLADO ── cada componente, visible por separado para comparar día a día
+  const cxpPorSeccion = {};
+  ['proveedores','serviciosFijos','prestamos','otros'].forEach(sec=>{
+    cxpPorSeccion[sec] = S.cuentasPagar[sec].filter(x=>x.estado!=='pagada').reduce((s,x)=>s+(sec==='prestamos'?(parseFloat(x.saldo)||0):cxpPending(x)),0);
+  });
+  const cxcPorCliente = {};
+  S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x)).forEach(x=>{
+    const k=x.client||x.clienteNombre||'—';
+    cxcPorCliente[k]=(cxcPorCliente[k]||0)+cxcPending(x);
+  });
+  const fila=(label,val,indent)=>`<div style="display:flex;justify-content:space-between;padding:5px 0 5px ${indent?20:0}px;border-bottom:1px solid var(--border2);font-size:14px;"><span style="color:${indent?'#8899bb':'#c0c6d8'};">${label}</span><span class="td-mono" style="color:#c0c6d8;">${fmt(val)}</span></div>`;
+  document.getElementById('bg-diagnostico').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <div style="color:#4ade80;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Activos</div>
+        ${S.accounts.map((acc,i)=>{
+          let bal=acc.initialBalance||0;
+          (acc.transactions||[]).forEach(t=>{ bal += t.type==='ingreso' ? t.amount : -t.amount; });
+          return fila(`Banco: ${esc(acc.name)}`, bal, true);
+        }).join('')}
+        ${fila('Total Bancos', saldoBancos)}
+        ${Object.keys(cxcPorCliente).length ? Object.entries(cxcPorCliente).sort((a,b)=>b[1]-a[1]).map(([k,v])=>fila(`CxC: ${esc(k)}`,v,true)).join('') : ''}
+        ${fila('Total CxC Pendiente', cxcPendiente)}
+        ${fila('Activos Fijos (# '+S.activosFijos.length+')', totalActivosFijos)}
+        <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;color:#4ade80;"><span>TOTAL ACTIVOS</span><span class="td-mono">${fmt(totalActivos)}</span></div>
+      </div>
+      <div>
+        <div style="color:#ef4444;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Pasivos</div>
+        ${fila('CxP Proveedores', cxpPorSeccion.proveedores, true)}
+        ${fila('CxP Servicios Fijos', cxpPorSeccion.serviciosFijos, true)}
+        ${fila('CxP Préstamos (saldo)', cxpPorSeccion.prestamos, true)}
+        ${fila('CxP Otros', cxpPorSeccion.otros, true)}
+        ${fila('Total CxP', cxpTotal)}
+        ${fila('ITBIS por Pagar', itbisPorPagar)}
+        ${fila('Tarjeta de Crédito', tarjetaAdeudado)}
+        <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;color:#ef4444;"><span>TOTAL PASIVOS</span><span class="td-mono">${fmt(totalPasivos)}</span></div>
+        <div style="color:#818cf8;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 6px;">Capital</div>
+        ${fila('Activos Fijos', totalActivosFijos, true)}
+        ${fila('Saldos Iniciales de Cuentas', saldosInicialesCuentas, true)}
+        ${fila('Ajustes de Corte de Balance', ajustesDeCorte, true)}
+        ${fila('− Préstamos de Apertura (TINTIN+PILY)', -prestamosAperturaBHD, true)}
+        ${fila('Capital del Titular', capitalTitular)}
+        ${fila('Ingresos Netos (histórico total, sin ITBIS)', ingresosNetosHistoricos, true)}
+        ${fila('− Egresos (histórico total)', -egresosHistoricos, true)}
+        ${fila('Utilidades Retenidas', utilidadesRetenidas)}
+        ${fila('− Distribuciones', -distribucionesHistoricas)}
+        <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;color:#818cf8;"><span>TOTAL CAPITAL</span><span class="td-mono">${fmt(totalCapital)}</span></div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:12px;border-top:2px solid var(--border2);display:flex;justify-content:space-between;font-weight:700;font-size:16px;">
+      <span style="color:${cuadra?'#4ade80':'#ef4444'};">DIFERENCIA (Activos − Pasivos − Capital)</span>
+      <span class="td-mono" style="color:${cuadra?'#4ade80':'#ef4444'};">${fmt(diferencia)}</span>
+    </div>`;
+}
+function toggleBgDiagnostico(){
+  const el=document.getElementById('bg-diagnostico');
+  const icon=document.getElementById('bg-diag-toggle-icon');
+  const abierto = el.style.display!=='none';
+  el.style.display = abierto ? 'none' : '';
+  icon.textContent = abierto ? '▸' : '▾';
 }
 
 function openCXPPayModal(section, id){
@@ -6440,9 +6522,17 @@ function buscarEntidadEnTextoCompleto(texto, lista, campoNombre){
 function encontrarCuentaPorBanco(bancoDetectado){
   if(!bancoDetectado) return null;
   const bNorm = normalizarTexto(bancoDetectado);
+  // Paso 1: coincidencia por contención completa (ej. "Popular" está dentro de "Banco Popular")
   for(let idx=0; idx<S.accounts.length; idx++){
     const aNorm = normalizarTexto(S.accounts[idx].name);
     if(aNorm && (aNorm.includes(bNorm) || bNorm.includes(aNorm))) return idx;
+  }
+  // Paso 2: coincidencia por palabra compartida (ej. "POPULAR CK" vs "Banco Popular" —
+  // ninguno contiene al otro completo, pero comparten la palabra "popular").
+  const bWords = bNorm.split(/\s+/).filter(w=>w.length>=4);
+  for(let idx=0; idx<S.accounts.length; idx++){
+    const aWords = normalizarTexto(S.accounts[idx].name).split(/\s+/).filter(w=>w.length>=4);
+    if(aWords.some(w=>bWords.includes(w))) return idx;
   }
   return null;
 }
@@ -6714,6 +6804,7 @@ function mejorCoincidenciaPorNombre(nombreDetectado, lista, campoNombre){
 function renderRevisionSuplidor(wrap){
   const p=_comp.parsed||{};
   const supMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.suplidores, 'nombre');
+  const supBancoIdx=encontrarCuentaPorBanco(p.banco);
   const pendientes=(S.cuentasPagar.proveedores||[]).filter(x=>x.estado!=='pagada'&&(!supMatch||normalizarTexto(x.nombre)===normalizarTexto(supMatch.nombre)));
   let mejorFacturaId='';
   // Solo se preselecciona una factura por coincidencia de monto cuando SÍ hay un
@@ -6745,6 +6836,9 @@ function renderRevisionSuplidor(wrap){
       <div class="form-group" id="comp-sup-cat-wrap" style="grid-column:span 2;"><label>Categoría <span style="font-weight:400;color:#6b7a99;">(solo si es Egreso suelto)</span></label>
         <select id="comp-sup-categoria"><option value="">— Elegir —</option>${getSelectableEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select>
       </div>
+      <div class="form-group" style="grid-column:span 2;"><label>Cuenta Bancaria <span style="font-weight:400;color:#6b7a99;">de donde salió el dinero</span></label>
+        <select id="comp-sup-cuenta">${S.accounts.map((a,i)=>`<option value="${i}" ${i===(supBancoIdx??0)?'selected':''}>${esc(a.name)}</option>`).join('')}</select>
+      </div>
       <div class="form-group" id="comp-sup-desc-wrap" style="grid-column:span 2;"><label>Descripción</label><input autocomplete="off" type="text" id="comp-sup-desc" value=""></div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-sup-date" value="${esc(p.fecha||today())}"></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-sup-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
@@ -6765,7 +6859,7 @@ function confirmarComprobanteSuplidor(){
   const monto=numVal('comp-sup-amount')||0;
   const fecha=document.getElementById('comp-sup-date').value;
   const ref=document.getElementById('comp-sup-ref').value.trim();
-  const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
+  const bancoIdx=parseInt(document.getElementById('comp-sup-cuenta').value); // elegido por el usuario, con la detección automática solo como sugerencia inicial
   const suplidor=suplidorId?S.suplidores.find(s=>s.id===parseInt(suplidorId)):null;
   closeComprobanteModal();
   if(invoiceId){
@@ -6777,7 +6871,7 @@ function confirmarComprobanteSuplidor(){
     document.getElementById('cxp-pay-date').value=fecha;
     document.getElementById('cxp-pay-ref').value=ref;
     document.getElementById('cxp-pay-method').value='transferencia';
-    if(bancoIdx!==null) document.getElementById('cxp-pay-account').value=bancoIdx;
+    document.getElementById('cxp-pay-account').value=bancoIdx;
   } else {
     if(!categoria){
       icgAlert('No se pudo completar el registro porque falta la Categoría del gasto. Vuelve a cargar el comprobante e indícala antes de confirmar.','Falta la Categoría');
@@ -6794,7 +6888,7 @@ function confirmarComprobanteSuplidor(){
     setMontoValue('egr-monto',monto);
     document.getElementById('egr-metodo').value='transferencia';
     onEgrMetodoChange(document.getElementById('egr-metodo'));
-    if(bancoIdx!==null) document.getElementById('egr-cuenta').value=bancoIdx;
+    document.getElementById('egr-cuenta').value=bancoIdx;
     document.getElementById('egr-ref').value=ref;
     addEgreso();
   }
@@ -6804,6 +6898,7 @@ function confirmarComprobanteSuplidor(){
 function renderRevisionCliente(wrap){
   const p=_comp.parsed||{};
   const cliMatch=buscarEntidadEnTextoCompleto(_comp.rawText, S.clientes, 'nombre');
+  const cliBancoIdx=encontrarCuentaPorBanco(p.banco);
   const pendientes=(S.cuentasCobrar||[]).filter(x=>!cxcEstaResuelta(x)&&(!cliMatch||normalizarTexto(x.client)===normalizarTexto(cliMatch.nombre)));
   let mejorFacturaId='';
   // Igual que en Suplidor: solo se preselecciona por monto cuando SÍ hay un cliente
@@ -6835,6 +6930,9 @@ function renderRevisionCliente(wrap){
         <select id="comp-cli-categoria"><option value="">— Elegir —</option>${getSelectableIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('')}</select>
       </div>
       <div class="form-group" style="grid-column:span 2;"><label>Concepto</label><input autocomplete="off" type="text" id="comp-cli-concepto" value=""></div>
+      <div class="form-group" style="grid-column:span 2;"><label>Cuenta Bancaria <span style="font-weight:400;color:#6b7a99;">donde entró el dinero</span></label>
+        <select id="comp-cli-cuenta">${S.accounts.map((a,i)=>`<option value="${i}" ${i===(cliBancoIdx??0)?'selected':''}>${esc(a.name)}</option>`).join('')}</select>
+      </div>
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="comp-cli-date" value="${esc(p.fecha||today())}"></div>
       <div class="form-group"><label>Monto (RD$)</label><input autocomplete="off" type="text" inputmode="decimal" id="comp-cli-amount" step="0.01" value="${fmtInputNum(p.monto)}" oninput="formatMontoInput(this)"></div>
       <div class="form-group" style="grid-column:span 2;"><label>Referencia</label><input autocomplete="off" type="text" id="comp-cli-ref" value="${esc(p.referencia||'')}"></div>
@@ -6852,7 +6950,7 @@ function confirmarComprobanteCliente(){
   const monto=numVal('comp-cli-amount')||0;
   const fecha=document.getElementById('comp-cli-date').value;
   const ref=document.getElementById('comp-cli-ref').value.trim();
-  const bancoIdx=encontrarCuentaPorBanco(_comp.parsed?.banco);
+  const bancoIdx=parseInt(document.getElementById('comp-cli-cuenta').value); // elegido por el usuario, con la detección automática solo como sugerencia inicial
   closeComprobanteModal();
   if(invoiceId){
     const item=S.cuentasCobrar.find(x=>String(x.id)===String(invoiceId));
@@ -6864,7 +6962,7 @@ function confirmarComprobanteCliente(){
     document.getElementById('pay-method').value='transferencia';
     onPayMethodChange(document.getElementById('pay-method'));
     calcPayNet();
-    if(bancoIdx!==null) document.getElementById('pay-bank').value=bancoIdx;
+    document.getElementById('pay-bank').value=bancoIdx;
   } else {
     if(!categoria){
       icgAlert('No se pudo completar el registro porque falta la Categoría. Vuelve a cargar el comprobante e indícala antes de confirmar.','Falta la Categoría');
@@ -6881,7 +6979,7 @@ function confirmarComprobanteCliente(){
     setMontoValue('rec-monto',monto);
     document.getElementById('rec-metodo').value='transferencia';
     onRecMetodoChange(document.getElementById('rec-metodo'));
-    if(bancoIdx!==null) document.getElementById('rec-cuenta').value=bancoIdx;
+    document.getElementById('rec-cuenta').value=bancoIdx;
     document.getElementById('rec-ref').value=ref;
     addRecibo();
   }
