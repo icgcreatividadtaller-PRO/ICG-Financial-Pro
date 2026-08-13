@@ -678,24 +678,65 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
 <div class="modal-overlay" id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
   <div class="modal" style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
-    <h3 id="pinGateTitle" style="color:#818cf8;margin:0 0 8px;font-size:18px;">Acceso Protegido</h3>
-    <p id="pinGateSubtitle" style="color:#9ca3af;font-size:15px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
-    <div id="pinGateOldWrap" style="display:none;margin-bottom:12px;">
-      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN Actual</label>
-      <input type="password" id="pin-input-old" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+    <div id="pinGateNormalView">
+      <h3 id="pinGateTitle" style="color:#818cf8;margin:0 0 8px;font-size:18px;">Acceso Protegido</h3>
+      <p id="pinGateSubtitle" style="color:#9ca3af;font-size:15px;margin:0 0 20px;line-height:1.4;">Ingresa tu PIN para continuar.</p>
+      <div id="pinGateOldWrap" style="display:none;margin-bottom:12px;">
+        <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN Actual</label>
+        <input type="password" id="pin-input-old" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label id="pinGateLabel1" style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN</label>
+        <input type="password" id="pin-input-1" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+      </div>
+      <div id="pinGateConfirmWrap" style="display:none;margin-bottom:12px;">
+        <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">Confirmar PIN</label>
+        <input type="password" id="pin-input-2" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+      </div>
+      <div id="pin-gate-error" style="color:#ef4444;font-size:15px;margin-bottom:10px;display:none;"></div>
+      <div id="pinGateForgotWrap" style="display:none;text-align:center;margin-bottom:14px;">
+        <a href="#" onclick="openPinRecovery();return false;" style="color:#818cf8;font-size:15px;text-decoration:underline;">¿Olvidaste tu PIN?</a>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="cancelPinGate()">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="confirmPinGate()">Continuar</button>
+      </div>
     </div>
-    <div style="margin-bottom:12px;">
-      <label id="pinGateLabel1" style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">PIN</label>
-      <input type="password" id="pin-input-1" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
+
+    <!-- Recuperación: pide el código de recuperación (generado una sola vez al crear el PIN,
+         guardado solo por el titular) — nunca la contraseña de la cuenta, porque cualquiera con
+         acceso al sistema (ej. un asistente) también la tendría y podría resetear el PIN. -->
+    <div id="pinGateRecoveryView" style="display:none;">
+      <h3 style="color:#818cf8;margin:0 0 8px;font-size:18px;">Recuperar Acceso</h3>
+      <p style="color:#9ca3af;font-size:15px;margin:0 0 20px;line-height:1.4;">Ingresa el código de recuperación que guardaste cuando creaste el PIN. Es distinto a tu contraseña de acceso al sistema.</p>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">Código de Recuperación</label>
+        <input type="text" id="pin-recovery-code" autocomplete="off" placeholder="XXXX-XXXX" style="width:100%;height:44px;box-sizing:border-box;padding:0 12px;text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);" onkeydown="if(event.key==='Enter')verifyPinRecovery()">
+      </div>
+      <div id="pin-recovery-error" style="color:#ef4444;font-size:15px;margin-bottom:14px;display:none;"></div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;">
+        <button class="btn btn-secondary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="closePinRecovery()">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="verifyPinRecovery()">Verificar</button>
+      </div>
+      <div id="pinNoCodeWrap" style="text-align:center;border-top:1px solid rgba(129,140,248,.15);padding-top:14px;">
+        <a href="#" onclick="startPinResetRequest();return false;" style="color:#9ca3af;font-size:15px;text-decoration:underline;">No tengo mi código de recuperación</a>
+      </div>
+      <div id="pinResetPendingWrap" style="display:none;text-align:center;border-top:1px solid rgba(129,140,248,.15);padding-top:14px;">
+        <p style="color:#fdc901;font-size:15px;margin:0 0 8px;">⏳ Ya solicitaste un reseteo de emergencia.</p>
+        <p id="pinResetPendingCountdown" style="color:#9ca3af;font-size:15px;margin:0 0 10px;"></p>
+        <button id="pinResetReadyBtn" style="display:none;width:100%;margin-bottom:8px;" class="btn btn-primary" onclick="completeDelayedPinReset()">Crear PIN Nuevo Ahora</button>
+        <a href="#" onclick="cancelPinResetRequest();return false;" style="color:#ef4444;font-size:15px;text-decoration:underline;">Cancelar esta solicitud</a>
+      </div>
     </div>
-    <div id="pinGateConfirmWrap" style="display:none;margin-bottom:12px;">
-      <label style="display:block;margin-bottom:6px;color:#9ca3af;font-size:15px;">Confirmar PIN</label>
-      <input type="password" id="pin-input-2" maxlength="8" autocomplete="off" style="width:100%;height:44px;box-sizing:border-box;text-align:center;letter-spacing:.3em;font-size:18px;" onkeydown="if(event.key==='Enter')confirmPinGate()">
-    </div>
-    <div id="pin-gate-error" style="color:#ef4444;font-size:15px;margin-bottom:14px;display:none;"></div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="cancelPinGate()">Cancelar</button>
-      <button class="btn btn-primary" style="flex:1;min-width:0;white-space:normal;text-align:center;" onclick="confirmPinGate()">Continuar</button>
+
+    <!-- Muestra el código de recuperación recién generado — una sola vez, con advertencia clara. -->
+    <div id="pinGateCodeDisplayView" style="display:none;">
+      <h3 style="color:#fdc901;margin:0 0 8px;font-size:18px;">⚠ Guarda tu Código de Recuperación</h3>
+      <p style="color:#9ca3af;font-size:15px;margin:0 0 16px;line-height:1.4;">Es la única forma de recuperar el acceso a Finanzas si olvidas el PIN. <strong style="color:#e8eeff;">No lo compartas con nadie</strong> — ni con tu asistente ni con quien tenga tu contraseña de acceso al sistema. Guárdalo en un lugar seguro fuera de esta app (papel, gestor de contraseñas, etc).</p>
+      <div style="background:rgba(129,140,248,.1);border:2px solid rgba(129,140,248,.4);border-radius:8px;padding:16px;text-align:center;margin-bottom:18px;">
+        <span id="pinGateCodeDisplay" style="font-family:var(--mono);font-size:24px;font-weight:700;color:#818cf8;letter-spacing:.15em;"></span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="closePinCodeDisplay()">Ya lo guardé</button>
     </div>
   </div>
 </div>
@@ -2022,7 +2063,6 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <option value="transferencia">Transferencia Bancaria</option>
           <option value="cheque">Cheque</option>
           <option value="efectivo">Efectivo</option>
-          <option value="historico">Histórico (no afecta ninguna cuenta)</option>
         </select>
       </div>
       <div class="form-group">
@@ -2516,6 +2556,8 @@ function defaultState() {
     catAccountMap: { ingresos:{}, egresos:{}, tarjeta:{} },
     distribuciones: [],
     securityPin: null,
+    securityPinRecoveryCode: null,
+    pinResetRequest: null, // {requestedAt, readyAt} — reseteo de emergencia con demora de 24h
     flujoCajaPlan: { salario: 0, distribucion: 0 },
     activosFijos: [],
     recibos: [],
@@ -2706,6 +2748,7 @@ function init(){
   startAutoSaveTimer();
   markSavedAt();
   setTimeout(checkVencimientosProximos, 2500);
+  renderPinResetBanner();
 }
 
 // ══════════════════ TABS ══════════════════
@@ -2803,8 +2846,11 @@ function activateTab(idx){
 function openPinGate(mode){
   _pinGateMode = mode;
   const modal=document.getElementById('pinGateModal');
+  document.getElementById('pinGateNormalView').style.display='';
+  document.getElementById('pinGateRecoveryView').style.display='none';
   document.getElementById('pinGateOldWrap').style.display = mode==='change' ? 'block' : 'none';
   document.getElementById('pinGateConfirmWrap').style.display = (mode==='create'||mode==='change') ? 'block' : 'none';
+  document.getElementById('pinGateForgotWrap').style.display = mode==='enter' ? 'block' : 'none';
   document.getElementById('pinGateTitle').textContent = mode==='create' ? 'Crear PIN de Seguridad' : mode==='change' ? 'Cambiar PIN de Seguridad' : 'Acceso Protegido';
   document.getElementById('pinGateSubtitle').textContent = mode==='create'
     ? 'Primera vez aquí — crea un PIN (mínimo 4 caracteres) para proteger Cuentas y Estado de Resultados.'
@@ -2815,6 +2861,115 @@ function openPinGate(mode){
   document.getElementById('pin-gate-error').style.display='none';
   modal.style.display='flex';
   setTimeout(()=>document.getElementById(mode==='change'?'pin-input-old':'pin-input-1').focus(),100);
+}
+// Recuperación de PIN olvidado: verifica la contraseña de la cuenta (Firebase Auth, la misma
+// con la que se entra a todo el sistema) en vez del PIN viejo, y si es correcta, permite crear
+// un PIN nuevo directamente. No es un segundo factor "real" — es la misma barrera de "ya estoy
+// autenticado en el sistema" que usa el resto del PIN, así que no debilita la seguridad real.
+function openPinRecovery(){
+  document.getElementById('pinGateNormalView').style.display='none';
+  document.getElementById('pinGateRecoveryView').style.display='';
+  document.getElementById('pin-recovery-code').value='';
+  document.getElementById('pin-recovery-error').style.display='none';
+  refreshPinResetPendingUI();
+  setTimeout(()=>document.getElementById('pin-recovery-code').focus(),100);
+}
+function closePinRecovery(){
+  document.getElementById('pinGateRecoveryView').style.display='none';
+  document.getElementById('pinGateNormalView').style.display='';
+}
+function refreshPinResetPendingUI(){
+  const pending = !!S.pinResetRequest;
+  document.getElementById('pinNoCodeWrap').style.display = pending ? 'none' : 'block';
+  document.getElementById('pinResetPendingWrap').style.display = pending ? 'block' : 'none';
+  if(!pending) return;
+  const msRestante = new Date(S.pinResetRequest.readyAt).getTime() - Date.now();
+  const readyBtn = document.getElementById('pinResetReadyBtn');
+  const countdownEl = document.getElementById('pinResetPendingCountdown');
+  if(msRestante<=0){
+    countdownEl.textContent = 'El plazo de espera ya terminó.';
+    readyBtn.style.display = 'block';
+  } else {
+    const h = Math.floor(msRestante/3600000), m = Math.floor((msRestante%3600000)/60000);
+    countdownEl.textContent = `Faltan ${h}h ${m}m para poder crear un PIN nuevo.`;
+    readyBtn.style.display = 'none';
+  }
+}
+function startPinResetRequest(){
+  icgConfirm('Esto va a programar un reseteo del PIN dentro de 24 horas. Mientras tanto, un aviso quedará visible para cualquiera que use el sistema — si no fuiste tú, se puede cancelar desde ahí. ¿Continuar?','Solicitar Reseteo de Emergencia','Solicitar',true).then(ok=>{
+    if(!ok)return;
+    const now=new Date();
+    const readyAt=new Date(now.getTime()+24*60*60*1000);
+    S.pinResetRequest={requestedAt:now.toISOString(),readyAt:readyAt.toISOString()};
+    save();
+    refreshPinResetPendingUI();
+    renderPinResetBanner();
+    notify('info','Reseteo Programado','Podrás crear un PIN nuevo en 24 horas. Revisa el aviso en la parte superior del sistema mientras tanto.');
+  });
+}
+function cancelPinResetRequest(){
+  S.pinResetRequest=null; save();
+  refreshPinResetPendingUI();
+  renderPinResetBanner();
+  notify('success','Solicitud Cancelada','El reseteo de emergencia fue cancelado.');
+}
+function completeDelayedPinReset(){
+  if(!S.pinResetRequest || new Date(S.pinResetRequest.readyAt).getTime()>Date.now()) return;
+  S.pinResetRequest=null; save();
+  document.getElementById('pinGateRecoveryView').style.display='none';
+  renderPinResetBanner();
+  openPinGate('create');
+}
+function renderPinResetBanner(){
+  let el=document.getElementById('pinResetBanner');
+  if(!S.pinResetRequest){ if(el) el.remove(); return; }
+  const msRestante = new Date(S.pinResetRequest.readyAt).getTime() - Date.now();
+  const listo = msRestante<=0;
+  if(!el){
+    el=document.createElement('div');
+    el.id='pinResetBanner';
+    el.style.cssText='position:sticky;top:0;z-index:9998;padding:10px 20px;text-align:center;font-size:15px;font-weight:600;display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;';
+    document.body.insertBefore(el, document.body.firstChild);
+  }
+  if(listo){
+    el.style.background='rgba(74,222,128,.15)'; el.style.color='#4ade80'; el.style.borderBottom='1px solid rgba(74,222,128,.35)';
+    el.innerHTML=`✅ El plazo de espera terminó — ya puedes crear un PIN nuevo. <button class="btn btn-sm" style="background:#4ade80;color:#04240f;border:none;padding:6px 14px;border-radius:5px;font-weight:700;cursor:pointer;" onclick="openPinGate('enter')">Crear PIN Nuevo</button> <a href="#" onclick="cancelPinResetRequest();return false;" style="color:#4ade80;text-decoration:underline;">¿No fuiste tú? Cancelar</a>`;
+  } else {
+    const h=Math.floor(msRestante/3600000), m=Math.floor((msRestante%3600000)/60000);
+    el.style.background='rgba(253,201,1,.12)'; el.style.color='#fdc901'; el.style.borderBottom='1px solid rgba(253,201,1,.3)';
+    el.innerHTML=`⏳ Se solicitó resetear el PIN de Finanzas — se aplicará en ${h}h ${m}m. <a href="#" onclick="cancelPinResetRequest();return false;" style="color:#fdc901;text-decoration:underline;">Si no fuiste tú, cancélalo aquí</a>`;
+  }
+}
+setInterval(()=>{ if(S.pinResetRequest){ renderPinResetBanner(); if(document.getElementById('pinGateRecoveryView')?.style.display!=='none') refreshPinResetPendingUI(); } }, 60000);
+function verifyPinRecovery(){
+  const errEl=document.getElementById('pin-recovery-error');
+  errEl.style.display='none';
+  const code=document.getElementById('pin-recovery-code').value.trim().toUpperCase();
+  if(!code){ errEl.textContent='Escribe tu código de recuperación.'; errEl.style.display='block'; return; }
+  if(!S.securityPinRecoveryCode){ errEl.textContent='Este sistema no tiene un código de recuperación guardado. No es posible recuperar el PIN por esta vía — contacta a quien te dio acceso al sistema.'; errEl.style.display='block'; return; }
+  if(code !== S.securityPinRecoveryCode){ errEl.textContent='Código incorrecto.'; errEl.style.display='block'; return; }
+  if(S.pinResetRequest){ S.pinResetRequest=null; save(); renderPinResetBanner(); }
+  document.getElementById('pinGateRecoveryView').style.display='none';
+  notify('success','Código Verificado','Ahora crea tu nuevo PIN.');
+  openPinGate('create');
+}
+// Genera un código de recuperación legible tipo XXXX-XXXX (sin caracteres ambiguos como 0/O, 1/I).
+function generateRecoveryCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code='';
+  for(let i=0;i<8;i++){ if(i===4) code+='-'; code+=chars[Math.floor(Math.random()*chars.length)]; }
+  return code;
+}
+function showPinRecoveryCode(code){
+  document.getElementById('pinGateNormalView').style.display='none';
+  document.getElementById('pinGateRecoveryView').style.display='none';
+  document.getElementById('pinGateCodeDisplayView').style.display='';
+  document.getElementById('pinGateCodeDisplay').textContent=code;
+}
+function closePinCodeDisplay(){
+  document.getElementById('pinGateModal').style.display='none';
+  document.getElementById('pinGateCodeDisplayView').style.display='none';
+  _grantPinAccess();
 }
 function cancelPinGate(){
   document.getElementById('pinGateModal').style.display='none';
@@ -2832,17 +2987,31 @@ function confirmPinGate(){
   const p2=document.getElementById('pin-input-2').value.trim();
 
   if(_pinGateMode==='enter'){
-    if(p1===S.securityPin){ document.getElementById('pinGateModal').style.display='none'; _grantPinAccess(); }
+    if(p1===S.securityPin){
+      document.getElementById('pinGateModal').style.display='none';
+      if(!S.securityPinRecoveryCode){
+        // Sistemas que ya tenían un PIN antes de que existiera el código de recuperación —
+        // se genera uno ahora, la primera vez que entra correctamente, para que nunca se quede
+        // sin forma de recuperar el acceso si olvida el PIN más adelante.
+        const code=generateRecoveryCode();
+        S.securityPinRecoveryCode=code; save();
+        showPinRecoveryCode(code);
+      } else {
+        _grantPinAccess();
+      }
+    }
     else{ errEl.textContent='PIN incorrecto.'; errEl.style.display='block'; }
     return;
   }
   if(_pinGateMode==='create'){
     if(!p1||p1.length<4){ errEl.textContent='El PIN debe tener al menos 4 caracteres.'; errEl.style.display='block'; return; }
     if(p1!==p2){ errEl.textContent='Los PIN no coinciden.'; errEl.style.display='block'; return; }
-    S.securityPin=p1; save();
-    document.getElementById('pinGateModal').style.display='none';
+    S.securityPin=p1;
+    const code=generateRecoveryCode();
+    S.securityPinRecoveryCode=code;
+    save();
     notify('success','PIN Creado','Tu PIN de seguridad quedó guardado.');
-    _grantPinAccess();
+    showPinRecoveryCode(code);
     return;
   }
   if(_pinGateMode==='change'){
@@ -3354,16 +3523,13 @@ function updateCCCards(){
 // ══════════════════ CUENTAS POR COBRAR ══════════════════
 function onPayMethodChange(sel){
   const isEfectivo = sel.value === 'efectivo';
-  const isHistorico = sel.value === 'historico';
   const bankWrap  = document.getElementById('pay-bank-wrap');
   const noteWrap  = document.getElementById('pay-efectivo-note');
-  if(bankWrap)  bankWrap.style.display  = (isEfectivo||isHistorico) ? 'none' : '';
+  if(bankWrap)  bankWrap.style.display  = isEfectivo ? 'none' : '';
   if(noteWrap){
-    noteWrap.style.display = (isEfectivo||isHistorico) ? '' : 'none';
+    noteWrap.style.display = isEfectivo ? '' : 'none';
     const noteText=noteWrap.querySelector('div');
-    if(noteText) noteText.textContent = isHistorico
-      ? 'Este cobro se registra solo para el Estado de Resultados — no toca ninguna cuenta bancaria.'
-      : 'Este cobro se registra como efectivo recibido — no toca ninguna cuenta bancaria.';
+    if(noteText) noteText.textContent = 'Este cobro se registra como efectivo recibido — no toca ninguna cuenta bancaria.';
   }
 }
 
@@ -3746,7 +3912,7 @@ function openPayModal(id){
   document.getElementById('pay-net-display').textContent=fmt(pend);
   document.getElementById('pay-ref').value='';
   const sel=document.getElementById('pay-bank');
-  sel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('');
+  sel.innerHTML=S.accounts.map((a,i)=>`<option value="${i}">${a.name}</option>`).join('')+`<option value="none">Histórico (no afecta ninguna cuenta)</option>`;
   document.getElementById('pay-date').value=today();
   document.getElementById('pay-method').value='transferencia';
   onPayMethodChange(document.getElementById('pay-method'));
@@ -3790,9 +3956,10 @@ function confirmPayment(){
   const x=S.cuentasCobrar.find(i=>i.id===_payId); if(!x)return;
   const date=document.getElementById('pay-date').value;
   const method=document.getElementById('pay-method').value;
-  const bankIdx=parseInt(document.getElementById('pay-bank').value)||0;
+  const bankSelVal=document.getElementById('pay-bank').value;
   const isEfectivo = method==='efectivo';
-  const isHistorico = method==='historico';
+  const isHistorico = bankSelVal==='none';
+  const bankIdx=isHistorico?null:(parseInt(bankSelVal)||0);
   const ref=document.getElementById('pay-ref').value.trim();
   const montoAhora=numVal('pay-monto-ahora')||0;
   const netAmount=numVal('pay-net-amount')||0;
@@ -7736,7 +7903,11 @@ function repararIngresosFaltantesDeCxC(){
       pagos.forEach(p=>{
         const yaExiste = S.ingresos.find(i=>i.fuenteId===p.id&&i.fuente==='cxc') || yaCubierto(x.client,p.date,p.netAmount);
         if(!yaExiste){
-          autoIngresoFromCxC(x, p.netAmount, p.date, p.method, p.bankIdx, p.method==='historico', p.montoBruto, p.id, p.ref||'');
+          // "Histórico" ahora se elige desde la Cuenta Bancaria (bankIdx null con método
+          // distinto a Efectivo), no desde el Método de Pago — pero se conserva la revisión
+          // del método viejo por compatibilidad con pagos registrados antes de este cambio.
+          const esHistorico = p.method==='historico' || (p.bankIdx==null && p.method!=='efectivo');
+          autoIngresoFromCxC(x, p.netAmount, p.date, p.method, p.bankIdx, esHistorico, p.montoBruto, p.id, p.ref||'');
           creados++;
         }
       });
@@ -7745,7 +7916,8 @@ function repararIngresosFaltantesDeCxC(){
       const montoLegacy = x.amountPaid!=null?x.amountPaid:x.amount;
       const yaExiste = S.ingresos.find(i=>i.fuenteId===x.id&&i.fuente==='cxc') || yaCubierto(x.client,x.paidDate,montoLegacy);
       if(!yaExiste){
-        autoIngresoFromCxC(x, montoLegacy, x.paidDate, x.payMethod||'transferencia', x.payBankIdx, x.payMethod==='historico', x.amountPaid, null, x.payRef||'');
+        const esHistoricoLegacy = x.payMethod==='historico' || (x.payBankIdx==null && x.payMethod!=='efectivo');
+        autoIngresoFromCxC(x, montoLegacy, x.paidDate, x.payMethod||'transferencia', x.payBankIdx, esHistoricoLegacy, x.amountPaid, null, x.payRef||'');
         creados++;
       }
     }
@@ -8611,6 +8783,8 @@ function ensureEstadoIntegro(){
   if(!S.catAccountMap.tarjeta)  S.catAccountMap.tarjeta={};
   if(!S.distribuciones) S.distribuciones=[];
   if(S.securityPin===undefined) S.securityPin=null;
+  if(S.securityPinRecoveryCode===undefined) S.securityPinRecoveryCode=null;
+  if(S.pinResetRequest===undefined) S.pinResetRequest=null;
   if(!S.flujoCajaPlan) S.flujoCajaPlan={salario:0,distribucion:0};
   if(!S.activosFijos) S.activosFijos=[];
   if(!S.recibos) S.recibos=[];
