@@ -941,8 +941,8 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="add-form">
     <h3>Nueva Factura</h3>
-    <!-- Row 1: NCF · Cliente · Descripción · Categoría -->
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;">
+    <!-- Row 1: NCF · Cliente · Categoría -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;">
       <!-- NCF -->
       <div class="form-group" style="width:130px;flex-shrink:0;">
         <label>NCF</label>
@@ -954,32 +954,35 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         </div>
       </div>
       <!-- Cliente + Nuevo -->
-      <div class="form-group" style="width:260px;flex-shrink:0;">
+      <div class="form-group" style="flex:2;min-width:280px;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="cxc-client" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickClienteCxC()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <!-- Descripción -->
-      <div class="form-group" style="flex:1;">
-        <label>Descripción</label>
-        <input autocomplete="off" type="text" id="cxc-desc" placeholder="Detalle del servicio o producto..." style="height:44px;box-sizing:border-box;">
-      </div>
       <!-- Categoría + -->
-      <div class="form-group" style="width:190px;flex-shrink:0;">
+      <div class="form-group" style="flex:1;min-width:220px;">
         <label>Categoría</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="cxc-categoria" style="flex:1;font-size:15px;height:44px;box-sizing:border-box;"></select>
+          <select id="cxc-categoria" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCxCCat()" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#818cf8;border-color:rgba(129,140,248,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
+    </div>
+    <!-- Row 1b: Descripción · Tipo de Venta -->
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap;">
+      <!-- Descripción -->
+      <div class="form-group" style="flex:1;min-width:260px;">
+        <label>Descripción</label>
+        <input autocomplete="off" type="text" id="cxc-desc" placeholder="Detalle del servicio o producto..." style="height:44px;box-sizing:border-box;">
+      </div>
       <!-- Tipo de Venta -->
-      <div class="form-group" style="width:230px;flex-shrink:0;">
+      <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
-          <button type="button" id="cxc-tv-corp" onclick="setTipoVenta('cxc','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
+          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="cxc-tv-corp" onclick="setTipoVenta('cxc','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="cxc-tipoventa" value="corporativa">
       </div>
@@ -1024,10 +1027,12 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
     </div>
     <div style="font-size:15px;color:#6b7a99;margin-top:2px;">El ITBIS se calcula solo al 18% del Subtotal — puedes ajustarlo a mano si tu factura trae un monto distinto. El Total siempre se recalcula automáticamente.</div>
-    <div class="form-group" style="width:260px;margin-top:12px;">
-      <label>Anticipos Ya Cobrados (RD$) — opcional</label>
-      <input autocomplete="off" type="text" inputmode="decimal" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
-      <div style="font-size:15px;color:#6b7a99;margin-top:4px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
+    <div style="display:flex;gap:16px;align-items:flex-end;margin-top:12px;flex-wrap:wrap;">
+      <div class="form-group" style="width:260px;flex-shrink:0;">
+        <label>Anticipos Ya Cobrados (RD$) — opcional</label>
+        <input autocomplete="off" type="text" inputmode="decimal" id="cxc-anticipo" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
+      </div>
+      <div style="flex:1;min-width:280px;font-size:15px;color:#6b7a99;padding-bottom:12px;">Si ya recibiste dinero de este proyecto vía Recibos de Ingreso, escribe cuánto — no se vuelve a contar como ingreso nuevo, solo reduce el pendiente de esta factura.</div>
     </div>
     <div class="form-actions" style="margin-top:16px;display:flex;gap:10px;align-items:center;">
       <button class="btn" id="cxc-submit-btn" style="background:#818cf8;color:#020510;font-weight:700;font-size:15px;padding:11px 28px;" onclick="addCXC()">Registrar Factura</button>
@@ -1037,15 +1042,17 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   </div>
   <div class="transactions-section">
     <h3>Facturas Registradas</h3>
+    <div style="display:flex;gap:6px;margin-bottom:14px;" id="cxc-view-tabs">
+      <button class="acct-tab active" id="cxc-vtab-pendientes" onclick="switchCXCView('pendientes')">🔴 Pendientes</button>
+      <button class="acct-tab" id="cxc-vtab-pagadas" onclick="switchCXCView('pagadas')">✅ Pagadas</button>
+    </div>
     <div class="filter-bar">
-      <div class="form-group"><label>Estado</label>
+      <div class="form-group" id="cxc-filter-status-wrap"><label>Estado</label>
         <select id="cxc-filter-status" onchange="renderCXC()">
-          <option value="">Todos</option>
-          <option value="por_cobrar">Por Cobrar (incl. Vencidas)</option>
+          <option value="">Todas las Pendientes</option>
+          <option value="por_cobrar">Por Cobrar (no vencidas)</option>
           <option value="vencida">Solo Vencidas</option>
-          <option value="parcial">Parcial</option>
-          <option value="pagada">Pagada</option>
-          <option value="anulada">Anulada</option>
+          <option value="parcial">Abono Parcial</option>
         </select>
       </div>
       <div class="form-group"><label>Buscar cliente</label><input autocomplete="off" type="text" id="cxc-filter-client" oninput="renderCXC()" placeholder="Buscar..." style="width:160px;"></div>
@@ -1356,14 +1363,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Fecha</label>
         <input autocomplete="off" type="date" id="rec-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:220px;flex-shrink:0;">
+      <div class="form-group" style="flex:2;min-width:260px;">
         <label>Cliente</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="rec-cliente" onchange="checkNuevoCliente(this)" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickCliente()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group" style="width:190px;flex-shrink:0;">
+      <div class="form-group" style="flex:1;min-width:200px;">
         <label>Categoría</label>
         <select id="rec-categoria" style="font-size:15px;height:44px;box-sizing:border-box;width:100%;"></select>
       </div>
@@ -1371,11 +1378,11 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Monto (RD$)</label>
         <input autocomplete="off" type="text" inputmode="decimal" id="rec-monto" placeholder="0.00" min="0" step="0.01" style="font-size:16px;font-family:var(--mono);height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
       </div>
-      <div class="form-group" style="width:230px;flex-shrink:0;">
+      <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
-          <button type="button" id="rec-tv-corp" onclick="setTipoVenta('rec','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:5px;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
+          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="rec-tv-corp" onclick="setTipoVenta('rec','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="rec-tipoventa" value="corporativa">
       </div>
@@ -1438,12 +1445,12 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <div class="add-form">
     <h3>Registrar Egreso</h3>
     <!-- Row 1: Fecha · Beneficiario · Categoría · Monto -->
-    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;">
+    <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
       <div class="form-group" style="width:140px;flex-shrink:0;">
         <label>Fecha</label>
         <input autocomplete="off" type="date" id="egr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="flex:1;">
+      <div class="form-group" style="flex:2;min-width:260px;">
         <label>Beneficiario</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="egr-suplidor" style="flex:1;min-width:0;height:44px;box-sizing:border-box;"><option value="">— Seleccionar suplidor —</option></select>
@@ -1578,14 +1585,14 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <label>Fecha</label>
         <input autocomplete="off" type="date" id="recegr-fecha" onclick="cdpOpen(this,event)" style="height:44px;box-sizing:border-box;">
       </div>
-      <div class="form-group" style="width:220px;flex-shrink:0;">
+      <div class="form-group" style="flex:2;min-width:260px;">
         <label>Beneficiario</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="recegr-suplidor" style="flex:1;min-width:0;font-size:15px;height:44px;box-sizing:border-box;"><option value="">— Seleccionar suplidor —</option></select>
           <button type="button" class="btn btn-ghost btn-sm" onclick="openQuickBeneficiario()" style="height:44px;padding:0 12px;white-space:nowrap;border-color:rgba(129,140,248,.3);color:#818cf8;flex-shrink:0;box-sizing:border-box;">+ Nuevo</button>
         </div>
       </div>
-      <div class="form-group" style="width:190px;flex-shrink:0;">
+      <div class="form-group" style="flex:1;min-width:200px;">
         <label>Categoría</label>
         <select id="recegr-categoria" style="font-size:15px;height:44px;box-sizing:border-box;width:100%;"></select>
       </div>
@@ -3772,7 +3779,7 @@ function addCXC(){
   const procederConCreacionCxC=()=>{
     const nuevaFactura={id:Date.now(),invoice,client,clientId,desc,categoria,issued,due,creditDays:days,amount,subtotal,itbis,estado:'por_cobrar',paidDate:null,payMethod:null,payBankIdx:null,pagos:[],tipoVenta:document.getElementById('cxc-tipoventa')?.value||'corporativa'};
 
-    const anticipo=parseFloat(document.getElementById('cxc-anticipo')?.value)||0;
+    const anticipo=numVal('cxc-anticipo')||0;
     if(anticipo>0){
       if(anticipo>amount+0.009){
         notify('error','Anticipo Excedido',`El anticipo (${fmt(anticipo)}) no puede ser mayor al total de la factura (${fmt(amount)}).`);
@@ -4034,6 +4041,14 @@ function delCXC(id){
   });
 }
 
+let _cxcView='pendientes'; // 'pendientes' | 'pagadas'
+function switchCXCView(v){
+  _cxcView=v;
+  document.getElementById('cxc-vtab-pendientes').classList.toggle('active',v==='pendientes');
+  document.getElementById('cxc-vtab-pagadas').classList.toggle('active',v==='pagadas');
+  document.getElementById('cxc-filter-status-wrap').style.display = v==='pendientes' ? '' : 'none';
+  renderCXC();
+}
 function renderCXC(){
   refreshCxCClientSelect();
   renderCxCAging();
@@ -4055,18 +4070,23 @@ function renderCXC(){
   const fs=document.getElementById('cxc-filter-status')?.value||'';
   const fc=(document.getElementById('cxc-filter-client')?.value||'').toLowerCase();
   let items=S.cuentasCobrar.map(x=>({...x,_st:cxcSt(x)}));
-  if(fs==='por_cobrar') items=items.filter(x=>x._st==='por_cobrar'||x._st==='vencida');
-  else if(fs) items=items.filter(x=>x._st===fs);
+  // Pestaña Pendientes vs Pagadas — separa de raíz antes de aplicar el filtro fino de Estado
+  if(_cxcView==='pagadas') items=items.filter(x=>x._st==='pagada');
+  else items=items.filter(x=>x._st!=='pagada'); // incluye por_cobrar, vencida, parcial y anulada
+  if(_cxcView==='pendientes'){
+    if(fs==='por_cobrar') items=items.filter(x=>x._st==='por_cobrar');
+    else if(fs) items=items.filter(x=>x._st===fs);
+  }
   if(fc)items=items.filter(x=>x.client.toLowerCase().includes(fc));
   items.sort((a,b)=>{
-    // Extract numeric part from invoice number for proper numeric sort
+    // Extract numeric part from invoice number for proper numeric sort — más reciente arriba
     const numA=parseInt((a.invoice||'').replace(/\D/g,''))||0;
     const numB=parseInt((b.invoice||'').replace(/\D/g,''))||0;
-    if(numA!==numB) return numA-numB;
+    if(numA!==numB) return numB-numA;
     // If same number or non-numeric, sort alphabetically
-    return (a.invoice||'').localeCompare(b.invoice||'');
+    return (b.invoice||'').localeCompare(a.invoice||'');
   });
-  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">Sin facturas registradas.</div></td></tr>`;return;}
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">${_cxcView==='pagadas'?'Sin facturas pagadas todavía.':'Sin facturas pendientes — ¡al día!'}</div></td></tr>`;return;}
 
   tbody.innerHTML=items.map(x=>{
     const isOverdue=x._st==='vencida';
