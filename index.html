@@ -630,6 +630,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 <!-- ══ Fase 1: librerías OCR para Cargar Comprobante (Tesseract.js + PDF.js) ══ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -981,7 +982,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="cxc-tv-directa" onclick="setTipoVenta('cxc','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Counter</button>
           <button type="button" id="cxc-tv-corp" onclick="setTipoVenta('cxc','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="cxc-tipoventa" value="corporativa">
@@ -1282,7 +1283,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="ing-tv-directa" onclick="setTipoVenta('ing','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="ing-tv-directa" onclick="setTipoVenta('ing','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Counter</button>
           <button type="button" id="ing-tv-corp" onclick="setTipoVenta('ing','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="ing-tipoventa" value="corporativa">
@@ -1323,7 +1324,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="filter-bar">
       <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="ing-filter-mes" oninput="renderIngresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
-        <select id="ing-filter-cat" onchange="renderIngresos()" style="width:200px;">
+        <select id="ing-filter-cat" autocomplete="off" onchange="renderIngresos()" style="width:200px;">
           <option value="">Todas</option>
           <option value="offset">Impresión Offset</option>
           <option value="rot_vehicular">Rot. Vehicular</option>
@@ -1381,7 +1382,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="form-group" style="width:290px;flex-shrink:0;">
         <label>Tipo de Venta</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Directa Taller</button>
+          <button type="button" id="rec-tv-directa" onclick="setTipoVenta('rec','directa')" style="flex:1;height:44px;box-sizing:border-box;border:2px solid var(--border);background:var(--s2);color:#9ca3af;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-taller"></span>Counter</button>
           <button type="button" id="rec-tv-corp" onclick="setTipoVenta('rec','corporativa')" class="tv-btn-active" style="flex:1;height:44px;box-sizing:border-box;border:2px solid #818cf8;background:rgba(129,140,248,.22);color:#818cf8;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;"><span class="tv-icon tv-icon-corp"></span>Corporativa</button>
         </div>
         <input type="hidden" id="rec-tipoventa" value="corporativa">
@@ -1541,7 +1542,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="filter-bar">
       <div class="form-group"><label>Mes</label><input autocomplete="off" type="month" id="egr-filter-mes" oninput="renderEgresos()" style="width:160px;"></div>
       <div class="form-group"><label>Categoría</label>
-        <select id="egr-filter-cat" onchange="renderEgresos()" style="width:170px;">
+        <select id="egr-filter-cat" autocomplete="off" onchange="renderEgresos()" style="width:170px;">
           <option value="">Todas</option>
           <option value="materiales">Materiales</option>
           <option value="nomina">Nómina</option>
@@ -1705,7 +1706,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <!-- Tipo de Venta breakdown -->
   <div class="add-form" style="margin-top:20px;margin-bottom:0;">
     <h3>Ingresos por Tipo de Venta</h3>
-    <p style="font-size:15px;color:#9ca3af;margin:6px 0 12px;">Venta Directa Taller (walk-in) vs. Venta Corporativa (B2B) — año seleccionado arriba.</p>
+    <p style="font-size:15px;color:#9ca3af;margin:6px 0 12px;">Venta Counter (walk-in) vs. Venta Corporativa (B2B) — año seleccionado arriba.</p>
     <div id="rent-tipoventa"></div>
   </div>
 
@@ -1837,6 +1838,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
         <button class="btn btn-indigo" onclick="generateReport()" style="font-size:15px;padding:11px 22px;">Generar Reporte</button>
         <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:15px;padding:11px 18px;" onclick="printReport()">Imprimir</button>
         <button class="btn" style="background:transparent;border:1px solid var(--border2);color:#b0bbcf;font-size:15px;padding:11px 18px;" onclick="exportReportCSV()">Exportar CSV</button>
+        <button class="btn" style="background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4);color:#4ade80;font-size:15px;padding:11px 18px;" onclick="exportReportXLSX()" title="Genera un archivo Excel real con fórmula de SUMA — así puedes verificar el total tú mismo">📊 Exportar Excel (con fórmulas)</button>
       </div>
     </div>
   </div>
@@ -2698,7 +2700,7 @@ function methodBadge(m){
   return `<span class="badge badge-cash">${esc(m||'—')}</span>`;
 }
 
-// ══════════════════ TIPO DE VENTA (Directa Taller vs Corporativa) ══════════════════
+// ══════════════════ TIPO DE VENTA (Counter vs Corporativa) ══════════════════
 // Interruptor reutilizable para CxC (facturas), Ingresos Manuales y Recibos de Ingreso.
 // "corporativa" es el default porque la clientela de ICG es predominantemente B2B.
 function setTipoVenta(prefix, val){
@@ -2715,8 +2717,8 @@ function tipoVentaBadge(tv, clickSection, clickId){
   const clickable = clickSection && clickId!=null;
   const onclickAttr = clickable ? `onclick="toggleTipoVenta('${clickSection}',${clickId})"` : '';
   const cursorCss = clickable ? 'cursor:pointer;user-select:none;' : '';
-  if(tv==='directa') return `<span class="badge" ${onclickAttr} style="${cursorCss}background:rgba(253,201,1,.15);color:#fdc901;display:inline-flex;align-items:center;gap:4px;" title="${clickable?'Clic para cambiar a Corporativa':'Venta Directa Taller'}"><span class="tv-icon tv-icon-taller" style="filter:invert(78%) sepia(58%) saturate(1000%) hue-rotate(3deg) brightness(103%);margin-right:0;"></span>Directa</span>`;
-  return `<span class="badge" ${onclickAttr} style="${cursorCss}background:rgba(129,140,248,.15);color:#818cf8;display:inline-flex;align-items:center;gap:4px;" title="${clickable?'Clic para cambiar a Directa Taller':'Venta Corporativa'}"><span class="tv-icon tv-icon-corp" style="filter:invert(59%) sepia(78%) saturate(1665%) hue-rotate(215deg) brightness(101%);margin-right:0;"></span>Corp.</span>`;
+  if(tv==='directa') return `<span class="badge" ${onclickAttr} style="${cursorCss}background:rgba(253,201,1,.15);color:#fdc901;display:inline-flex;align-items:center;gap:4px;" title="${clickable?'Clic para cambiar a Corporativa':'Venta Counter'}"><span class="tv-icon tv-icon-taller" style="filter:invert(78%) sepia(58%) saturate(1000%) hue-rotate(3deg) brightness(103%);margin-right:0;"></span>Counter</span>`;
+  return `<span class="badge" ${onclickAttr} style="${cursorCss}background:rgba(129,140,248,.15);color:#818cf8;display:inline-flex;align-items:center;gap:4px;" title="${clickable?'Clic para cambiar a Counter':'Venta Corporativa'}"><span class="tv-icon tv-icon-corp" style="filter:invert(59%) sepia(78%) saturate(1665%) hue-rotate(215deg) brightness(101%);margin-right:0;"></span>Corp.</span>`;
 }
 // Permite corregir en un clic el Tipo de Venta directamente desde la tabla — útil mientras se
 // reclasifican en bloque los registros que quedaron con el valor por defecto (Corporativa).
@@ -7559,14 +7561,14 @@ function renderRentabilidad(){
   document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8','ingreso',year);
   const egrLabelsAll={...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
   document.getElementById('rent-cat-egr').innerHTML=catBar(egrY,egrLabelsAll,'#ef4444','egreso',year);
-  // Desglose por Tipo de Venta (Directa Taller vs Corporativa)
+  // Desglose por Tipo de Venta (Counter vs Corporativa)
   const tvDirecta=ingY.filter(x=>x.tipoVenta==='directa').reduce((s,x)=>s+x.monto,0);
   const tvCorp=ingY.filter(x=>(x.tipoVenta||'corporativa')==='corporativa').reduce((s,x)=>s+x.monto,0);
   const tvTot=tvDirecta+tvCorp||1;
   document.getElementById('rent-tipoventa').innerHTML=`
     <div style="display:flex;gap:24px;flex-wrap:wrap;">
       <div style="flex:1;min-width:200px;">
-        <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;display:inline-flex;align-items:center;"><span class="tv-icon tv-icon-taller tv-icon-lg" style="filter:invert(78%) sepia(58%) saturate(1000%) hue-rotate(3deg) brightness(103%);"></span>Directa Taller</span><span style="font-family:var(--mono);color:#fdc901;font-weight:600;">${fmt(tvDirecta)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;"><span style="color:#c0c6d8;display:inline-flex;align-items:center;"><span class="tv-icon tv-icon-taller tv-icon-lg" style="filter:invert(78%) sepia(58%) saturate(1000%) hue-rotate(3deg) brightness(103%);"></span>Counter</span><span style="font-family:var(--mono);color:#fdc901;font-weight:600;">${fmt(tvDirecta)}</span></div>
         <div style="background:var(--s3);border-radius:3px;height:8px;"><div style="background:#fdc901;height:100%;border-radius:3px;width:${(tvDirecta/tvTot*100).toFixed(1)}%;opacity:.85;"></div></div>
         <div style="font-size:14px;color:#6b7a99;margin-top:3px;">${(tvDirecta/tvTot*100).toFixed(1)}% del total</div>
       </div>
@@ -7990,7 +7992,7 @@ let _repSection='cxc', _repData=[];
 const REP_CONFIGS={
   cxc:{
     label:'Cuentas por Cobrar',
-    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Directa Taller</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Counter</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
     headers:['N° Factura','Cliente','Tipo Venta','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
     generate(d,h,f1,f2,f3){
       let items=[...S.cuentasCobrar];
@@ -8030,14 +8032,14 @@ const REP_CONFIGS={
       return items.map(x=>{
         const ab=cxpPaidSoFar(x),pend=cxpPending(x);
         const stC=x._st==='pagada'?'#818cf8':x._st==='vencida'?'#ef4444':'#b0bbcf';
-        return{cells:[esc(x.nombre),x._catL,esc(x.concepto)||'—',fmtDate(x.fecha),fmt(x.monto),ab>0?fmt(ab):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—',`<span style="color:${stC};">${x._st}</span>`],totals:{total:x.monto,abonado:ab,pendiente:pend}};
+        return{cells:[esc(x.nombre),x._catL,esc(x.concepto)||'—',fmtDate(x.fecha),fmtDate(x.vence),fmt(x.monto),ab>0?fmt(ab):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—',`<span style="color:${stC};">${x._st}</span>`],totals:{total:x.monto,abonado:ab,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),ab=rows.reduce((s,r)=>s+r.totals.abonado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Obligaciones',val:fmt(tot),color:'#818cf8'},{label:'Total Pagado',val:fmt(ab),color:'#818cf8'},{label:'Saldo Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Registros',val:rows.length,color:'#b0bbcf'}];}
   },
   ingresos:{
     label:'Ingresos',
-    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Directa Taller</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
+    dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Categoría</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todas</option><option value="offset">Impresión Offset</option><option value="rot_vehicular">Rotulación Vehicular</option><option value="senaletica">Señalética</option><option value="rotulos_gen">Rótulos Genéricos</option><option value="diseño">Diseño & Branding</option><option value="exterior">Publicidad Exterior</option><option value="rotulos3d">Rótulos 3D PVC</option><option value="cristales">Cristales y Murales</option><option value="acrilicas">Placas Acrílicas</option><option value="otros">Otros</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Counter</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
     headers:['Fecha','Cliente','Categoría','Tipo Venta','Descripción','Método','Monto RD$'],
     generate(d,h,f1,f2,f3){
       let items=[...S.ingresos];
@@ -8094,6 +8096,16 @@ function buildRepFilter(section){
   if(section==='egresos'){
     const sups=[...new Set([...S.suplidores.map(s=>s.nombre),...S.egresos.map(x=>x.suplidorNombre||'').filter(Boolean)])].sort();
     f1.innerHTML='<option value="">Todos</option>'+sups.map(s=>`<option value="${s}">${s}</option>`).join('');
+  }
+  // El filtro de Categoría venía con una lista fija escrita de antemano — se reconstruye aquí
+  // con las categorías reales del sistema (incluyendo las personalizadas que el usuario haya
+  // creado con el botón "+"), para que nunca quede desactualizado ni con claves que no existen.
+  const f2=document.getElementById('rep-f2');
+  if(f2 && (section==='egresos'||section==='ingresos')){
+    const cats = section==='egresos' ? getAllEgrCats() : getAllIngCats();
+    const valorActual = f2.value;
+    f2.innerHTML = '<option value="">Todas</option>' + cats.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+    if(valorActual && f2.querySelector(`option[value="${valorActual}"]`)) f2.value = valorActual;
   }
 }
 
@@ -8401,6 +8413,56 @@ function exportReportCSV(){
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.join('\n'));
   a.download=`reporte_${_repSection}_${today()}.csv`;
   document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+// Exporta un .xlsx REAL (no CSV) usando SheetJS, con las columnas de monto como números de
+// verdad (no texto) y una fila de TOTAL al final con una fórmula =SUMA() de Excel — así, al
+// abrirlo, Excel calcula el total él mismo y se puede comparar contra lo que muestra el sistema.
+function exportReportXLSX(){
+  if(!_repData.length){notify('warning','Sin Datos','Genera un reporte primero.');return;}
+  if(typeof XLSX==='undefined'){notify('error','No Disponible','La librería de Excel no cargó — revisa tu conexión a internet e intenta de nuevo.');return;}
+  const cfg=REP_CONFIGS[_repSection];
+  const unesc=c=>c.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+  const cleanTxt=c=>unesc((c||'').replace(/<[^>]*>/g,'')).trim();
+  // Mapea qué encabezados representan montos en RD$ (columna → clave dentro de r.totals)
+  const numericColMap={'Total RD$':'total','Monto RD$':'total','Cobrado':'cobrado','Pendiente':'pendiente','Total':'total','Abonado':'abonado'};
+
+  const aoa=[cfg.headers];
+  _repData.forEach(r=>{
+    aoa.push(cfg.headers.map((h,i)=>{
+      const key=numericColMap[h];
+      if(key && r.totals && r.totals[key]!=null) return r.totals[key];
+      return cleanTxt(r.cells[i]);
+    }));
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  const numRows=_repData.length;
+  // Fila de TOTAL con fórmula real de Excel, solo en las columnas que son montos
+  const totalRowIdx=numRows+1; // 0-indexed: fila después de los datos (header=fila0)
+  cfg.headers.forEach((h,colIdx)=>{
+    if(!(h in numericColMap)) return;
+    const colLetter=XLSX.utils.encode_col(colIdx);
+    const formula=`SUM(${colLetter}2:${colLetter}${numRows+1})`;
+    XLSX.utils.sheet_add_aoa(ws,[[{t:'n',f:formula}]],{origin:`${colLetter}${totalRowIdx+1}`});
+  });
+  // Etiqueta "TOTAL" en la primera columna de esa fila
+  XLSX.utils.sheet_add_aoa(ws,[['TOTAL']],{origin:`A${totalRowIdx+1}`});
+  // Formato de moneda para las columnas numéricas (datos + fórmula)
+  cfg.headers.forEach((h,colIdx)=>{
+    if(!(h in numericColMap)) return;
+    for(let r=2;r<=totalRowIdx+1;r++){
+      const addr=`${XLSX.utils.encode_col(colIdx)}${r}`;
+      if(ws[addr]) ws[addr].z='#,##0.00';
+    }
+  });
+  // Ancho de columnas legible
+  ws['!cols']=cfg.headers.map(h=>({wch:Math.max(12,h.length+4)}));
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,REP_CONFIGS[_repSection].label.slice(0,31));
+  XLSX.writeFile(wb,`reporte_${_repSection}_${today()}.xlsx`);
+  notify('success','Excel Generado','Abre el archivo y revisa la fila TOTAL — tiene una fórmula de SUMA real para que confirmes el monto tú mismo.');
 }
 
 document.getElementById('reportModal').addEventListener('click',function(e){if(e.target===this)closeReport();});
