@@ -6469,7 +6469,7 @@ function toggleCfAnulada(){
   });
 }
 
-function confirmarCargaFactura(){
+async function confirmarCargaFactura(){
   const clienteSelVal=document.getElementById('cf-cliente').value;
   const ncf=document.getElementById('cf-ncf').value.trim();
   const fechaEmision=document.getElementById('cf-fecha-emision').value;
@@ -6482,6 +6482,17 @@ function confirmarCargaFactura(){
   const esAnulada = _cf.anuladaOverride!=null ? _cf.anuladaOverride : !!_cf.parsed?.anulada;
 
   if(!ncf){ notify('error','Falta el NCF','No se detectó — escríbelo a mano antes de continuar.'); return; }
+
+  // El OCR no siempre logra leer el Subtotal/ITBIS del PDF (depende del formato exacto del
+  // documento) — si el Total sí se detectó pero Subtotal/ITBIS quedaron en cero, avisa antes de
+  // guardar así, para no dejar una factura con el ITBIS perdido silenciosamente.
+  if(!esAnulada && total>0 && (subtotal<=0 || itbis<=0)){
+    const seguir = await icgConfirm(
+      `El sistema no pudo leer el Subtotal y/o el ITBIS de este documento (probablemente el formato del PDF no coincide con el patrón esperado). El Total sí se detectó: <strong>${fmt(total)}</strong>.<br><br>Si continúas así, esta factura quedará <strong style="color:#ef4444;">sin ITBIS registrado</strong>.<br><br>¿Prefieres cancelar para llenarlos a mano, o continuar de todas formas?`,
+      'Subtotal/ITBIS No Detectado','Continuar de Todas Formas',true,'Cancelar y Corregir a Mano'
+    );
+    if(!seguir) return;
+  }
 
   let clienteIdFinal=null, clienteNombre='';
   if(clienteSelVal==='__nuevo__'){
@@ -8776,7 +8787,7 @@ function logoutUser(){
 function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true, cancelLabel='Cancelar'){
   return new Promise(resolve=>{
     document.getElementById('confirm-title').textContent=title;
-    document.getElementById('confirm-msg').textContent=msg;
+    document.getElementById('confirm-msg').innerHTML=msg;
     const okBtn=document.getElementById('confirm-ok');
     const cnBtn=document.getElementById('confirm-cancel');
     okBtn.textContent=okLabel;
@@ -8803,7 +8814,7 @@ function icgConfirm(msg, title='Confirmar', okLabel='Aceptar', danger=true, canc
 function icgAlert(msg, title='Aviso'){
   return new Promise(resolve=>{
     document.getElementById('confirm-title').textContent=title;
-    document.getElementById('confirm-msg').textContent=msg;
+    document.getElementById('confirm-msg').innerHTML=msg;
     const okBtn=document.getElementById('confirm-ok');
     const cnBtn=document.getElementById('confirm-cancel');
     okBtn.textContent='Entendido';
