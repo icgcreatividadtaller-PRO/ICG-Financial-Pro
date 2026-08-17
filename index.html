@@ -1042,7 +1042,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
   </div>
   <div class="transactions-section">
-    <h3>Facturas Registradas</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h3>Facturas Registradas</h3>
+      <button class="btn btn-secondary" style="font-size:13px;padding:8px 14px;" onclick="repararITBISFacturas()">🔧 Reparar ITBIS de Facturas Viejas</button>
+    </div>
     <div style="display:flex;gap:6px;margin-bottom:14px;" id="cxc-view-tabs">
       <button class="acct-tab active" id="cxc-vtab-pendientes" onclick="switchCXCView('pendientes')">🔴 Pendientes</button>
       <button class="acct-tab" id="cxc-vtab-pagadas" onclick="switchCXCView('pagadas')">✅ Pagadas</button>
@@ -1688,6 +1691,10 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       </div>
       <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Año</label>
         <select id="rent-year" onchange="renderRentabilidad()" style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:18px;padding:8px 12px;outline:none;"></select>
+      </div>
+      <div class="form-group" style="margin:0;"><label style="font-size:15px;color:#9ca3af;">Desde (opcional)</label>
+        <input autocomplete="off" type="date" id="rent-desde" onchange="renderRentabilidad()" onclick="cdpOpen(this,event)" style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:16px;padding:7px 10px;outline:none;height:38px;box-sizing:border-box;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('rent-desde').value='';renderRentabilidad();" style="margin-top:4px;font-size:12px;padding:2px 8px;color:#818cf8;border-color:rgba(129,140,248,.3);">Limpiar</button>
       </div>
     </div>
   </div>
@@ -7549,21 +7556,25 @@ function renderRentabilidad(){
   yearSel.innerHTML=allYears.map(y=>`<option value="${y}" ${y===selYear?'selected':''}>${y}</option>`).join('');
   const period=document.getElementById('rent-period').value;
   const year=parseInt(yearSel.value||curYear);
+  const desde=document.getElementById('rent-desde')?.value||'';
   const periods=period==='mensual'
     ?Array.from({length:12},(_,i)=>({key:`${year}-${String(i+1).padStart(2,'0')}`,label:new Date(year,i,1).toLocaleString('es',{month:'short'}).replace(/^\w/,c=>c.toUpperCase())}))
     :[{key:`${year}-Q1`,label:'Q1 Ene-Mar',months:[1,2,3]},{key:`${year}-Q2`,label:'Q2 Abr-Jun',months:[4,5,6]},{key:`${year}-Q3`,label:'Q3 Jul-Sep',months:[7,8,9]},{key:`${year}-Q4`,label:'Q4 Oct-Dic',months:[10,11,12]}];
-  const gI=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+x.monto,0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+x.monto,0);
-  const gITBIS=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+(x.itbis||0),0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+(x.itbis||0),0);
-  const gE=p=>period==='mensual'?S.egresos.filter(x=>x.fecha.startsWith(p.key)).reduce((s,x)=>s+x.monto,0):S.egresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m);}).reduce((s,x)=>s+x.monto,0);
+  // Cuando hay "Desde" seleccionado, cada período solo cuenta lo que cae en esa fecha en
+  // adelante — así un mes con Desde a mitad de mes no arrastra los días previos a esa fecha.
+  const pasaDesde=f=>!desde||f>=desde;
+  const gI=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)&&pasaDesde(x.fecha)).reduce((s,x)=>s+x.monto,0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m)&&pasaDesde(x.fecha);}).reduce((s,x)=>s+x.monto,0);
+  const gITBIS=p=>period==='mensual'?S.ingresos.filter(x=>x.fecha.startsWith(p.key)&&pasaDesde(x.fecha)).reduce((s,x)=>s+(x.itbis||0),0):S.ingresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m)&&pasaDesde(x.fecha);}).reduce((s,x)=>s+(x.itbis||0),0);
+  const gE=p=>period==='mensual'?S.egresos.filter(x=>x.fecha.startsWith(p.key)&&pasaDesde(x.fecha)).reduce((s,x)=>s+x.monto,0):S.egresos.filter(x=>{const m=parseInt(x.fecha.slice(5,7));return x.fecha.startsWith(year+'')&&p.months.includes(m)&&pasaDesde(x.fecha);}).reduce((s,x)=>s+x.monto,0);
   // "ing" = Ingresos Netos (SIN ITBIS) — el ITBIS cobrado nunca es ingreso real, es dinero
   // que le debes a la DGII. Usar el bruto (con ITBIS) aquí infla la utilidad artificialmente.
   const data=periods.map(p=>{const bruto=gI(p),itbisP=gITBIS(p),neto=bruto-itbisP,egr=gE(p);return{...p,ing:neto,itbis:itbisP,bruto,egr,util:neto-egr,margen:neto>0?((neto-egr)/neto*100):0};});
   const totIng=data.reduce((s,p)=>s+p.ing,0),totItbis=data.reduce((s,p)=>s+p.itbis,0),totBruto=data.reduce((s,p)=>s+p.bruto,0),totEgr=data.reduce((s,p)=>s+p.egr,0),totUtil=totIng-totEgr,totMarg=totIng>0?(totUtil/totIng*100):0;
   document.getElementById('rent-kpis').innerHTML=`
-    <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Ingresos Netos ${year} <span title="Sin ITBIS — antes de impuestos">ⓘ</span></div><div class="bcard-value positive">${fmt(totIng)}</div></div>
-    <div class="bcard" style="border-color:rgba(250,255,1,.3);flex:1;min-width:130px;"><div class="bcard-label">ITBIS Cobrado ${year}</div><div class="bcard-value" style="color:#fdc901;">${fmt(totItbis)}</div></div>
+    <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Ingresos Netos ${desde?'desde '+fmtDate(desde):year} <span title="Sin ITBIS — antes de impuestos">ⓘ</span></div><div class="bcard-value positive">${fmt(totIng)}</div></div>
+    <div class="bcard" style="border-color:rgba(250,255,1,.3);flex:1;min-width:130px;"><div class="bcard-label">ITBIS Cobrado ${desde?'desde '+fmtDate(desde):year}</div><div class="bcard-value" style="color:#fdc901;">${fmt(totItbis)}</div></div>
     <div class="bcard" style="border-color:rgba(129,140,248,.15);flex:1;min-width:130px;"><div class="bcard-label">Total Facturado (con ITBIS)</div><div class="bcard-value" style="color:#9ca3af;">${fmt(totBruto)}</div></div>
-    <div class="bcard" style="border-color:rgba(239,68,68,.3);flex:1;min-width:130px;"><div class="bcard-label">Egresos ${year}</div><div class="bcard-value negative">${fmt(totEgr)}</div></div>
+    <div class="bcard" style="border-color:rgba(239,68,68,.3);flex:1;min-width:130px;"><div class="bcard-label">Egresos ${desde?'desde '+fmtDate(desde):year}</div><div class="bcard-value negative">${fmt(totEgr)}</div></div>
     <div class="bcard" style="border-color:${totUtil>=0?'rgba(79,70,229,.3)':'rgba(239,68,68,.3)'};flex:1;min-width:130px;"><div class="bcard-label">Utilidad Neta (Después de ITBIS)</div><div class="bcard-value ${totUtil>=0?'neutral':'negative'}">${fmt(totUtil)}</div></div>
     <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Margen Neto</div><div class="bcard-value" style="color:${totMarg>=0?'#818cf8':'#ef4444'}">${totMarg.toFixed(1)}%</div></div>`;
   // SVG Chart
@@ -7582,13 +7593,15 @@ function renderRentabilidad(){
   });
   document.getElementById('rent-chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;">${grid}<line x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="rgba(255,255,255,.08)"/><line x1="${pL}" y1="${pT+iH}" x2="${W-pR}" y2="${pT+iH}" stroke="rgba(255,255,255,.08)"/>${bars}${labs}<rect x="${W-120}" y="${pT}" width="10" height="10" fill="#818cf8" rx="2"/><text x="${W-106}" y="${pT+9}" fill="#9ca3af" font-size="10">Ingresos</text><rect x="${W-58}" y="${pT}" width="10" height="10" fill="#ef4444" rx="2"/><text x="${W-44}" y="${pT+9}" fill="#9ca3af" font-size="10">Egresos</text></svg>`;
   // P&L Table
-  document.getElementById('rent-table-title').textContent=`Estado de Resultados ${period==='mensual'?'Mensual':'Trimestral'} ${year}`;
+  document.getElementById('rent-table-title').textContent=desde
+    ?`Estado de Resultados ${period==='mensual'?'Mensual':'Trimestral'} ${year} · desde ${fmtDate(desde)}`
+    :`Estado de Resultados ${period==='mensual'?'Mensual':'Trimestral'} ${year}`;
   document.getElementById('rent-thead').innerHTML=`<tr><th>Período</th><th>Ingresos (sin ITBIS)</th><th>ITBIS Cobrado</th><th>Egresos</th><th>Utilidad</th><th>Margen %</th><th>vs Ant.</th></tr>`;
   document.getElementById('rent-tbody').innerHTML=data.map((p,i)=>{const prev=i>0?data[i-1]:null,vsAnt=prev?p.util-prev.util:null;return`<tr><td style="font-weight:600;">${p.label}</td><td class="td-mono positive">${fmt(p.ing)}</td><td class="td-mono" style="color:#fdc901;">${fmt(p.itbis)}</td><td class="td-mono negative">${fmt(p.egr)}</td><td class="td-mono ${p.util>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(p.util)}</td><td class="td-mono" style="color:${p.margen>=0?'#818cf8':'#ef4444'}">${p.margen.toFixed(1)}%</td><td class="td-mono" style="color:${vsAnt===null?'#9ca3af':vsAnt>=0?'#818cf8':'#ef4444'}">${vsAnt===null?'—':(vsAnt>=0?'▲ ':'▼ ')+fmt(Math.abs(vsAnt))}</td></tr>`;}).join('')+`<tr style="border-top:2px solid var(--border2);"><td style="font-weight:700;color:#818cf8;">TOTAL ${year}</td><td class="td-mono positive" style="font-weight:700;">${fmt(totIng)}</td><td class="td-mono" style="color:#fdc901;font-weight:700;">${fmt(totItbis)}</td><td class="td-mono negative" style="font-weight:700;">${fmt(totEgr)}</td><td class="td-mono ${totUtil>=0?'neutral':'negative'}" style="font-weight:700;">${fmt(totUtil)}</td><td class="td-mono" style="color:${totMarg>=0?'#818cf8':'#ef4444'};font-weight:700;">${totMarg.toFixed(1)}%</td><td>—</td></tr>`;
   // Category bars
   const catBar=(items,labels,col,tipo,year)=>{const bc={};items.forEach(x=>{bc[x.categoria]=(bc[x.categoria]||0)+x.monto;});const tot=Object.values(bc).reduce((s,v)=>s+v,0)||1;return Object.entries(bc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="margin-bottom:9px;cursor:pointer;" onclick="verDetalleCategoria('${tipo}','${k}',${year})" title="Ver el detalle de esta categoría"><div style="display:flex;justify-content:space-between;font-size:16px;margin-bottom:2px;"><span style="color:#c0c6d8;">${labels[k]||k}</span><span style="font-family:var(--mono);color:${col};font-weight:600;">${fmt(v)}</span></div><div style="background:var(--s3);border-radius:3px;height:5px;"><div style="background:${col};height:100%;border-radius:3px;width:${(v/tot*100).toFixed(1)}%;opacity:.8;"></div></div></div>`).join('')||`<p style="color:#6b7280;font-size:18px;text-align:center;padding:16px;">Sin datos</p>`;};
-  const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString()));
-  const egrY=S.egresos.filter(x=>x.fecha.startsWith(year.toString()));
+  const ingY=S.ingresos.filter(x=>x.fecha.startsWith(year.toString())&&pasaDesde(x.fecha));
+  const egrY=S.egresos.filter(x=>x.fecha.startsWith(year.toString())&&pasaDesde(x.fecha));
   const ingLabelsAll={...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))};
   document.getElementById('rent-cat-ing').innerHTML=catBar(ingY,ingLabelsAll,'#818cf8','ingreso',year);
   const egrLabelsAll={...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
@@ -7614,9 +7627,11 @@ function renderRentabilidad(){
 // Abre el detalle de una categoría del Estado de Resultados — para ver de un vistazo
 // qué registros concretos componen ese total, en vez de tener que adivinar o ir a la consola.
 function verDetalleCategoria(tipo, catKey, year){
+  const desde=document.getElementById('rent-desde')?.value||'';
+  const pasaDesde=f=>!desde||f>=desde;
   const items = tipo==='ingreso'
-    ? S.ingresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()))
-    : S.egresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()));
+    ? S.ingresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()) && pasaDesde(x.fecha))
+    : S.egresos.filter(x=>x.categoria===catKey && x.fecha.startsWith(year.toString()) && pasaDesde(x.fecha));
   const labels = tipo==='ingreso'
     ? {...ING_CAT_LABELS,cxc:'Cobro CxC',...Object.fromEntries((S.categoriasIngresos||[]).map(c=>[c.key,c.label]))}
     : {...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))};
@@ -7783,6 +7798,53 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
   'combustible':'combustible','equipos':'equipos','subcontratación':'subcontratacion',
   'publicidad':'publicidad','impuestos':'impuestos','contabilidad':'contabilidad',
   'transportación':'transporte','otros':'otros'};
+
+// Repara el ITBIS (y Total, si también quedó mal) de facturas viejas afectadas por un bug ya
+// corregido: el auto-cálculo de ITBIS/Total en Nueva Factura truncaba montos con coma de miles
+// (ej. "3,000" se leía como "3"), dejando el ITBIS guardado en una fracción diminuta. El Subtotal
+// nunca se vio afectado (se guardaba correcto desde siempre), así que sirve de base confiable
+// para reconstruir el ITBIS real. Solo toca facturas donde el ITBIS es sospechosamente bajo
+// (menos del 5% del Subtotal) — el patrón exacto que deja este bug — para no pisar ITBIS
+// legítimamente distinto al 18% estándar (ej. ventas exentas).
+function repararITBISFacturas(){
+  const afectadas = S.cuentasCobrar.filter(x=>{
+    const sub = parseFloat(x.subtotal)||0;
+    const itb = parseFloat(x.itbis)||0;
+    return sub>0 && itb < sub*0.05;
+  }).map(x=>{
+    const sub = parseFloat(x.subtotal)||0;
+    const oldItbis = parseFloat(x.itbis)||0;
+    const newItbis = Math.round(sub*0.18*100)/100;
+    const oldAmount = parseFloat(x.amount)||0;
+    const totalEsperado = Math.round((sub+newItbis)*100)/100;
+    // Si el Total ya se ve razonable (el usuario probablemente lo corrigió a mano al notar el
+    // error), no lo tocamos — solo el ITBIS. Si el Total también luce roto, se corrige junto.
+    const totalTambienDañado = oldAmount < sub; // un total real nunca es menor que su propio subtotal
+    return {item:x, sub, oldItbis, newItbis, oldAmount, newAmount: totalTambienDañado?totalEsperado:oldAmount, totalTambienDañado};
+  });
+
+  if(!afectadas.length){
+    icgAlert('No se encontró ninguna factura con el patrón de ITBIS dañado. Todo se ve correcto.','Sin Facturas Afectadas');
+    return;
+  }
+
+  const itbisRecuperado = afectadas.reduce((s,a)=>s+(a.newItbis-a.oldItbis),0);
+  const conTotalCorregido = afectadas.filter(a=>a.totalTambienDañado).length;
+  const msg = `Se encontraron <strong>${afectadas.length}</strong> facturas con el ITBIS dañado por el bug ya corregido.<br><br>`
+    + `ITBIS que se recuperaría: <strong>${fmt(itbisRecuperado)}</strong><br>`
+    + (conTotalCorregido ? `De esas, <strong>${conTotalCorregido}</strong> también tienen el Total dañado y se corregirían junto con el ITBIS.<br><br>` : '<br>')
+    + `<span style="color:#fdc901;">Nota: esto corrige el registro de la factura. Si esa factura ya generó un Ingreso por pagos anteriores, ese Ingreso mantiene su ITBIS viejo — pídeme por separado que también los ajuste si quieres.</span>`;
+
+  icgConfirm(msg,'Reparar ITBIS de Facturas Viejas','Corregir Todas',false).then(ok=>{
+    if(!ok) return;
+    afectadas.forEach(a=>{
+      a.item.itbis = a.newItbis;
+      if(a.totalTambienDañado) a.item.amount = a.newAmount;
+    });
+    save(); renderCXC();
+    notify('success','ITBIS Corregido',`${afectadas.length} facturas actualizadas · ITBIS recuperado: ${fmt(itbisRecuperado)}`);
+  });
+}
 
 function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,montoBruto=null,pagoId=null,ref=''){
   const fId = pagoId!=null ? pagoId : x.id;
