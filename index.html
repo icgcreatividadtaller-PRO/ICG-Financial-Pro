@@ -7808,39 +7808,49 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
 // (menos del 5% del Subtotal) — el patrón exacto que deja este bug — para no pisar ITBIS
 // legítimamente distinto al 18% estándar (ej. ventas exentas).
 function repararITBISFacturas(){
-  const afectadas = S.cuentasCobrar.filter(x=>{
+  const afectadas = S.cuentasCobrar.map(x=>{
     const sub = parseFloat(x.subtotal)||0;
     const itb = parseFloat(x.itbis)||0;
-    return sub>0 && itb < sub*0.05;
-  }).map(x=>{
-    const sub = parseFloat(x.subtotal)||0;
-    const oldItbis = parseFloat(x.itbis)||0;
-    const newItbis = Math.round(sub*0.18*100)/100;
-    const oldAmount = parseFloat(x.amount)||0;
-    const totalEsperado = Math.round((sub+newItbis)*100)/100;
-    // Si el Total ya se ve razonable (el usuario probablemente lo corrigió a mano al notar el
-    // error), no lo tocamos — solo el ITBIS. Si el Total también luce roto, se corrige junto.
-    const totalTambienDañado = oldAmount < sub; // un total real nunca es menor que su propio subtotal
-    return {item:x, sub, oldItbis, newItbis, oldAmount, newAmount: totalTambienDañado?totalEsperado:oldAmount, totalTambienDañado};
-  });
+    const amount = parseFloat(x.amount)||0;
+
+    if(sub>0 && itb < sub*0.05){
+      // Caso A: hay Subtotal guardado, pero el ITBIS quedó dañado por el bug de la coma.
+      const newItbis = Math.round(sub*0.18*100)/100;
+      const totalEsperado = Math.round((sub+newItbis)*100)/100;
+      const totalTambienDañado = amount < sub; // un total real nunca es menor que su propio subtotal
+      return {item:x, tipo:'A', oldSub:sub, newSub:sub, oldItbis:itb, newItbis, oldAmount:amount, newAmount: totalTambienDañado?totalEsperado:amount, cambia:true};
+    }
+    if(sub<=0 && amount>0 && itb<=0){
+      // Caso B: factura vieja creada antes de que existiera el campo Subtotal/ITBIS por
+      // separado — solo se guardó el Total. Se reconstruye matemáticamente asumiendo 18% de
+      // ITBIS estándar: Subtotal = Total ÷ 1.18.
+      const newSub = Math.round(amount/1.18*100)/100;
+      const newItbis = Math.round((amount-newSub)*100)/100;
+      return {item:x, tipo:'B', oldSub:sub, newSub, oldItbis:itb, newItbis, oldAmount:amount, newAmount:amount, cambia:true};
+    }
+    return {cambia:false};
+  }).filter(a=>a.cambia);
 
   if(!afectadas.length){
-    icgAlert('No se encontró ninguna factura con el patrón de ITBIS dañado. Todo se ve correcto.','Sin Facturas Afectadas');
+    icgAlert('No se encontró ninguna factura con el patrón de ITBIS dañado ni con el Subtotal/ITBIS faltante. Todo se ve correcto.','Sin Facturas Afectadas');
     return;
   }
 
   const itbisRecuperado = afectadas.reduce((s,a)=>s+(a.newItbis-a.oldItbis),0);
-  const conTotalCorregido = afectadas.filter(a=>a.totalTambienDañado).length;
-  const msg = `Se encontraron <strong>${afectadas.length}</strong> facturas con el ITBIS dañado por el bug ya corregido.<br><br>`
-    + `ITBIS que se recuperaría: <strong>${fmt(itbisRecuperado)}</strong><br>`
-    + (conTotalCorregido ? `De esas, <strong>${conTotalCorregido}</strong> también tienen el Total dañado y se corregirían junto con el ITBIS.<br><br>` : '<br>')
-    + `<span style="color:#fdc901;">Nota: esto corrige el registro de la factura. Si esa factura ya generó un Ingreso por pagos anteriores, ese Ingreso mantiene su ITBIS viejo — pídeme por separado que también los ajuste si quieres.</span>`;
+  const tipoA = afectadas.filter(a=>a.tipo==='A').length;
+  const tipoB = afectadas.filter(a=>a.tipo==='B').length;
+  const msg = `Se encontraron <strong>${afectadas.length}</strong> facturas con el ITBIS sin reconstruir.<br><br>`
+    + (tipoA ? `<strong>${tipoA}</strong> con el ITBIS dañado por el bug de la coma (ya tenían Subtotal).<br>` : '')
+    + (tipoB ? `<strong>${tipoB}</strong> facturas viejas sin Subtotal/ITBIS guardado — se reconstruyen desde el Total (÷1.18).<br>` : '')
+    + `<br>ITBIS que se recuperaría: <strong>${fmt(itbisRecuperado)}</strong><br><br>`
+    + `<span style="color:#fdc901;">Nota: esto corrige el registro de la factura. Si esa factura ya generó un Ingreso por pagos anteriores, ese Ingreso mantiene su ITBIS viejo — corre después "Reparar ITBIS de Ingresos Ya Generados" en Ingresos para que también se actualicen.</span>`;
 
   icgConfirm(msg,'Reparar ITBIS de Facturas Viejas','Corregir Todas',false).then(ok=>{
     if(!ok) return;
     afectadas.forEach(a=>{
+      a.item.subtotal = a.newSub;
       a.item.itbis = a.newItbis;
-      if(a.totalTambienDañado) a.item.amount = a.newAmount;
+      a.item.amount = a.newAmount;
     });
     save(); renderCXC();
     notify('success','ITBIS Corregido',`${afectadas.length} facturas actualizadas · ITBIS recuperado: ${fmt(itbisRecuperado)}`);
