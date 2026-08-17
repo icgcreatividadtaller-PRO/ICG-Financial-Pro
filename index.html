@@ -1349,7 +1349,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="document.getElementById('ing-filter-search').value='';document.getElementById('ing-filter-mes').value='';document.getElementById('ing-filter-cat').value='';renderIngresos()">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Tipo Venta</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Tipo Venta</th><th>Método</th><th>Cuenta</th><th>Monto</th><th>ITBIS</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
       <tbody id="ing-tbody"></tbody>
     </table></div>
   </div>
@@ -7238,8 +7238,8 @@ function renderIngresos(){
     const ingDesc = x.fuente==='cxc' 
       ? x.desc||'—'
       : (x.desc ? x.desc.replace(/^Ingreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—');
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${tipoVentaBadge(x.tipoVenta,'ingreso',x.id)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
-  }).join(''):`<tr><td colspan="10"><div class="empty-state">Sin ingresos que coincidan con la búsqueda.</div></td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.clienteNombre)||'—'}</td><td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(ingCatLabel)}</span></td><td style="max-width:180px;">${esc(ingDesc)}</td><td>${tipoVentaBadge(x.tipoVenta,'ingreso',x.id)}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono positive" style="font-weight:600;">${fmt(x.monto)}</td><td class="td-mono" style="color:#fdc901;">${x.itbis?fmt(x.itbis):'—'}</td><td><span class="badge ${x.fuente==='cxc'?'badge-transfer':'badge-dep'}">${x.fuente==='cxc'?'CxC':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('ingreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delIngreso(${x.id})">×</button>`:''}</td></tr>`;
+  }).join(''):`<tr><td colspan="11"><div class="empty-state">Sin ingresos que coincidan con la búsqueda.</div></td></tr>`;
 }
 
 // ══════════════════ EGRESOS ══════════════════
