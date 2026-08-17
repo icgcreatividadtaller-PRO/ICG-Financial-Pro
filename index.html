@@ -1323,6 +1323,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h3>Historial de Ingresos</h3>
       <button class="btn btn-secondary" style="font-size:13px;padding:8px 14px;" onclick="abrirRevisionDuplicados('ingresos')">🔍 Revisar Posibles Duplicados</button>
+      <button class="btn btn-secondary" style="font-size:13px;padding:8px 14px;margin-left:8px;" onclick="repararITBISIngresosGenerados()">🔧 Reparar ITBIS de Ingresos Ya Generados</button>
     </div>
     <div class="filter-bar">
       <div class="form-group" style="flex:1;min-width:220px;"><label>🔍 Buscar</label>
@@ -7856,6 +7857,46 @@ function autoIngresoFromCxC(x,netAmount,date,method,bankIdx,esHistorico=false,mo
   const itbisProrrateado = (x.amount>0 && itbisFactura>0) ? itbisFactura*(base/x.amount) : 0;
   addIngreso(true,{fecha:date,clienteId:x.clientId||null,clienteNombre:x.client,categoria:x.categoria||'otros',monto:netAmount,itbis:itbisProrrateado,desc:`Fact. ${x.invoice}${x.desc?' – '+x.desc:''}`,metodo:method,ref,cuentaIdx:bankIdx,fuente:'cxc',fuenteId:fId,esHistorico,tipoVenta:x.tipoVenta||'corporativa'});save();
 }
+// Repara el ITBIS ya guardado en los Ingresos que se generaron automáticamente al cobrar una
+// factura de CxC — estos son los que realmente mueven el número "ITBIS Cobrado" en Rentabilidad.
+// Usa el MISMO cálculo original (prorrateo según el abono específico), pero leyendo el ITBIS de
+// la factura YA CORREGIDO (correr primero "Reparar ITBIS de Facturas Viejas" si aún no lo hiciste).
+function repararITBISIngresosGenerados(){
+  const afectados = [];
+  S.ingresos.forEach(ing=>{
+    if(ing.fuente!=='cxc') return;
+    let x = S.cuentasCobrar.find(inv=>inv.id===ing.fuenteId);
+    let pago = null;
+    if(!x){
+      x = S.cuentasCobrar.find(inv=>(inv.pagos||[]).some(p=>p.id===ing.fuenteId));
+      if(x) pago = x.pagos.find(p=>p.id===ing.fuenteId);
+    }
+    if(!x) return; // la factura de origen ya no existe — no se puede reconstruir con certeza
+    const base = pago ? pago.montoBruto : (x.amountPaid!=null?x.amountPaid:x.amount);
+    const itbisFactura = parseFloat(x.itbis)||0;
+    const itbisNuevo = (x.amount>0 && itbisFactura>0) ? Math.round(itbisFactura*(base/x.amount)*100)/100 : 0;
+    const itbisViejo = parseFloat(ing.itbis)||0;
+    if(Math.abs(itbisNuevo-itbisViejo) > 0.01) afectados.push({ing, itbisViejo, itbisNuevo});
+  });
+
+  if(!afectados.length){
+    icgAlert('No se encontró ningún Ingreso de CxC con el ITBIS desactualizado.','Sin Ingresos Afectados');
+    return;
+  }
+
+  const totalRecuperado = afectados.reduce((s,a)=>s+(a.itbisNuevo-a.itbisViejo),0);
+  const msg = `Se encontraron <strong>${afectados.length}</strong> Ingresos (de facturas ya cobradas) con el ITBIS desactualizado.<br><br>`
+    + `ITBIS que se recuperaría en tus reportes: <strong>${fmt(totalRecuperado)}</strong><br><br>`
+    + `<span style="color:#fdc901;">Importante: corre primero "Reparar ITBIS de Facturas Viejas" en CxC si no lo has hecho — este paso depende de que el ITBIS de cada factura ya esté corregido.</span>`;
+
+  icgConfirm(msg,'Reparar ITBIS de Ingresos Ya Generados','Corregir Todos',false).then(ok=>{
+    if(!ok) return;
+    afectados.forEach(a=>{ a.ing.itbis = a.itbisNuevo; });
+    save(); renderIngresos();
+    notify('success','ITBIS de Ingresos Corregido',`${afectados.length} ingresos actualizados · ITBIS recuperado: ${fmt(totalRecuperado)}`);
+  });
+}
+
 function autoEgresoFromCxP(item,amount,date,method,accountIdx,esHistorico=false,section=null,pagoId=null,ref=''){
   const fId = pagoId!=null ? pagoId : item.id;
   if(S.egresos.find(e=>e.fuenteId===fId&&e.fuente==='cxp'))return;
