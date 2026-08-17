@@ -1449,6 +1449,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <div class="bcard" style="border-color:rgba(239,68,68,.3);"><div class="bcard-label">Este Mes</div><div class="bcard-value negative" id="egr-mes">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Este Año</div><div class="bcard-value negative" id="egr-anio">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Total Registrado</div><div class="bcard-value negative" id="egr-total">RD$0.00</div></div>
+      <div class="bcard" style="border-color:rgba(253,201,1,.3);"><div class="bcard-label">Total ITBIS del Mes <span title="Crédito fiscal: se resta del ITBIS que cobraste en tus ventas para saber cuánto le debes realmente a la DGII">ⓘ</span></div><div class="bcard-value" style="color:#fdc901;" id="egr-itbis-mes">RD$0.00</div></div>
     </div>
   </div>
   <div class="add-form">
@@ -1493,9 +1494,13 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
           <button type="button" class="btn btn-ghost btn-sm" onclick="addCustomCategory('egr')" style="height:44px;width:44px;padding:0;flex-shrink:0;color:#ef4444;border-color:rgba(239,68,68,.3);font-size:18px;box-sizing:border-box;" title="Nueva categoría">+</button>
         </div>
       </div>
-      <div class="form-group" style="width:190px;flex-shrink:0;">
+      <div class="form-group" style="width:150px;flex-shrink:0;">
         <label>Monto (RD$)</label>
         <input autocomplete="off" type="text" inputmode="decimal" id="egr-monto" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
+      </div>
+      <div class="form-group" style="width:150px;flex-shrink:0;">
+        <label>ITBIS (RD$) <span style="font-weight:400;color:#6b7a99;">opcional</span></label>
+        <input autocomplete="off" type="text" inputmode="decimal" id="egr-itbis" placeholder="0.00" min="0" step="0.01" style="height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)" title="Si esta compra incluye ITBIS, escríbelo aquí — se resta de lo que le debes a la DGII (crédito fiscal).">
       </div>
     </div>
     <!-- Row 2: Descripción · N° Factura · Método · Cuenta/Nota -->
@@ -1575,7 +1580,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <button class="btn btn-secondary btn-sm" style="align-self:flex-end;" onclick="document.getElementById('egr-filter-search').value='';document.getElementById('egr-filter-mes').value='';document.getElementById('egr-filter-cat').value='';renderEgresos()">Limpiar</button>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Fecha</th><th>Beneficiario</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Beneficiario</th><th>Categoría</th><th>Descripción</th><th>Método</th><th>Cuenta</th><th>Monto</th><th>ITBIS</th><th style="width:90px;">Fuente</th><th></th></tr></thead>
       <tbody id="egr-tbody"></tbody>
     </table></div>
   </div>
@@ -4823,7 +4828,13 @@ function renderBalanceGeneral(){
   });
   S.cuentasPagar.prestamos.forEach(item=>{ if(item.estado!=='pagada') cxpTotal += parseFloat(item.saldo)||0; }); // saldo real de capital, no la cuota
   const itbisCobradoHistorico = S.ingresos.reduce((s,x)=>s+(x.itbis||0),0);
-  const itbisPagadoHistorico = S.egresos.filter(x=>x.categoria==='itbis').reduce((s,x)=>s+x.monto,0);
+  // Dos cosas distintas que ambas reducen lo que le debes a la DGII:
+  // 1) Crédito fiscal — el ITBIS que TÚ pagaste en tus propias compras (egresos con ITBIS
+  //    marcado, que no sean la remisión misma a la DGII).
+  // 2) Remisiones ya pagadas — el efectivo que ya le mandaste directo a la DGII.
+  const itbisCreditoFiscal = S.egresos.filter(x=>x.categoria!=='itbis').reduce((s,x)=>s+(x.itbis||0),0);
+  const itbisRemesasPagadas = S.egresos.filter(x=>x.categoria==='itbis').reduce((s,x)=>s+x.monto,0);
+  const itbisPagadoHistorico = itbisCreditoFiscal + itbisRemesasPagadas;
   const itbisPorPagar = Math.max(0, itbisCobradoHistorico - itbisPagadoHistorico);
   const limitRD = S.creditCard.creditLimit||0;
   const tarjetaAdeudado = Math.max(0, limitRD - ccEffectiveAvail());
@@ -4868,7 +4879,7 @@ function renderBalanceGeneral(){
     <div class="add-form" style="margin-bottom:0;">
       <h3 style="color:#ef4444;">PASIVOS</h3>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2010 Cuentas por Pagar</span><span class="td-mono">${fmt(cxpTotal)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2020 ITBIS por Pagar</span><span class="td-mono">${fmt(itbisPorPagar)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2020 ITBIS por Pagar <span title="ITBIS Cobrado − Crédito Fiscal (ITBIS de tus compras) − Remesas ya pagadas a la DGII" style="cursor:help;">ⓘ</span></span><span class="td-mono">${fmt(itbisPorPagar)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);"><span>2030 Tarjeta de Crédito por Pagar</span><span class="td-mono">${fmt(tarjetaAdeudado)}</span></div>
       <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;color:#ef4444;"><span>TOTAL PASIVOS</span><span class="td-mono">${fmt(totalPasivos)}</span></div>
     </div>
@@ -4924,6 +4935,9 @@ function renderBalanceGeneral(){
         ${fila('CxP Préstamos (saldo)', cxpPorSeccion.prestamos, true)}
         ${fila('CxP Otros', cxpPorSeccion.otros, true)}
         ${fila('Total CxP', cxpTotal)}
+        ${fila('ITBIS Cobrado (histórico)', itbisCobradoHistorico, true)}
+        ${fila('− Crédito Fiscal (ITBIS de compras)', -itbisCreditoFiscal, true)}
+        ${fila('− Remesas ya pagadas a la DGII', -itbisRemesasPagadas, true)}
         ${fila('ITBIS por Pagar', itbisPorPagar)}
         ${fila('Tarjeta de Crédito', tarjetaAdeudado)}
         <div style="display:flex;justify-content:space-between;padding:8px 0;font-weight:700;color:#ef4444;"><span>TOTAL PASIVOS</span><span class="td-mono">${fmt(totalPasivos)}</span></div>
@@ -7302,6 +7316,7 @@ function addEgreso(auto=false,data={}){
   const suplidorId=auto?data.suplidorId:parseInt(document.getElementById('egr-suplidor').value)||null;
   const cat=auto?data.categoria:document.getElementById('egr-categoria').value;
   const monto=auto?data.monto:numVal('egr-monto')||0;
+  const itbis=auto?(data.itbis||0):(numVal('egr-itbis')||0);
   const desc=auto?data.desc:document.getElementById('egr-desc').value.trim();
   const numFactura=auto?(data.numFactura||''):document.getElementById('egr-numfactura').value.trim();
   const metodo=auto?data.metodo:document.getElementById('egr-metodo').value;
@@ -7315,7 +7330,7 @@ function addEgreso(auto=false,data={}){
   const guardar=()=>{
     const suplidor=S.suplidores.find(x=>x.id===suplidorId);
     const egresoId=Date.now()+Math.random();
-    S.egresos.push({id:egresoId,fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,desc,numFactura,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
+    S.egresos.push({id:egresoId,fecha,suplidorId,suplidorNombre:suplidor?.nombre||data.suplidorNombre||'',categoria:cat,monto,itbis,desc,numFactura,metodo,ref,cuentaIdx,esHistorico:auto?!!data.esHistorico:esHistorico,fuente:auto?data.fuente:'manual',fuenteId:auto?data.fuenteId:null});
     S.egresos.sort((a,b)=>a.fecha.localeCompare(b.fecha));
     if(!auto){
       if(esHistorico){
@@ -7340,6 +7355,7 @@ function addEgreso(auto=false,data={}){
       }
       save();renderEgresos();
       document.getElementById('egr-monto').value='';
+      document.getElementById('egr-itbis').value='';
       document.getElementById('egr-desc').value='';
       document.getElementById('egr-numfactura').value='';
       document.getElementById('egr-categoria').selectedIndex=0;
@@ -7531,6 +7547,9 @@ function renderEgresos(){
   document.getElementById('egr-mes').textContent=fmt(S.egresos.filter(x=>x.fecha.startsWith(cm)).reduce((s,x)=>s+x.monto,0));
   document.getElementById('egr-anio').textContent=fmt(S.egresos.filter(x=>x.fecha.startsWith(cy)).reduce((s,x)=>s+x.monto,0));
   document.getElementById('egr-total').textContent=fmt(S.egresos.reduce((s,x)=>s+x.monto,0));
+  // Crédito fiscal: ITBIS pagado en compras del mes (excluye remisiones a la DGII, esas no son
+  // compras con crédito, son el pago del impuesto mismo).
+  document.getElementById('egr-itbis-mes').textContent=fmt(S.egresos.filter(x=>x.fecha.startsWith(cm)&&x.categoria!=='itbis').reduce((s,x)=>s+(x.itbis||0),0));
   // Autocompletado de la búsqueda con los nombres de suplidores ya cargados
   const dl=document.getElementById('egr-search-datalist');
   if(dl) dl.innerHTML=S.suplidores.map(s=>`<option value="${esc(s.nombre)}">`).join('');
@@ -7553,8 +7572,8 @@ function renderEgresos(){
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
     const egrDescConFactura = x.numFactura ? `<strong style="color:#8899bb;">Fact. ${esc(x.numFactura)}</strong>${egrDesc!=='—'?' – '+esc(egrDesc):''}` : esc(egrDesc);
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
-  }).join(''):`<tr><td colspan="9"><div class="empty-state">Sin egresos que coincidan con la búsqueda.</div></td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td class="td-mono" style="color:#fdc901;">${x.itbis?fmt(x.itbis):'—'}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+  }).join(''):`<tr><td colspan="10"><div class="empty-state">Sin egresos que coincidan con la búsqueda.</div></td></tr>`;
 }
 
 // ══════════════════ RENTABILIDAD ══════════════════
