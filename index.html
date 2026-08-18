@@ -1867,6 +1867,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
   <!-- Summary cards -->
   <div id="rep-summary" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;"></div>
 
+  <!-- Donut chart por categoría -->
+  <div id="rep-donut-wrap" style="display:none;margin-bottom:20px;"></div>
+
   <!-- Results table -->
   <div id="rep-results">
     <div class="empty-state" style="padding:60px;">Selecciona un período y haz clic en Generar Reporte</div>
@@ -1894,19 +1897,19 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
   <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px;">
     <div>
-      <div style="font-size:13px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Período</div>
-      <div style="display:flex;gap:6px;" id="comp-periodo-tabs">
-        <button class="acct-tab active" onclick="setCompPeriodo('diario')">Diario</button>
-        <button class="acct-tab" onclick="setCompPeriodo('semanal')">Semanal</button>
-        <button class="acct-tab" onclick="setCompPeriodo('quincenal')">Quincenal</button>
-        <button class="acct-tab" onclick="setCompPeriodo('mensual')">Mensual</button>
+      <div style="font-size:15px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Período</div>
+      <div style="display:flex;gap:8px;" id="comp-periodo-tabs">
+        <button class="acct-tab active" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompPeriodo('diario')">Diario</button>
+        <button class="acct-tab" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompPeriodo('semanal')">Semanal</button>
+        <button class="acct-tab" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompPeriodo('quincenal')">Quincenal</button>
+        <button class="acct-tab" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompPeriodo('mensual')">Mensual</button>
       </div>
     </div>
     <div>
-      <div style="font-size:13px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Base de Cálculo</div>
-      <div style="display:flex;gap:6px;" id="comp-base-tabs">
-        <button class="acct-tab active" onclick="setCompBase('ventareal')" title="Reconoce el ingreso el día que se facturó/realizó la venta, no cuando se cobró — evita que una factura corporativa cobrada semanas después distorsione el día que realmente se ganó.">🎯 Venta Real</button>
-        <button class="acct-tab" onclick="setCompBase('efectivo')" title="Reconoce el ingreso el día exacto en que el dinero entró al banco (igual que Flujo de Caja).">💵 Efectivo</button>
+      <div style="font-size:15px;color:#8899bb;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Base de Cálculo</div>
+      <div style="display:flex;gap:8px;" id="comp-base-tabs">
+        <button class="acct-tab" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompBase('ventareal')" title="Reconoce el ingreso el día que se facturó/realizó la venta, no cuando se cobró — evita que una factura corporativa cobrada semanas después distorsione el día que realmente se ganó.">🎯 Venta Real</button>
+        <button class="acct-tab active" style="font-size:16px;padding:12px 22px;font-weight:600;" onclick="setCompBase('efectivo')" title="Reconoce el ingreso el día exacto en que el dinero entró al banco (igual que Flujo de Caja).">💵 Efectivo</button>
       </div>
     </div>
   </div>
@@ -5144,7 +5147,7 @@ function confirmCXPPayment(){
 // "Venta Real" reconoce el ingreso el día que se facturó (issued), no el día que se cobró —
 // evita que una factura corporativa cobrada semanas después distorsione el día real de la venta.
 // Los egresos siempre usan su fecha real de pago en ambos modos (ahí no hay distorsión que corregir).
-let _compPeriodo='diario', _compBase='ventareal';
+let _compPeriodo='diario', _compBase='efectivo';
 
 function getIngresosFlatComp(base){
   if(base==='efectivo') return S.ingresos.map(x=>({fecha:x.fecha, monto:x.monto}));
@@ -8294,6 +8297,7 @@ function renderReportes(){
   switchRep(_repSection);
 }
 
+let _repSortCol=null, _repSortDir='asc';
 function generateReport(){
   const cfg=REP_CONFIGS[_repSection];
   const d=document.getElementById('rep-desde')?.value||'';
@@ -8302,7 +8306,91 @@ function generateReport(){
   const f2=document.getElementById('rep-f2')?.value||'';
   const f3=document.getElementById('rep-f3')?.value||'';
   _repData=cfg.generate(d,h,f1,f2,f3);
+  _repSortCol=null; _repSortDir='asc'; // cada reporte nuevo arranca en su orden natural
   document.getElementById('rep-summary').innerHTML=cfg.summary(_repData).map(s=>`<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">${s.label}</div><div class="bcard-value" style="color:${s.color};font-size:20px;">${s.val}</div></div>`).join('');
+  renderReportTable(d,h);
+}
+
+// Ordena _repData por una columna clickeable (Categoría = texto, Monto/Total = número) y
+// vuelve a pintar la tabla sin recalcular los datos desde cero.
+function sortReportBy(colIndex){
+  const cfg=REP_CONFIGS[_repSection];
+  const header=cfg.headers[colIndex];
+  const esMonetaria=/RD\$|^Total$|^Cobrado$|^Pendiente$|^Abonado$/.test(header);
+  if(_repSortCol===colIndex) _repSortDir = _repSortDir==='asc'?'desc':'asc';
+  else { _repSortCol=colIndex; _repSortDir = esMonetaria?'desc':'asc'; }
+
+  const stripHtml=s=>(s||'').replace(/<[^>]*>/g,'').trim().toLowerCase();
+  _repData.sort((a,b)=>{
+    let va,vb;
+    if(esMonetaria){
+      // Usa el total numérico real de la fila, no el texto formateado en la celda
+      va=a.totals?.total??0; vb=b.totals?.total??0;
+    } else {
+      va=stripHtml(a.cells[colIndex]); vb=stripHtml(b.cells[colIndex]);
+    }
+    const cmp = va<vb?-1:va>vb?1:0;
+    return _repSortDir==='asc'?cmp:-cmp;
+  });
+  const d=document.getElementById('rep-desde')?.value||'', h=document.getElementById('rep-hasta')?.value||'';
+  renderReportTable(d,h);
+}
+
+const DONUT_COLORS=['#ef4444','#f97316','#fdc901','#4ade80','#22d3d3','#3b82f6','#818cf8','#c084fc','#ec4899','#f472b6','#a3e635','#fb923c'];
+function renderReportDonut(){
+  const cfg=REP_CONFIGS[_repSection];
+  const catIdx=cfg.headers.indexOf('Categoría');
+  const wrap=document.getElementById('rep-donut-wrap');
+  if(catIdx<0 || !_repData.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+
+  const stripHtml=s=>(s||'').replace(/<[^>]*>/g,'').trim();
+  const porCat={};
+  _repData.forEach(r=>{
+    const cat=stripHtml(r.cells[catIdx])||'Sin categoría';
+    porCat[cat]=(porCat[cat]||0)+(r.totals?.total||0);
+  });
+  const entries=Object.entries(porCat).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+  const total=entries.reduce((s,[,v])=>s+v,0);
+
+  const R=70,CX=100,CY=100,STROKE=42,CIRC=2*Math.PI*R;
+  let acumulado=0;
+  const arcos=entries.map(([label,val],i)=>{
+    const pct=val/total;
+    const largo=pct*CIRC;
+    const offset=-acumulado*CIRC;
+    acumulado+=pct;
+    const color=DONUT_COLORS[i%DONUT_COLORS.length];
+    return `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${STROKE}" stroke-dasharray="${largo.toFixed(2)} ${(CIRC-largo).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 ${CX} ${CY})"><title>${esc(label)}: ${fmt(val)} (${(pct*100).toFixed(1)}%)</title></circle>`;
+  }).join('');
+
+  const leyenda=entries.map(([label,val],i)=>{
+    const color=DONUT_COLORS[i%DONUT_COLORS.length];
+    const pct=(val/total*100).toFixed(1);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;">
+      <span style="width:13px;height:13px;border-radius:3px;background:${color};flex-shrink:0;"></span>
+      <span style="font-size:15px;color:#c0c6d8;flex:1;">${esc(label)}</span>
+      <span style="font-family:var(--mono);font-size:15px;color:#9ca3af;">${fmt(val)}</span>
+      <span style="font-size:13px;color:#6b7a99;width:48px;text-align:right;">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  wrap.style.display='';
+  wrap.innerHTML=`
+    <div class="add-form" style="margin-bottom:0;">
+      <h3>Distribución por Categoría</h3>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:12px;">
+        <svg viewBox="0 0 200 200" style="width:230px;height:230px;flex-shrink:0;">${arcos}
+          <text x="100" y="95" text-anchor="middle" fill="#e8eeff" font-size="15" font-family="Arial" letter-spacing="1">TOTAL</text>
+          <text x="100" y="118" text-anchor="middle" fill="#818cf8" font-size="15" font-weight="700" font-family="Arial">${fmt(total)}</text>
+        </svg>
+        <div style="flex:1;min-width:260px;max-width:420px;">${leyenda}</div>
+      </div>
+    </div>`;
+}
+function renderReportTable(d,h){
+  const cfg=REP_CONFIGS[_repSection];
+  renderReportDonut();
   if(!_repData.length){document.getElementById('rep-results').innerHTML='<div class="empty-state" style="padding:48px;">Sin resultados para el período y filtros seleccionados.</div>';return;}
   const colTotal=_repData.reduce((s,r)=>s+r.totals.total,0);
   document.getElementById('rep-results').innerHTML=`
@@ -8312,7 +8400,14 @@ function generateReport(){
         <span style="font-family:var(--mono);font-size:16px;font-weight:500;color:#818cf8;">Total: ${fmt(colTotal)}</span>
       </div>
       <table>
-        <thead><tr>${cfg.headers.map(hd=>`<th>${hd}</th>`).join('')}</tr></thead>
+        <thead><tr>${cfg.headers.map((hd,i)=>{
+          const esMonetaria=/RD\$|^Total$|^Cobrado$|^Pendiente$|^Abonado$/.test(hd);
+          const esOrdenable = esMonetaria || hd==='Categoría';
+          if(!esOrdenable) return `<th>${hd}</th>`;
+          const activo=_repSortCol===i;
+          const flecha=activo?(_repSortDir==='asc'?' ▲':' ▼'):'';
+          return `<th onclick="sortReportBy(${i})" style="cursor:pointer;user-select:none;${activo?'color:#818cf8;':''}" title="Clic para ordenar">${hd}${flecha}</th>`;
+        }).join('')}</tr></thead>
         <tbody>${_repData.map(r=>`<tr>${r.cells.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
         <tfoot><tr>${cfg.headers.map((_,i)=>i===cfg.headers.length-1?`<td style="font-family:var(--mono);font-size:15px;font-weight:600;color:#818cf8;padding:14px 16px;background:rgba(79,70,229,.06);border-top:2px solid var(--border2);">${fmt(colTotal)}</td>`:`<td style="background:rgba(79,70,229,.06);border-top:2px solid var(--border2);"></td>`).join('')}</tr></tfoot>
       </table>
