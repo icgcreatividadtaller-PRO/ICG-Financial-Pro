@@ -6554,7 +6554,10 @@ async function confirmarCargaFactura(){
   }
   document.getElementById('cxc-desc').value=desc;
   document.getElementById('cxc-issued').value=fechaEmision;
-  if(categoria){ refreshCxCCatSelect(categoria); }
+  // Siempre se actualiza (aunque venga vacía) para no heredar por accidente la categoría de la
+  // última factura registrada — si el OCR no la detectó, addCXC() bloquea el guardado y obliga
+  // a elegirla a mano, en vez de guardar una factura con una categoría vieja y equivocada.
+  refreshCxCCatSelect(categoria);
   setMontoValue('cxc-subtotal',subtotal);
   setMontoValue('cxc-itbis',itbis);
   setMontoValue('cxc-amount',total);
@@ -8171,7 +8174,7 @@ const REP_CONFIGS={
   cxc:{
     label:'Cuentas por Cobrar',
     dynFilter:`<div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Cliente</div><select id="rep-f1" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:180px;"><option value="">Todos</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Estado</div><select id="rep-f2" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="pendientes">Pendientes (Por Cobrar + Vencidas)</option><option value="por_cobrar">Solo Por Cobrar (no vencidas)</option><option value="vencida">Solo Vencidas</option><option value="pagada">Pagadas</option><option value="">Todas (incl. Pagadas)</option></select></div><div><div style="font-size:15px;color:#8899bb;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;">Tipo de Venta</div><select id="rep-f3" style="background:var(--s2);border:1px solid var(--border2);border-radius:5px;color:#c8d0e0;font-family:var(--font);font-size:15px;padding:10px 14px;outline:none;min-width:160px;"><option value="">Todos</option><option value="directa">🏪 Counter</option><option value="corporativa">🏢 Corporativa</option></select></div>`,
-    headers:['N° Factura','Cliente','Tipo Venta','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
+    headers:['N° Factura','Cliente','Categoría','Tipo Venta','Creación','Vencimiento','Total RD$','Estado','Cobrado','Pendiente'],
     generate(d,h,f1,f2,f3){
       let items=[...S.cuentasCobrar];
       if(d) items=items.filter(x=>x.issued>=d);
@@ -8186,7 +8189,8 @@ const REP_CONFIGS={
       return items.map(x=>{
         const st=cxcSt(x),stC=st==='pagada'?'#818cf8':st==='vencida'?'#ef4444':st==='parcial'?'#4f46e5':'#b0bbcf';
         const paid=cxcPaidSoFar(x), pend=cxcPending(x);
-        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',tipoVentaBadge(x.tipoVenta),fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,paid>0?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:paid,pendiente:pend}};
+        const catLbl=getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria||'—';
+        return{cells:[esc(x.invoice)||'—',esc(x.client||x.clienteNombre)||'—',catLbl,tipoVentaBadge(x.tipoVenta),fmtDate(x.issued),fmtDate(x.due),fmt(x.amount),`<span style="color:${stC};">${st.replace('_',' ')}</span>`,paid>0?fmt(paid):'—',pend>0?`<span style="color:#ef4444">${fmt(pend)}</span>`:'—'],totals:{total:x.amount,cobrado:paid,pendiente:pend}};
       });
     },
     summary(rows){const tot=rows.reduce((s,r)=>s+r.totals.total,0),cob=rows.reduce((s,r)=>s+r.totals.cobrado,0),pen=rows.reduce((s,r)=>s+r.totals.pendiente,0);return[{label:'Total Facturado',val:fmt(tot),color:'#818cf8'},{label:'Total Cobrado',val:fmt(cob),color:'#818cf8'},{label:'Pendiente',val:fmt(pen),color:'#ef4444'},{label:'Documentos',val:rows.length,color:'#b0bbcf'}];}
