@@ -677,6 +677,25 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 
 <!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
+<!-- ══ CAMBIAR CATEGORÍA (factura de CxC ya pagada) — no toca el pago ni el dinero ══ -->
+<div class="modal-overlay" id="cambiarCatCxCModal">
+  <div class="modal" style="max-width:400px;border-color:rgba(129,140,248,.4);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">🏷️ Cambiar Categoría</h2>
+      <button class="modal-close" onclick="closeCambiarCatModal()">✕</button>
+    </div>
+    <p id="cambiarCatSubtitle" style="font-size:15px;color:#9ca3af;margin-bottom:16px;"></p>
+    <div class="form-group" style="margin-bottom:18px;">
+      <label>Nueva Categoría</label>
+      <select id="cambiarCat-select" style="width:100%;height:44px;box-sizing:border-box;"></select>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeCambiarCatModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarCambiarCategoria()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="pinGateModal" style="display:none;position:fixed;inset:0;z-index:99997;background:rgba(2,5,16,.88);align-items:center;justify-content:center;">
   <div class="modal" style="background:#0a0e1f;border:1px solid rgba(129,140,248,.25);border-radius:14px;padding:32px;width:100%;max-width:340px;box-sizing:border-box;">
     <div id="pinGateNormalView">
@@ -1063,7 +1082,7 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>N° Factura</th><th>Cliente</th><th>Descripción</th><th>Tipo</th><th>Creación</th><th>Vencimiento</th><th>Total RD$</th><th>Estado</th><th></th>
+        <th>N° Factura</th><th>Cliente</th><th>Categoría</th><th>Descripción</th><th>Tipo</th><th>Creación</th><th>Vencimiento</th><th>Total RD$</th><th>Estado</th><th></th>
       </tr></thead>
       <tbody id="cxc-tbody"></tbody>
     </table></div>
@@ -4035,12 +4054,51 @@ function confirmPayment(){
   notify('success', quedaSaldada?'Factura Saldada':'Abono Registrado', detail);
 }
 
+let _cambiarCatCxCId=null;
+// Cambia SOLO la categoría de una factura de CxC ya pagada — a propósito no toca estado,
+// fechas de pago, ni el Ingreso bancario ya generado (el dinero se queda exactamente igual).
+// También actualiza el Ingreso ya generado por esa factura, para que ambos lados coincidan.
+function cambiarCategoriaCxCPagada(id){
+  const x=S.cuentasCobrar.find(i=>i.id===id); if(!x)return;
+  _cambiarCatCxCId=id;
+  document.getElementById('cambiarCatSubtitle').innerHTML=`Factura <strong style="color:#818cf8;">${esc(x.invoice)}</strong> — ${esc(x.client)}<br><span style="color:#6b7a99;">Esto no afecta el pago ni el dinero ya registrado, solo la clasificación.</span>`;
+  const sel=document.getElementById('cambiarCat-select');
+  sel.innerHTML=getAllIngCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+  if(x.categoria && sel.querySelector(`option[value="${x.categoria}"]`)) sel.value=x.categoria;
+  document.getElementById('cambiarCatCxCModal').classList.add('open');
+}
+function closeCambiarCatModal(){
+  document.getElementById('cambiarCatCxCModal').classList.remove('open');
+  _cambiarCatCxCId=null;
+}
+function confirmarCambiarCategoria(){
+  if(!_cambiarCatCxCId) return;
+  const x=S.cuentasCobrar.find(i=>i.id===_cambiarCatCxCId); if(!x)return;
+  const nuevaCat=document.getElementById('cambiarCat-select').value;
+  if(!nuevaCat){ notify('error','Falta la Categoría','Selecciona una categoría.'); return; }
+  x.categoria=nuevaCat;
+  // Propaga a los Ingresos ya generados por esta factura (por id directo, o por cada abono)
+  const idsVinculo=new Set((x.pagos||[]).map(p=>p.id));
+  idsVinculo.add(x.id); // compatibilidad con pagos viejos de un solo cobro
+  let ingresosActualizados=0;
+  S.ingresos.forEach(i=>{
+    if(i.fuente==='cxc' && idsVinculo.has(i.fuenteId)){ i.categoria=nuevaCat; ingresosActualizados++; }
+  });
+  save(); renderCXC(); closeCambiarCatModal();
+  notify('success','Categoría Actualizada',`${x.invoice} → ${getAllIngCats().find(c=>c.key===nuevaCat)?.label||nuevaCat}${ingresosActualizados?` · ${ingresosActualizados} ingreso(s) también actualizado(s)`:''}`);
+}
+
 function reopenCXC(id){
   const x=S.cuentasCobrar.find(i=>i.id===id); if(!x)return;
   icgConfirm('¿Reabrir esta factura como Pendiente de Cobro? El ingreso bancario no se revertirá automáticamente.','Reabrir Factura','Reabrir',false).then(ok=>{
     if(!ok)return;
     x.estado='por_cobrar'; x.paidDate=null; x.payMethod=null; x.payBankIdx=null;
-    save(); renderCXC();
+    save();
+    // Al reabrirla, sale de la pestaña "Pagadas" (ya no cumple ese filtro) — sin avisar, se
+    // sentía como si el botón no hiciera nada. Se lleva al usuario directo a donde sí la va a
+    // ver, en vez de dejarla desaparecer en silencio de la lista que estaba mirando.
+    switchCXCView('pendientes');
+    notify('success','Factura Reabierta',`${x.invoice} volvió a estado "Por Cobrar" — la puedes ver aquí en Pendientes.`);
   });
 }
 
@@ -4112,7 +4170,7 @@ function renderCXC(){
     // If same number or non-numeric, sort alphabetically
     return (b.invoice||'').localeCompare(a.invoice||'');
   });
-  if(!items.length){tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state">${_cxcView==='pagadas'?'Sin facturas pagadas todavía.':'Sin facturas pendientes — ¡al día!'}</div></td></tr>`;return;}
+  if(!items.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state">${_cxcView==='pagadas'?'Sin facturas pagadas todavía.':'Sin facturas pendientes — ¡al día!'}</div></td></tr>`;return;}
 
   tbody.innerHTML=items.map(x=>{
     const isOverdue=x._st==='vencida';
@@ -4153,6 +4211,7 @@ function renderCXC(){
     return `<tr>
       <td class="td-mono" style="font-weight:600;color:#818cf8;">${esc(x.invoice)}</td>
       <td><strong>${esc(x.client)}</strong></td>
+      <td><span class="badge" style="background:rgba(129,140,248,.12);color:#818cf8;">${esc(getAllIngCats().find(c=>c.key===x.categoria)?.label||x.categoria||'—')}</span></td>
       <td style="color:#9ca3af;font-size:16px;max-width:180px;">${esc(x.desc)||'—'}</td>
       <td>${tipoVentaBadge(x.tipoVenta,'cxc',x.id)}</td>
       <td class="td-mono">${fmtDate(x.issued)}<br><span style="font-size:18px;color:#9ca3af;">${x.creditDays||30} días</span></td>
@@ -4161,6 +4220,7 @@ function renderCXC(){
       <td>${estadoCell}</td>
       <td style="display:flex;gap:4px;align-items:center;">
         ${!isPaid?`<button class="del-btn" onclick="editCXC(${x.id})" title="Editar" style="color:#818cf8;">✎</button>`:''}
+        ${isPaid?`<button class="del-btn" onclick="cambiarCategoriaCxCPagada(${x.id})" title="Cambiar Categoría (sin afectar el pago)" style="color:#818cf8;">🏷️</button>`:''}
         ${isPaid?`<button class="del-btn" onclick="reopenCXC(${x.id})" title="Reabrir" style="color:#818cf8;">↩</button>`:''}
         <button class="del-btn" onclick="delCXC(${x.id})" title="Eliminar">×</button>
       </td>
