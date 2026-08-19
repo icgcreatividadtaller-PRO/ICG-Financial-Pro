@@ -7911,15 +7911,16 @@ const CXP_CAT_LABEL_TO_KEY={'materiales':'materiales','nómina':'nomina','alquil
 // factura contra el Ingreso que ya existe, para no duplicar dinero.
 function repararFacturasHuerfanas(){
   const huerfanos=[];
+  const facturasYaProcesadas=new Set();
   S.ingresos.filter(i=>i.fuente==='cxc').forEach(ing=>{
-    // ¿Ya está vinculado a un pago dentro de alguna factura? (id directo = legado, o dentro de pagos[])
-    const yaVinculado = S.cuentasCobrar.some(x=>x.id===ing.fuenteId || (x.pagos||[]).some(p=>p.id===ing.fuenteId));
-    if(yaVinculado) return;
     const m=(ing.desc||'').match(/Fact\.\s*(\S+)/i);
     if(!m) return;
     const numFactura=m[1];
     const factura=S.cuentasCobrar.find(x=>(x.invoice||'').toUpperCase()===numFactura.toUpperCase());
-    if(!factura || factura.estado==='pagada') return;
+    if(!factura) return;
+    if(factura.estado==='pagada') return; // ya está correctamente cerrada — nada que reparar
+    if(facturasYaProcesadas.has(factura.id)) return; // ya se va a reparar con otro ingreso vinculado a la misma factura
+    facturasYaProcesadas.add(factura.id);
     huerfanos.push({ing, factura, numFactura});
   });
 
@@ -7939,11 +7940,15 @@ function repararFacturasHuerfanas(){
     huerfanos.forEach(({ing,factura})=>{
       const retAmount = Math.max(0, Math.round((factura.amount-ing.monto)*100)/100);
       factura.pagos = factura.pagos||[];
-      factura.pagos.push({
-        id: ing.fuenteId, date: ing.fecha, montoBruto: factura.amount, netAmount: ing.monto,
-        method: ing.metodo, bankIdx: ing.esHistorico?null:ing.cuentaIdx,
-        retType: retAmount>0.009?'otro':'ninguna', retAmount, ref: ing.ref||''
-      });
+      // Evita duplicar el pago si por alguna razón ya existe una entrada con este mismo id
+      // (por ejemplo, si el botón se corre una segunda vez sobre la misma factura).
+      if(!factura.pagos.some(p=>p.id===ing.fuenteId)){
+        factura.pagos.push({
+          id: ing.fuenteId, date: ing.fecha, montoBruto: factura.amount, netAmount: ing.monto,
+          method: ing.metodo, bankIdx: ing.esHistorico?null:ing.cuentaIdx,
+          retType: retAmount>0.009?'otro':'ninguna', retAmount, ref: ing.ref||''
+        });
+      }
       factura.estado='pagada';
       factura.paidDate=ing.fecha;
       factura.payMethod=ing.metodo;
