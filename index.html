@@ -968,9 +968,6 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <p>Facturas emitidas · seguimiento de cobros</p>
     </div>
     <div class="balance-cards">
-      <button onclick="toggleCxCPrivacy()" title="Ocultar/mostrar montos" style="background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:8px;width:44px;align-self:stretch;color:#a5b4fc;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-        <span id="cxc-privacy-icon" style="display:inline-flex;"></span>
-      </button>
       <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Total Facturado</div><div class="bcard-value" style="color:#818cf8;" id="cxcTotal">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Por Cobrar</div><div class="bcard-value" style="color:#818cf8;" id="cxcPending">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Vencido</div><div class="bcard-value negative" id="cxcOverdue">RD$0.00</div></div>
@@ -2823,6 +2820,7 @@ function init(){
   startAutoSaveTimer();
   markSavedAt();
   setTimeout(checkVencimientosProximos, 2500);
+  wireAllPrivacyButtons();
   renderPinResetBanner();
 }
 
@@ -2896,6 +2894,7 @@ function switchAccount(i){
   const d=document.createElement('div'); d.id=`panel-${i}`; d.innerHTML=accountHTML(i); c.appendChild(d); renderTx(i);
   // Initialize transfer-related field visibility (método defaults to 'transferencia')
   onFMethodChange(i);
+  wireAllPrivacyButtons(); // el panel se acaba de reconstruir — engancha su botón de privacidad
 }
 
 // ══ PIN de seguridad: protege Cuentas y Estado de Resultados de cualquiera que
@@ -3171,7 +3170,7 @@ function accountHTML(i){
   return `
   <div class="account-top">
     <div class="account-name-area"><h2 id="accTitle-${i}">${acc.name}</h2><p>Historial de movimientos</p></div>
-    <div class="balance-cards">
+    <div class="balance-cards" id="balcards-acc-${i}">
       <div class="bcard" style="border-color:#818cf844;background:rgba(129,140,248,.04);"><div class="bcard-label">Balance Inicial</div><div class="bcard-value" style="color:#818cf8;" id="initBD-${i}">${fmt(acc.initialBalance)}</div></div>
       <div class="bcard"><div class="bcard-label">Ingresos</div><div class="bcard-value positive" id="tInc-${i}">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Egresos</div><div class="bcard-value negative" id="tExp-${i}">RD$0.00</div></div>
@@ -4191,29 +4190,73 @@ function switchCXCView(v){
 // Íconos de línea (sin relleno, monocromáticos) — reutilizables cuando se replique en otros módulos.
 const ICON_EYE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
 const ICON_CAT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 7 8"/><path d="M20 4 17 8"/><path d="M7 8c-2 0-3 5-3 8 0 4 3.5 7 8 7s8-3 8-7c0-3-1-8-3-8"/><path d="M9.3 15c.8.7 1.7 1 2.7 1s1.9-.3 2.7-1"/><circle cx="9" cy="12" r=".6" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>`;
-let _cxcPrivacyOn=false;
-// Pinta los 4 valores según el estado actual, sin animar — se usa en cada render normal para que
-// la vista oculta sobreviva aunque la pantalla se vuelva a dibujar por otra acción.
-function applyCxCPrivacy(animar){
-  const ids=['cxcTotal','cxcPending','cxcOverdue','cxcPaid'];
-  ids.forEach((id,i)=>{
-    const el=document.getElementById(id); if(!el) return;
-    const pintar=()=>{ el.textContent = _cxcPrivacyOn ? '' : (el.dataset.real||''); };
-    if(!animar){ pintar(); return; }
-    setTimeout(()=>{
-      el.style.transform='rotateX(90deg)';
-      setTimeout(()=>{ pintar(); el.style.transform='rotateX(0deg)'; },175);
-    }, i*60);
+
+// ══════════════════ PRIVACIDAD DE MONTOS — sistema genérico (un botón por módulo) ══════════════════
+// Se le puede pedir a cualquier grupo de tarjetas ".bcard-value" que se pueda ocultar/mostrar con
+// un botón propio, sin tener que tocar cada función de render — un MutationObserver vigila el
+// contenedor y, si está en modo oculto, borra cualquier valor real que se vuelva a pintar (por un
+// re-render normal) antes de que el navegador llegue a mostrarlo (los observers corren como
+// "microtask", antes del siguiente repintado — no hay parpadeo del número real).
+const _privacyModules = {};
+function initPrivacyModule(key, containerEl, btnEl){
+  const state = _privacyModules[key] || (_privacyModules[key] = {on:false});
+  const iconSpan = btnEl.querySelector('.privacy-icon');
+  // El observer se ata al contenedor UNA sola vez — el contenedor en sí sobrevive aunque su
+  // contenido (innerHTML) se reconstruya en cada render, así que no hace falta reconectarlo.
+  if(!containerEl._privacyObserverAttached){
+    containerEl._privacyObserverAttached=true;
+    new MutationObserver(()=>{
+      if(!state.on) return;
+      containerEl.querySelectorAll('.bcard-value').forEach(el=>{
+        if(el.textContent && el.textContent.trim()!==''){
+          el.dataset.real = el.textContent;
+          el.textContent='';
+        }
+      });
+    }).observe(containerEl, {childList:true, characterData:true, subtree:true});
+  }
+  if(iconSpan) iconSpan.innerHTML = state.on ? ICON_CAT : ICON_EYE;
+  btnEl.addEventListener('click', ()=>{
+    state.on = !state.on;
+    const vals = containerEl.querySelectorAll('.bcard-value');
+    vals.forEach((el,i)=>{
+      if(!el.dataset.real && el.textContent) el.dataset.real = el.textContent;
+      setTimeout(()=>{
+        el.style.transition='transform .35s'; el.style.display='inline-block';
+        el.style.transform='rotateX(90deg)';
+        setTimeout(()=>{
+          if(state.on){ if(el.textContent) el.dataset.real=el.textContent; el.textContent=''; }
+          else { el.textContent = el.dataset.real||''; }
+          el.style.transform='rotateX(0deg)';
+        },175);
+      }, i*45);
+    });
+    if(iconSpan) iconSpan.innerHTML = state.on ? ICON_CAT : ICON_EYE;
   });
-  const icon=document.getElementById('cxc-privacy-icon');
-  if(icon) icon.innerHTML = _cxcPrivacyOn ? ICON_CAT : ICON_EYE;
+  // Si este botón se acaba de re-crear (porque su contenedor se reconstruyó) y el módulo ya
+  // estaba oculto, oculta de inmediato los valores recién pintados, sin animar ni parpadear.
+  if(state.on){
+    containerEl.querySelectorAll('.bcard-value').forEach(el=>{
+      if(el.textContent && el.textContent.trim()!==''){ el.dataset.real=el.textContent; el.textContent=''; }
+    });
+  }
 }
-function toggleCxCPrivacy(){
-  _cxcPrivacyOn=!_cxcPrivacyOn;
-  document.querySelectorAll('#cxcTotal,#cxcPending,#cxcOverdue,#cxcPaid').forEach(el=>{
-    el.style.transition='transform .35s'; el.style.display='inline-block';
+// Engancha el botón de privacidad a TODOS los grupos ".balance-cards" que todavía no lo tengan —
+// segura de llamar repetidas veces (por ejemplo, después de que un módulo reconstruye sus
+// tarjetas por completo) porque solo agrega el botón si de verdad falta.
+function wireAllPrivacyButtons(){
+  document.querySelectorAll('.balance-cards').forEach((cards,i)=>{
+    if(cards.querySelector('.bcard-value')===null) return;
+    if(cards.querySelector(':scope > .privacy-toggle-btn')) return;
+    const key = cards.id || ('auto-'+i);
+    const btn=document.createElement('button');
+    btn.className='privacy-toggle-btn';
+    btn.title='Ocultar/mostrar montos';
+    btn.style.cssText='background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:8px;width:44px;align-self:stretch;color:#a5b4fc;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;order:-1;';
+    btn.innerHTML=`<span class="privacy-icon" style="display:inline-flex;">${ICON_EYE}</span>`;
+    cards.insertBefore(btn, cards.firstChild);
+    initPrivacyModule(key, cards, btn);
   });
-  applyCxCPrivacy(true);
 }
 function renderCXC(){
   refreshCxCClientSelect();
@@ -4227,11 +4270,10 @@ function renderCXC(){
   const unpaid=S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x)).reduce((s,x)=>s+cxcPending(x),0);
   const venc=S.cuentasCobrar.filter(x=>cxcSt(x)==='vencida').reduce((s,x)=>s+cxcPending(x),0);
   const paid=S.cuentasCobrar.filter(x=>x.estado==='pagada').reduce((s,x)=>s+x.amount,0);
-  document.getElementById('cxcTotal').dataset.real=fmt(tot);
-  document.getElementById('cxcPending').dataset.real=fmt(unpaid);
-  document.getElementById('cxcOverdue').dataset.real=fmt(venc);
-  document.getElementById('cxcPaid').dataset.real=fmt(paid);
-  applyCxCPrivacy(false); // pinta el valor real u oculto, según el estado actual — sin animar
+  document.getElementById('cxcTotal').textContent=fmt(tot);
+  document.getElementById('cxcPending').textContent=fmt(unpaid);
+  document.getElementById('cxcOverdue').textContent=fmt(venc);
+  document.getElementById('cxcPaid').textContent=fmt(paid);
   // Table
   const tbody=document.getElementById('cxc-tbody');
   const fs=document.getElementById('cxc-filter-status')?.value||'';
@@ -4912,6 +4954,7 @@ function renderFlujoCaja(){
     <div class="bcard" style="flex:1;min-width:150px;"><div class="bcard-label">+ Cobros CxC Esperados</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalCxC)}</div></div>
     <div class="bcard" style="flex:1;min-width:150px;"><div class="bcard-label">− Pagos CxP Comprometidos</div><div class="bcard-value negative">${fmt(totalCxP)}</div></div>
     <div class="bcard" style="flex:1;min-width:150px;border-color:rgba(129,140,248,.4);"><div class="bcard-label">Subtotal Antes de Retiros</div><div class="bcard-value" style="color:#818cf8;font-weight:700;">${fmt(subtotalAntes)}</div></div>`;
+  wireAllPrivacyButtons();
 
   let color,icono,veredicto;
   if(proyectado<0){ color='#ef4444'; icono='🔴'; veredicto='No es seguro — el proyectado queda en negativo. No retires ese monto completo todavía.'; }
@@ -7757,6 +7800,7 @@ function renderRentabilidad(){
     <div class="bcard" style="border-color:rgba(239,68,68,.3);flex:1;min-width:130px;"><div class="bcard-label">Egresos ${desde?'desde '+fmtDate(desde):year}</div><div class="bcard-value negative">${fmt(totEgr)}</div></div>
     <div class="bcard" style="border-color:${totUtil>=0?'rgba(79,70,229,.3)':'rgba(239,68,68,.3)'};flex:1;min-width:130px;"><div class="bcard-label">Utilidad Neta (Después de ITBIS)</div><div class="bcard-value ${totUtil>=0?'neutral':'negative'}">${fmt(totUtil)}</div></div>
     <div class="bcard" style="border-color:rgba(129,140,248,.3);flex:1;min-width:130px;"><div class="bcard-label">Margen Neto</div><div class="bcard-value" style="color:${totMarg>=0?'#818cf8':'#ef4444'}">${totMarg.toFixed(1)}%</div></div>`;
+  wireAllPrivacyButtons();
   // SVG Chart
   const W=760,H=200,pL=60,pB=36,pT=16,pR=16,iW=W-pL-pR,iH=H-pB-pT;
   const maxV=Math.max(...data.map(p=>Math.max(p.ing,p.egr)),1);
@@ -8585,6 +8629,10 @@ function renderReportDonut(){
     <div class="add-form" style="margin-bottom:0;">
       <h3>Distribución por Categoría</h3>
       <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:12px;">
+        <div style="text-align:center;flex-shrink:0;min-width:130px;">
+          <div style="font-size:14px;color:#8899bb;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Total</div>
+          <div style="font-size:26px;font-weight:800;color:#a5b4fc;line-height:1.2;">${fmt(total)}</div>
+        </div>
         <svg viewBox="0 0 200 200" style="width:290px;height:290px;flex-shrink:0;">
           <defs>
             <filter id="donutShadow" x="-40%" y="-40%" width="180%" height="180%">
@@ -8598,9 +8646,6 @@ function renderReportDonut(){
           </defs>
           ${arcos}
           <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="url(#donutGloss)" stroke-width="${STROKE}"></circle>
-          <circle cx="${CX}" cy="${CY}" r="${R-STROKE/2-4}" fill="#0a0e1f" opacity="0.55"></circle>
-          <text x="100" y="93" text-anchor="middle" fill="#8899bb" font-size="14" font-family="Arial" letter-spacing="1.5">TOTAL</text>
-          <text x="100" y="118" text-anchor="middle" fill="#a5b4fc" font-size="19" font-weight="800" font-family="Arial">${fmt(total)}</text>
         </svg>
         <div style="flex:1;min-width:260px;max-width:420px;">${leyenda}</div>
       </div>
@@ -8814,6 +8859,7 @@ function generarLibroDiario(){
   document.getElementById('diario-summary').innerHTML=
     `<div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Asientos (líneas)</div><div class="bcard-value" style="color:#818cf8;">${_diarioData.length}</div></div>
      <div class="bcard" style="flex:1;min-width:140px;"><div class="bcard-label">Total Movido</div><div class="bcard-value" style="color:#818cf8;">${fmt(totalDebe)}</div></div>`;
+  wireAllPrivacyButtons();
   document.getElementById('diario-tbody').innerHTML=_diarioData.length?_diarioData.map(l=>
     `<tr><td class="td-mono">${fmtDate(l.fecha)}</td><td>${cuentaLabel(l.debeCode)}</td><td>${cuentaLabel(l.haberCode)}</td><td style="max-width:260px;">${esc(l.concepto)}</td><td class="td-mono" style="font-weight:600;">${fmt(l.monto)}</td><td style="color:#8899bb;">${esc(l.ref)}</td></tr>`
   ).join(''):`<tr><td colspan="6"><div class="empty-state">Sin movimientos en el período seleccionado.</div></td></tr>`;
