@@ -677,6 +677,25 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
 
 
 <!-- ══ PIN de seguridad — protege Cuentas y Estado de Resultados ══ -->
+<!-- ══ CAMBIAR CATEGORÍA (Egreso) — no toca el pago ni el dinero ══ -->
+<div class="modal-overlay" id="cambiarCatEgresoModal">
+  <div class="modal" style="max-width:400px;border-color:rgba(129,140,248,.4);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:16px;color:#e8eeff;text-transform:uppercase;letter-spacing:.05em;">🏷️ Cambiar Categoría</h2>
+      <button class="modal-close" onclick="closeCambiarCatEgresoModal()">✕</button>
+    </div>
+    <p id="cambiarCatEgresoSubtitle" style="font-size:15px;color:#9ca3af;margin-bottom:16px;"></p>
+    <div class="form-group" style="margin-bottom:18px;">
+      <label>Nueva Categoría</label>
+      <select id="cambiarCatEgreso-select" style="width:100%;height:44px;box-sizing:border-box;"></select>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="closeCambiarCatEgresoModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarCambiarCategoriaEgreso()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ CAMBIAR CATEGORÍA (factura de CxC ya pagada) — no toca el pago ni el dinero ══ -->
 <div class="modal-overlay" id="cambiarCatCxCModal">
   <div class="modal" style="max-width:400px;border-color:rgba(129,140,248,.4);">
@@ -949,6 +968,9 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
       <p>Facturas emitidas · seguimiento de cobros</p>
     </div>
     <div class="balance-cards">
+      <button onclick="toggleCxCPrivacy()" title="Ocultar/mostrar montos" style="background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:8px;width:44px;align-self:stretch;color:#a5b4fc;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        <span id="cxc-privacy-icon" style="display:inline-flex;"></span>
+      </button>
       <div class="bcard" style="border-color:rgba(129,140,248,.3);"><div class="bcard-label">Total Facturado</div><div class="bcard-value" style="color:#818cf8;" id="cxcTotal">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Por Cobrar</div><div class="bcard-value" style="color:#818cf8;" id="cxcPending">RD$0.00</div></div>
       <div class="bcard"><div class="bcard-label">Vencido</div><div class="bcard-value negative" id="cxcOverdue">RD$0.00</div></div>
@@ -4055,6 +4077,37 @@ function confirmPayment(){
   notify('success', quedaSaldada?'Factura Saldada':'Abono Registrado', detail);
 }
 
+let _cambiarCatEgresoId=null;
+// Cambia la categoría de un Egreso sin tocar el pago ni el dinero. Si el egreso viene de un pago
+// de CxP, también actualiza la categoría en el ítem de CxP de origen, para que ambos coincidan.
+function cambiarCategoriaEgreso(id){
+  const x=S.egresos.find(e=>e.id===id); if(!x)return;
+  _cambiarCatEgresoId=id;
+  document.getElementById('cambiarCatEgresoSubtitle').innerHTML=`${esc(x.suplidorNombre)||'Egreso'} — ${fmt(x.monto)}<br><span style="color:#6b7a99;">Esto no afecta el pago ni el dinero ya registrado, solo la clasificación.</span>`;
+  const sel=document.getElementById('cambiarCatEgreso-select');
+  sel.innerHTML=getAllEgrCats().map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+  if(x.categoria && sel.querySelector(`option[value="${x.categoria}"]`)) sel.value=x.categoria;
+  document.getElementById('cambiarCatEgresoModal').classList.add('open');
+}
+function closeCambiarCatEgresoModal(){
+  document.getElementById('cambiarCatEgresoModal').classList.remove('open');
+  _cambiarCatEgresoId=null;
+}
+function confirmarCambiarCategoriaEgreso(){
+  if(!_cambiarCatEgresoId) return;
+  const x=S.egresos.find(e=>e.id===_cambiarCatEgresoId); if(!x)return;
+  const nuevaCat=document.getElementById('cambiarCatEgreso-select').value;
+  if(!nuevaCat){ notify('error','Falta la Categoría','Selecciona una categoría.'); return; }
+  x.categoria=nuevaCat;
+  let cxpActualizado=false;
+  if(x.fuente==='cxp' && x.fuenteId!=null){
+    const item=allCXPItems().find(i=>i.id===x.fuenteId || (i.pagos||[]).some(p=>p.id===x.fuenteId));
+    if(item){ item.categoria=nuevaCat; cxpActualizado=true; }
+  }
+  save(); renderEgresos(); closeCambiarCatEgresoModal();
+  notify('success','Categoría Actualizada',`${getAllEgrCats().find(c=>c.key===nuevaCat)?.label||nuevaCat}${cxpActualizado?' · también actualizado en CxP':''}`);
+}
+
 let _cambiarCatCxCId=null;
 // Cambia SOLO la categoría de una factura de CxC ya pagada — a propósito no toca estado,
 // fechas de pago, ni el Ingreso bancario ya generado (el dinero se queda exactamente igual).
@@ -4134,6 +4187,34 @@ function switchCXCView(v){
   document.getElementById('cxc-filter-status-wrap').style.display = v==='pendientes' ? '' : 'none';
   renderCXC();
 }
+// ══════════════════ PRIVACIDAD DE MONTOS (por módulo — este es el piloto en CxC) ══════════════════
+// Íconos de línea (sin relleno, monocromáticos) — reutilizables cuando se replique en otros módulos.
+const ICON_EYE = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const ICON_CAT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 7 8"/><path d="M20 4 17 8"/><path d="M7 8c-2 0-3 5-3 8 0 4 3.5 7 8 7s8-3 8-7c0-3-1-8-3-8"/><path d="M9.3 15c.8.7 1.7 1 2.7 1s1.9-.3 2.7-1"/><circle cx="9" cy="12" r=".6" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>`;
+let _cxcPrivacyOn=false;
+// Pinta los 4 valores según el estado actual, sin animar — se usa en cada render normal para que
+// la vista oculta sobreviva aunque la pantalla se vuelva a dibujar por otra acción.
+function applyCxCPrivacy(animar){
+  const ids=['cxcTotal','cxcPending','cxcOverdue','cxcPaid'];
+  ids.forEach((id,i)=>{
+    const el=document.getElementById(id); if(!el) return;
+    const pintar=()=>{ el.textContent = _cxcPrivacyOn ? '' : (el.dataset.real||''); };
+    if(!animar){ pintar(); return; }
+    setTimeout(()=>{
+      el.style.transform='rotateX(90deg)';
+      setTimeout(()=>{ pintar(); el.style.transform='rotateX(0deg)'; },175);
+    }, i*60);
+  });
+  const icon=document.getElementById('cxc-privacy-icon');
+  if(icon) icon.innerHTML = _cxcPrivacyOn ? ICON_CAT : ICON_EYE;
+}
+function toggleCxCPrivacy(){
+  _cxcPrivacyOn=!_cxcPrivacyOn;
+  document.querySelectorAll('#cxcTotal,#cxcPending,#cxcOverdue,#cxcPaid').forEach(el=>{
+    el.style.transition='transform .35s'; el.style.display='inline-block';
+  });
+  applyCxCPrivacy(true);
+}
 function renderCXC(){
   refreshCxCClientSelect();
   renderCxCAging();
@@ -4146,10 +4227,11 @@ function renderCXC(){
   const unpaid=S.cuentasCobrar.filter(x=>!cxcEstaResuelta(x)).reduce((s,x)=>s+cxcPending(x),0);
   const venc=S.cuentasCobrar.filter(x=>cxcSt(x)==='vencida').reduce((s,x)=>s+cxcPending(x),0);
   const paid=S.cuentasCobrar.filter(x=>x.estado==='pagada').reduce((s,x)=>s+x.amount,0);
-  document.getElementById('cxcTotal').textContent=fmt(tot);
-  document.getElementById('cxcPending').textContent=fmt(unpaid);
-  document.getElementById('cxcOverdue').textContent=fmt(venc);
-  document.getElementById('cxcPaid').textContent=fmt(paid);
+  document.getElementById('cxcTotal').dataset.real=fmt(tot);
+  document.getElementById('cxcPending').dataset.real=fmt(unpaid);
+  document.getElementById('cxcOverdue').dataset.real=fmt(venc);
+  document.getElementById('cxcPaid').dataset.real=fmt(paid);
+  applyCxCPrivacy(false); // pinta el valor real u oculto, según el estado actual — sin animar
   // Table
   const tbody=document.getElementById('cxc-tbody');
   const fs=document.getElementById('cxc-filter-status')?.value||'';
@@ -7639,7 +7721,7 @@ function renderEgresos(){
     const egrCatLabel = ({...EGR_CAT_LABELS,cxp:'Pago CxP',...Object.fromEntries((S.categoriasEgresos||[]).map(c=>[c.key,c.label]))})[x.categoria]||x.categoria||'—';
     const egrDesc = x.desc ? x.desc.replace(/^Egreso:\s*[^–]*–\s*/,'').trim()||x.desc : '—';
     const egrDescConFactura = x.numFactura ? `<strong style="color:#8899bb;">Fact. ${esc(x.numFactura)}</strong>${egrDesc!=='—'?' – '+esc(egrDesc):''}` : esc(egrDesc);
-    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td class="td-mono" style="color:#fdc901;">${x.itbis?fmt(x.itbis):'—'}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
+    return `<tr><td class="td-mono">${fmtDate(x.fecha)}</td><td>${esc(x.suplidorNombre)||'—'}</td><td><span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;">${esc(egrCatLabel)}</span></td><td style="max-width:180px;">${egrDescConFactura}</td><td>${methodBadge(x.metodo)}</td><td style="color:#8899bb;">${esc(acct)}</td><td class="td-mono negative" style="font-weight:600;">${fmt(x.monto)}</td><td class="td-mono" style="color:#fdc901;">${x.itbis?fmt(x.itbis):'—'}</td><td><span class="badge ${x.fuente==='cxp'?'badge-transfer':'badge-overdue'}">${x.fuente==='cxp'?'CxP':'Manual'}</span></td><td style="white-space:nowrap;"><button class="del-btn" onclick="cambiarCategoriaEgreso(${x.id})" title="Cambiar Categoría" style="color:#818cf8;">🏷️</button><button class="del-btn" title="${x.ref?'Ref: '+esc(x.ref):'Agregar Referencia'}" onclick="openEditRef('egreso',${x.id},'${escAttr(x.ref)}')">✏️</button>${x.fuente==='manual'?`<button class="del-btn" onclick="delEgreso(${x.id})">×</button>`:''}</td></tr>`;
   }).join(''):`<tr><td colspan="10"><div class="empty-state">Sin egresos que coincidan con la búsqueda.</div></td></tr>`;
 }
 
@@ -8473,7 +8555,10 @@ function renderReportDonut(){
   if(!entries.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
   const total=entries.reduce((s,[,v])=>s+v,0);
 
-  const R=70,CX=100,CY=100,STROKE=42,CIRC=2*Math.PI*R;
+  // 125% más grande que la versión original (viewBox 0 0 200 200 mostrado a 230px → 290px),
+  // con un poco de "volumen": sombra debajo del anillo + un brillo superior traslúcido, en vez
+  // de un anillo plano de un solo color liso.
+  const R=72,CX=100,CY=100,STROKE=44,CIRC=2*Math.PI*R;
   let acumulado=0;
   const arcos=entries.map(([label,val],i)=>{
     const pct=val/total;
@@ -8481,7 +8566,7 @@ function renderReportDonut(){
     const offset=-acumulado*CIRC;
     acumulado+=pct;
     const color=DONUT_COLORS[i%DONUT_COLORS.length];
-    return `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${STROKE}" stroke-dasharray="${largo.toFixed(2)} ${(CIRC-largo).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 ${CX} ${CY})"><title>${esc(label)}: ${fmt(val)} (${(pct*100).toFixed(1)}%)</title></circle>`;
+    return `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${STROKE}" stroke-dasharray="${largo.toFixed(2)} ${(CIRC-largo).toFixed(2)}" stroke-dashoffset="${offset.toFixed(2)}" transform="rotate(-90 ${CX} ${CY})" filter="url(#donutShadow)"><title>${esc(label)}: ${fmt(val)} (${(pct*100).toFixed(1)}%)</title></circle>`;
   }).join('');
 
   const leyenda=entries.map(([label,val],i)=>{
@@ -8500,9 +8585,22 @@ function renderReportDonut(){
     <div class="add-form" style="margin-bottom:0;">
       <h3>Distribución por Categoría</h3>
       <div style="display:flex;gap:32px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:12px;">
-        <svg viewBox="0 0 200 200" style="width:230px;height:230px;flex-shrink:0;">${arcos}
-          <text x="100" y="95" text-anchor="middle" fill="#e8eeff" font-size="15" font-family="Arial" letter-spacing="1">TOTAL</text>
-          <text x="100" y="118" text-anchor="middle" fill="#818cf8" font-size="15" font-weight="700" font-family="Arial">${fmt(total)}</text>
+        <svg viewBox="0 0 200 200" style="width:290px;height:290px;flex-shrink:0;">
+          <defs>
+            <filter id="donutShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#000" flood-opacity="0.45"/>
+            </filter>
+            <linearGradient id="donutGloss" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fff" stop-opacity="0.28"/>
+              <stop offset="45%" stop-color="#fff" stop-opacity="0.05"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.12"/>
+            </linearGradient>
+          </defs>
+          ${arcos}
+          <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="url(#donutGloss)" stroke-width="${STROKE}"></circle>
+          <circle cx="${CX}" cy="${CY}" r="${R-STROKE/2-4}" fill="#0a0e1f" opacity="0.55"></circle>
+          <text x="100" y="93" text-anchor="middle" fill="#8899bb" font-size="14" font-family="Arial" letter-spacing="1.5">TOTAL</text>
+          <text x="100" y="118" text-anchor="middle" fill="#a5b4fc" font-size="19" font-weight="800" font-family="Arial">${fmt(total)}</text>
         </svg>
         <div style="flex:1;min-width:260px;max-width:420px;">${leyenda}</div>
       </div>
