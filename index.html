@@ -4199,7 +4199,7 @@ const ICON_CAT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" st
 // "microtask", antes del siguiente repintado — no hay parpadeo del número real).
 const _privacyModules = {};
 function initPrivacyModule(key, containerEl, btnEl){
-  const state = _privacyModules[key] || (_privacyModules[key] = {on:false});
+  const state = _privacyModules[key] || (_privacyModules[key] = {on:true}); // oculto por defecto
   const iconSpan = btnEl.querySelector('.privacy-icon');
   // El observer se ata al contenedor UNA sola vez — el contenedor en sí sobrevive aunque su
   // contenido (innerHTML) se reconstruya en cada render, así que no hace falta reconectarlo.
