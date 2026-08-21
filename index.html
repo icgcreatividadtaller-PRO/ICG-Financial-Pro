@@ -906,21 +906,22 @@ input[type="month"]::-webkit-calendar-picker-indicator:hover {
     <div class="form-grid">
       <div class="form-group"><label>Fecha</label><input autocomplete="off" type="date" id="cc-date" onclick="cdpOpen(this,event)"></div>
       <div class="form-group"><label>Tipo</label>
-        <select id="cc-type"><option value="cargo">Cargo / Compra</option><option value="pago">Pago a tarjeta</option></select>
+        <select id="cc-type" onchange="onCCTypeChange(this)"><option value="cargo">Cargo / Compra</option><option value="pago">Pago a tarjeta</option></select>
       </div>
-      <div class="form-group"><label>Monto</label>
+      <div class="form-group" style="grid-column:span 2;"><label>Monto</label>
         <div style="display:flex;gap:6px;height:44px;">
-          <select id="cc-currency" style="width:80px;flex-shrink:0;height:44px;box-sizing:border-box;font-weight:600;color:#818cf8;">
+          <select id="cc-currency" style="width:90px;flex-shrink:0;height:44px;box-sizing:border-box;font-weight:600;color:#818cf8;">
             <option value="RD$">RD$</option>
             <option value="USD">US$</option>
           </select>
           <input autocomplete="off" type="text" inputmode="decimal" id="cc-amount" placeholder="0.00" min="0" step="0.01" style="flex:1;height:44px;box-sizing:border-box;" oninput="formatMontoInput(this)">
         </div>
       </div>
-      <div class="form-group"><label>Categoría</label>
+      <div class="form-group" style="grid-column:span 2;"><label>Categoría</label>
         <div style="display:flex;gap:6px;height:44px;">
           <select id="cc-cat" style="flex:1;height:44px;box-sizing:border-box;">
             <option value="">Sin categoría</option>
+            <option value="pago_tarjeta">Pago de Tarjeta</option>
             <option value="materiales">Materiales</option>
             <option value="nomina">Nómina & Salarios</option>
             <option value="alquiler">Alquiler</option>
@@ -3466,6 +3467,20 @@ function saveCCConfig(){
   updateCCCards(); renderTabs(); activateTab('cc');
 }
 
+// Cuando el Tipo pasa a "Pago a tarjeta", selecciona automáticamente esa categoría (un pago no
+// es un gasto real, así que no tiene sentido clasificarlo entre categorías de gasto normales —
+// pero tampoco queremos que se acumule como "Sin categoría", confuso al revisar el historial).
+// Si vuelve a "Cargo / Compra", restaura la categoría de gasto que tuviera seleccionada antes.
+let _ccCatAntesDelPago='';
+function onCCTypeChange(sel){
+  const catSel=document.getElementById('cc-cat'); if(!catSel) return;
+  if(sel.value==='pago'){
+    if(catSel.value!=='pago_tarjeta') _ccCatAntesDelPago=catSel.value;
+    catSel.value='pago_tarjeta';
+  } else {
+    if(catSel.value==='pago_tarjeta') catSel.value=_ccCatAntesDelPago||'';
+  }
+}
 function addCCTx(){
   const cc=S.creditCard;
   const date=document.getElementById('cc-date').value;
@@ -3497,7 +3512,7 @@ function addCCTx(){
   save(); updateCCCards(); renderCCTx();
   document.getElementById('cc-amount').value='';
   document.getElementById('cc-desc').value='';
-  const ccCatEl=document.getElementById('cc-cat');if(ccCatEl)ccCatEl.value='';
+  const ccCatEl=document.getElementById('cc-cat');if(ccCatEl)ccCatEl.value=(type==='pago')?'pago_tarjeta':'';
   const ccCurEl=document.getElementById('cc-currency');if(ccCurEl)ccCurEl.value='RD$';
   notify('success',type==='cargo'?'Cargo Registrado':'Pago Registrado',
     `${currency==='USD'?'US$':'RD$'}${amount.toFixed(2)} — ${desc}`);
