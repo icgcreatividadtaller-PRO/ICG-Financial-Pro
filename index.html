@@ -8723,11 +8723,19 @@ function renderPlanCuentas(){
   }).join('');
   document.getElementById('planCuentasTree').innerHTML=treeHtml;
 
-  // Mapeo de categorías de Ingresos
+  // Mapeo de categorías de Ingresos — hoy solo existe UNA cuenta de tipo Ingreso ("4010"), así
+  // que no hay nada real que elegir. En vez de un desplegable engañoso (que se ve igual abierto
+  // o cerrado), se muestra como texto fijo — si algún día se agregan más cuentas de Ingresos,
+  // vuelve a mostrarse como desplegable real automáticamente.
+  const ingLeaf=leafAccounts('ingreso');
   document.getElementById('mapIngresosBody').innerHTML=getAllIngCats().map(c=>{
     const code=getCuentaCodigo('ingresos',c.key);
-    const opts=leafAccounts('ingreso').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
-    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('ingresos','${c.key}',this.value)">${opts}</select></td></tr>`;
+    if(ingLeaf.length<=1){
+      const a=ingLeaf[0];
+      return `<tr><td>${c.label}</td><td><span style="display:inline-block;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:#8899bb;font-size:15px;padding:9px 13px;">${a?esc(a.code+' - '+a.nombre):'—'}</span></td></tr>`;
+    }
+    const opts=ingLeaf.map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
+    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('ingresos','${c.key}',this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:15px;padding:9px 13px;outline:none;">${opts}</select></td></tr>`;
   }).join('');
 
   // Mapeo de categorías de Egresos
@@ -8735,7 +8743,7 @@ function renderPlanCuentas(){
     const code=getCuentaCodigo('egresos',c.key);
     const fija=!!CUENTAS_FIJAS[c.key];
     const opts=leafAccounts('gasto').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
-    return `<tr><td>${c.label}${fija?' <span style="color:#818cf8;font-size:15px;">(fija)</span>':''}</td><td><select ${fija?'disabled':''} onchange="setCuentaCodigo('egresos','${c.key}',this.value)">${opts}</select></td></tr>`;
+    return `<tr><td>${c.label}${fija?' <span style="color:#818cf8;font-size:15px;">(fija)</span>':''}</td><td><select ${fija?'disabled':''} onchange="setCuentaCodigo('egresos','${c.key}',this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:15px;padding:9px 13px;outline:none;${fija?'opacity:.4;cursor:not-allowed;':''}">${opts}</select></td></tr>`;
   }).join('');
 
   // Mapeo de categorías de Tarjeta
@@ -8743,7 +8751,7 @@ function renderPlanCuentas(){
   document.getElementById('mapTarjetaBody').innerHTML=tarjetaCats.length?tarjetaCats.map(c=>{
     const code=getCuentaCodigo('tarjeta',c.key);
     const opts=leafAccounts('gasto').map(a=>`<option value="${a.code}" ${a.code===code?'selected':''}>${a.code} - ${a.nombre}</option>`).join('');
-    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('tarjeta','${c.key}',this.value)">${opts}</select></td></tr>`;
+    return `<tr><td>${c.label}</td><td><select onchange="setCuentaCodigo('tarjeta','${c.key}',this.value)" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:15px;padding:9px 13px;outline:none;">${opts}</select></td></tr>`;
   }).join(''):`<tr><td colspan="2"><div class="empty-state">Sin categorías de tarjeta creadas todavía.</div></td></tr>`;
 }
 
